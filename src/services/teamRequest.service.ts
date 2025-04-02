@@ -15,7 +15,7 @@ class TeamRequestService {
   async getTeamRequestsByHackathonAndUser(
     hackathonId: string,
     memberId: string
-  ): Promise<Partial<TeamRequest>[]> {
+  ): Promise<TeamRequest[]> {
     try {
       const response = await apiService.auth.get<Partial<TeamRequest>[]>(
         `/hackathon-service/api/v1/teams/requests?memberId=${memberId}&hackathonId=${hackathonId}`

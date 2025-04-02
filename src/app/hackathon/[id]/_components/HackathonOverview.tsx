@@ -17,6 +17,11 @@ import { MentorshipRequest } from "@/types/entities/mentorshipRequest";
 import { MentorshipSessionRequest } from "@/types/entities/mentorshipSessionRequest";
 import EnrollmentModal from "./EnrollmentModal";
 import MentorshipModal from "./MentorshipModal";
+import { individualRegistrationRequestService } from "@/services/individualRegistrationRequest.service";
+import { teamRequestService } from "@/services/teamRequest.service";
+import { teamService } from "@/services/team.service";
+import { mentorshipRequestService } from "@/services/mentorshipRequest.service";
+import { mentorshipSessionRequestService } from "@/services/mentorshipSessionRequest.service";
 
 type HackathonOverviewProps = {
   id: string;
@@ -63,7 +68,7 @@ export default function HackathonOverview({
     const fetchData = async () => {
       const [indivRegs, teamReqs, userTeams] = await Promise.all([
         fetchMockIndividualRegistrations(user.id, id),
-        fetchMockTeamRequests(user.id, id),
+        teamRequestService.getTeamRequestsByHackathonAndUser(id, user.id),
         fetchMockTeams(user.id, id),
       ]);
 

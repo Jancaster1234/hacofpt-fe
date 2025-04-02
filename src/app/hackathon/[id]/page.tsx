@@ -41,13 +41,20 @@ export default function HackathonDetail({ params }: HackathonProps) {
   useEffect(() => {
     async function fetchHackathon() {
       const data = await hackathonService.getHackathonById(id);
-      setHackathon(data);
+
+      // ✅ Ensure we're setting the first object if it's an array
+      if (Array.isArray(data) && data.length > 0) {
+        setHackathon(data[0]);
+      } else {
+        setHackathon(data); // Fallback in case data is an object
+      }
     }
+
     fetchHackathon();
   }, [id]);
 
   if (!hackathon) return <p>Loading...</p>;
-
+  console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹Hackathon data:", hackathon); // Debugging line
   return (
     <div className="container mx-auto p-4 sm:p-6">
       <HackathonBanner
