@@ -2,25 +2,25 @@
 import { apiService } from "@/services/apiService_v0";
 import { Hackathon } from "@/types/entities/hackathon";
 
-type HackathonPayload = {
-  id?: string;
-  title: string;
-  subtitle: string;
-  bannerImageUrl: string;
-  enrollStartDate: string;
-  enrollEndDate: string;
-  enrollmentCount: number;
-  startDate: string;
-  endDate: string;
-  information: string;
-  description: string;
-  contact: string;
-  category: string;
-  organization: string;
-  status: "DRAFT" | "OPEN" | "ONGOING" | "CLOSED";
-  minimumTeamMembers: number;
-  maximumTeamMembers: number;
-};
+// type HackathonPayload = {
+//   id?: string;
+//   title: string;
+//   subtitle: string;
+//   bannerImageUrl: string;
+//   enrollStartDate: string;
+//   enrollEndDate: string;
+//   enrollmentCount: number;
+//   startDate: string;
+//   endDate: string;
+//   information: string;
+//   description: string;
+//   contact: string;
+//   category: string;
+//   organization: string;
+//   status: "DRAFT" | "OPEN" | "ONGOING" | "CLOSED";
+//   minimumTeamMembers: number;
+//   maximumTeamMembers: number;
+// };
 
 class HackathonService {
   async getAllHackathons(): Promise<Partial<Hackathon>[]> {
@@ -47,7 +47,7 @@ class HackathonService {
     }
   }
 
-  async createHackathon(data: HackathonPayload): Promise<Hackathon> {
+  async createHackathon(data): Promise<Hackathon> {
     try {
       const response = await apiService.auth.post<Hackathon>(
         "/hackathon-service/api/v1/hackathons",
@@ -60,7 +60,7 @@ class HackathonService {
     }
   }
 
-  async updateHackathon(data: HackathonPayload): Promise<Hackathon> {
+  async updateHackathon(data): Promise<Hackathon> {
     try {
       const response = await apiService.auth.put<Hackathon>(
         "/hackathon-service/api/v1/hackathons",
