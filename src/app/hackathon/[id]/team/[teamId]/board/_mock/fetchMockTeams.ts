@@ -6,7 +6,7 @@ export const fetchMockTeams = (teamId?: string): Promise<Team[]> => {
     setTimeout(() => {
       const mockTeams: Team[] = [
         {
-          id: "team1",
+          id: "1",
           name: "Team Alpha",
           teamLeader: {
             id: "user123",

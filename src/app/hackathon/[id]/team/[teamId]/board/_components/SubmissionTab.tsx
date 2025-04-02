@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Submission } from "@/types/entities/submission";
-
+import { submissionService } from "@/services/submission.service";
 interface Props {
   round: string;
   roundId: string;
@@ -113,11 +113,16 @@ export default function SubmissionTab({
         formData.append(`files[${index}]`, file);
       });
 
-      // Simulate API call
-      const mockSubmission = await simulateSubmissionApi(formData);
+      // Call API to upload submission
+      const submission = await submissionService.createSubmissionWithFiles(
+        selectedFiles,
+        roundId,
+        teamId,
+        "SUBMITTED"
+      );
 
       // Update UI with the response
-      onSubmissionComplete(mockSubmission);
+      onSubmissionComplete(submission);
       setSelectedFiles([]);
     } catch (error) {
       console.error("Error submitting files:", error);

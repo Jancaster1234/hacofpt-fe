@@ -2,15 +2,15 @@
 import { apiService } from "@/services/apiService_v0";
 import { User } from "@/types/entities/user";
 
-type UserPayload = {
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  userRoles: {
-    roleId: string;
-  }[];
-};
+// type UserPayload = {
+//   username: string;
+//   password: string;
+//   firstName: string;
+//   lastName: string;
+//   userRoles: {
+//     roleId: string;
+//   }[];
+// };
 
 class UserService {
   async getUserById(userId: string): Promise<Partial<User>> {
@@ -25,9 +25,9 @@ class UserService {
     }
   }
 
-  async getAllUsers(): Promise<Partial<User>[]> {
+  async getAllUsers(): Promise<User[]> {
     try {
-      const response = await apiService.auth.get<Partial<User>[]>(
+      const response = await apiService.auth.get<User[]>(
         "/identity-service/api/v1/users"
       );
       return response.data;

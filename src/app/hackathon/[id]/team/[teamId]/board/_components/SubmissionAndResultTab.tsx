@@ -8,7 +8,8 @@ import RewardListTab from "./RewardListTab";
 import { Round } from "@/types/entities/round";
 import { Submission } from "@/types/entities/submission";
 import { fetchMockSubmissions } from "../_mock/fetchMockSubmissions";
-
+import { submissionService } from "@/services/submission.service";
+import { useAuth } from "@/hooks/useAuth_v0";
 interface Props {
   rounds: Round[];
   loading: boolean;
@@ -22,6 +23,7 @@ export default function SubmissionAndResultTab({
   hackathonId,
   teamId, // Make sure this prop is passed from the parent component
 }: Props) {
+  const { user } = useAuth();
   const roundTabs = rounds.map((round) => round.roundTitle);
   const [activeRoundTab, setActiveRoundTab] = useState(roundTabs[0] || "");
   const [activeSubTab, setActiveSubTab] = useState("Submission");
@@ -39,11 +41,18 @@ export default function SubmissionAndResultTab({
     const loadSubmissions = async () => {
       if (!activeRoundTab) return;
       setSubmissionsLoading(true);
-      const mockData = await fetchMockSubmissions(roundId, "Current User");
-      setSubmissions(mockData);
+      try {
+        const fetchedSubmissions =
+          await submissionService.getSubmissionsByRoundAndCreator(
+            roundId,
+            user.id
+          );
+        setSubmissions(fetchedSubmissions as Submission[]);
+      } catch (error) {
+        console.error("Failed to fetch submissions", error);
+      }
       setSubmissionsLoading(false);
     };
-
     loadSubmissions();
   }, [activeRoundTab, roundId]);
 

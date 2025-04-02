@@ -3,6 +3,8 @@ import { TeamRequest } from "@/types/entities/teamRequest";
 import { useState, useEffect } from "react";
 import { Trash2, X, Plus } from "lucide-react";
 import { fetchMockUsers } from "../_mock/fetchMockUsers";
+import { teamRequestService } from "@/services/teamRequest.service";
+import { userService } from "@/services/user.service";
 
 type TeamRequestsTabProps = {
   teamRequests: TeamRequest[];
@@ -33,17 +35,26 @@ export default function TeamRequestsTab({
     if (searchTerm.length > 2) {
       setIsSearching(true);
       // Simulate API call to search users
-      fetchMockUsers().then((users) => {
-        const filteredUsers = users.filter(
-          (u) =>
-            u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            `${u.firstName} ${u.lastName}`
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())
-        );
-        setSearchResults(filteredUsers);
-        setIsSearching(false);
-      });
+
+      userService
+        .getTeamMembers()
+        .then((users) => {
+          const filteredUsers = users.filter(
+            (u) =>
+              u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              `${u.firstName} ${u.lastName}`
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
+          );
+          setSearchResults(filteredUsers);
+        })
+        .catch((error) => {
+          console.error("Error fetching team members:", error);
+          setSearchResults([]); // Clear results in case of error
+        })
+        .finally(() => {
+          setIsSearching(false);
+        });
     } else {
       setSearchResults([]);
     }
@@ -125,7 +136,8 @@ export default function TeamRequestsTab({
       console.log("Creating team request with data:", requestBody);
 
       // Simulate successful creation
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const newTeamRequest =
+        await teamRequestService.createTeamRequest(requestBody);
 
       alert("Team request created successfully!");
       // Reset form

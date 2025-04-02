@@ -2,14 +2,14 @@
 import { apiService } from "@/services/apiService_v0";
 import { TeamRequest } from "@/types/entities/teamRequest";
 
-type TeamRequestPayload = {
-  hackathonId: string;
-  name: string;
-  note: string;
-  teamRequestMembers: {
-    userId: string;
-  }[];
-};
+// type TeamRequestPayload = {
+//   hackathonId: string;
+//   name: string;
+//   note: string;
+//   teamRequestMembers: {
+//     userId: string;
+//   }[];
+// };
 
 class TeamRequestService {
   async getTeamRequestsByHackathonAndUser(
@@ -58,7 +58,7 @@ class TeamRequestService {
     }
   }
 
-  async createTeamRequest(data: TeamRequestPayload): Promise<TeamRequest> {
+  async createTeamRequest(data): Promise<TeamRequest> {
     try {
       const response = await apiService.auth.post<TeamRequest>(
         "/hackathon-service/api/v1/teams/requests",
