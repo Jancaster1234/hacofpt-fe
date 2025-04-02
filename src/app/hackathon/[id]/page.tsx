@@ -7,6 +7,7 @@ import HackathonBanner from "./_components/HackathonBanner";
 import HackathonTabs from "./_components/HackathonTabs";
 import HackathonOverview from "./_components/HackathonOverview";
 import { Hackathon } from "@/types/entities/hackathon"; // Import type
+import { HackathonService } from "@/services/hackathon.service"; // Import service
 
 type HackathonProps = {
   params: { id: string }; //Keep this to access the dynamic route param
