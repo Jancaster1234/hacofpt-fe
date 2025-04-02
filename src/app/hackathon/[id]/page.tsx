@@ -8,9 +8,10 @@ import HackathonTabs from "./_components/HackathonTabs";
 import HackathonOverview from "./_components/HackathonOverview";
 import { Hackathon } from "@/types/entities/hackathon"; // Import type
 import { hackathonService } from "@/services/hackathon.service";
+import { useEffect, useState, use } from "react";
 
 type HackathonProps = {
-  params: { id: string }; //Keep this to access the dynamic route param
+  params: Promise<{ id: string }>;
 };
 
 // TODO: [Lv1] check if memoization is enabled by default, without the need of enable force-cache
@@ -33,10 +34,20 @@ type HackathonProps = {
 //   };
 // }
 
-export default async function HackathonDetail({ params }: HackathonProps) {
-  // Await the params object
-  const id = (await params).id;
-  const hackathon = await hackathonService.getHackathonById(id);
+export default function HackathonDetail({ params }: HackathonProps) {
+  const { id } = use(params);
+  const [hackathon, setHackathon] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchHackathon() {
+      const data = await hackathonService.getHackathonById(id);
+      setHackathon(data);
+    }
+    fetchHackathon();
+  }, [id]);
+
+  if (!hackathon) return <p>Loading...</p>;
+
   return (
     <div className="container mx-auto p-4 sm:p-6">
       <HackathonBanner
