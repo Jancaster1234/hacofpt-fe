@@ -11,7 +11,7 @@ class AuthService_v0 {
     const response = await apiService.auth.get<User>(
       "/identity-service/api/v1/users/my-info"
     );
-    return response.result;
+    return response.data;
   }
 
   async login(username: string, password: string): Promise<AuthResponse> {
@@ -22,7 +22,7 @@ class AuthService_v0 {
         password,
       }
     );
-    return response.result;
+    return response.data;
   }
 
   async logout(token: string): Promise<void> {
