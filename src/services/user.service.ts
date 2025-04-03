@@ -18,7 +18,7 @@ class UserService {
       const response = await apiService.auth.get<Partial<User>>(
         `/identity-service/api/v1/users/${userId}`
       );
-      return response.data;
+      return response.data || [];
     } catch (error) {
       console.error("Error fetching user by ID:", error);
       throw error;
@@ -30,7 +30,7 @@ class UserService {
       const response = await apiService.auth.get<Partial<User>[]>(
         "/identity-service/api/v1/users"
       );
-      return response.data;
+      return response.data || [];
     } catch (error) {
       console.error("Error fetching all users:", error);
       throw error;
@@ -42,7 +42,7 @@ class UserService {
       const response = await apiService.auth.get<Partial<User>[]>(
         "/identity-service/api/v1/users/users-by-roles"
       );
-      return response.data;
+      return response.data || [];
     } catch (error) {
       console.error("Error fetching users by roles:", error);
       throw error;
@@ -54,7 +54,7 @@ class UserService {
       const response = await apiService.auth.get<Partial<User>[]>(
         "/identity-service/api/v1/users/team-members"
       );
-      return response.data;
+      return response.data || [];
     } catch (error) {
       console.error("Error fetching team members:", error);
       throw error;
@@ -66,7 +66,7 @@ class UserService {
       const response = await apiService.auth.get<Partial<User>>(
         `/identity-service/api/v1/users/username/${username}`
       );
-      return response.data;
+      return response.data || [];
     } catch (error) {
       console.error("Error fetching user by username:", error);
       throw error;
@@ -80,7 +80,7 @@ class UserService {
       const response = await apiService.auth.get<Partial<User>[]>(
         `/identity-service/api/v1/users/users-by-created-by/${createdUserName}`
       );
-      return response.data;
+      return response.data || [] || [];
     } catch (error) {
       console.error("Error fetching users by createdUserName:", error);
       throw error;
@@ -92,7 +92,7 @@ class UserService {
       const response = await apiService.auth.get<User>(
         `/identity-service/api/v1/users/my-info`
       );
-      return response.data;
+      return response.data || [];
     } catch (error) {
       console.error("Error fetching current user info:", error);
       throw error;
@@ -105,7 +105,7 @@ class UserService {
         "/identity-service/api/v1/users",
         data
       );
-      return response.data;
+      return response.data || [];
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
@@ -118,7 +118,7 @@ class UserService {
         `/identity-service/api/v1/users/${userId}`,
         data
       );
-      return response.data;
+      return response.data || [];
     } catch (error) {
       console.error("Error updating user:", error);
       throw error;

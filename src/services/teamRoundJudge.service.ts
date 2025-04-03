@@ -47,6 +47,18 @@ class TeamRoundJudgeService {
       throw error;
     }
   }
+
+  async deleteTeamRoundJudge(teamRoundId: string, judgeId: string): Promise<void> {
+    try {
+      await apiService.auth.delete<void>(
+        `/submission-service/api/v1/teamroundjudges/by-team-round-judge?teamRoundId=${teamRoundId}&judgeId=${judgeId}`
+      );
+      console.log("TeamRoundJudge deleted successfully");
+    } catch (error) {
+      console.error("Error deleting TeamRoundJudge:", error);
+      throw error;
+    }
+  }
 }
 
 export const teamRoundJudgeService = new TeamRoundJudgeService();
