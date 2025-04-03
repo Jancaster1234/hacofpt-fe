@@ -3,6 +3,7 @@ import { apiService } from "@/services/apiService_v0";
 import { MentorshipSessionRequest } from "@/types/entities/mentorshipSessionRequest";
 
 type MentorshipSessionRequestPayload = {
+  id? : string,
   mentorTeamId: string;
   startTime: string;
   endTime: string;
@@ -19,12 +20,27 @@ class MentorshipSessionRequestService {
   ): Promise<MentorshipSessionRequest> {
     try {
       const response = await apiService.auth.post<MentorshipSessionRequest>(
-        "/hackathon-service/api/v1/mentors/sessions/request",
+        "/hackathon-service/api/v1/mentors/sessions",
         data
       );
       return response.data;
     } catch (error) {
       console.error("Error creating Mentorship Session Request:", error);
+      throw error;
+    }
+  }
+
+  async updateMentorshipSessionRequest(
+    data: MentorshipSessionRequestPayload
+  ): Promise<MentorshipSessionRequest> {
+    try {
+      const response = await apiService.auth.put<MentorshipSessionRequest>(
+        `/hackathon-service/api/v1/mentorship/sessions`,
+        data 
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating Mentorship Session Request:", error);
       throw error;
     }
   }
