@@ -67,6 +67,28 @@ class MentorshipRequestService {
     }
   }
   
+  async deleteMentorshipRequest(id: string): Promise<MentorshipRequest> {
+    try {
+      const response = await fetch("/hackathon-service/api/v1/mentorship", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json", 
+        },
+        body: JSON.stringify({
+          data: { id: id },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete mentorship: ${response.statusText}`);
+      }
+
+      return await response.json(); // Trả về kết quả từ API
+    } catch (error) {
+      console.error("Error deleting mentorship:", error);
+      throw error;
+    }
+  }
 }
 
 export const mentorshipRequestService = new MentorshipRequestService();
