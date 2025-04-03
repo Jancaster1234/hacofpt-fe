@@ -11,6 +11,12 @@ type TeamRequestPayload = {
   }[];
 };
 
+type TeamRequestReviewPayload = {
+  requestId: string;
+  status: "APPROVED" | "REJECTED";
+  note: string;
+};
+
 class TeamRequestService {
   async getTeamRequestsByHackathonAndUser(
     hackathonId: string,
@@ -67,6 +73,19 @@ class TeamRequestService {
       return response.data;
     } catch (error) {
       console.error("Error creating TeamRequest:", error);
+      throw error;
+    }
+  }
+
+  async reviewTeamRequest(data: TeamRequestReviewPayload): Promise<TeamRequest> {
+    try {
+      const response = await apiService.auth.post<TeamRequest>(
+        "/hackathon-service/api/v1/teams/requests/review",
+        { data }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error reviewing TeamRequest:", error);
       throw error;
     }
   }
