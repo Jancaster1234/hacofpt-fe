@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Submission } from "@/types/entities/submission";
 import { submissionService } from "@/services/submission.service";
+import { tokenService_v0 } from "@/services/token.service_v0";
 interface Props {
   round: string;
   roundId: string;
@@ -32,7 +33,7 @@ export default function SubmissionTab({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const existingSubmission = submissions.find(
-    (sub) => sub.status === "SUBMITTED"
+    (sub) => sub.status === "CONFIRMED"
   );
   const isRoundActive = (): boolean => {
     const now = Date.now();
@@ -103,25 +104,33 @@ export default function SubmissionTab({
     try {
       setIsSubmitting(true);
 
-      // Create FormData for file upload
       const formData = new FormData();
-      formData.append("roundId", roundId);
-      formData.append("teamId", teamId);
-      formData.append("status", "SUBMITTED");
+      formData.append("roundId", "1");
+      formData.append("teamId", "1");
+      formData.append("status", "CONFIRMED");
 
-      selectedFiles.forEach((file, index) => {
-        formData.append(`files[${index}]`, file);
+      selectedFiles.forEach((file) => {
+        formData.append("files", file);
       });
 
-      // Call API to upload submission
-      const submission = await submissionService.createSubmissionWithFiles(
-        selectedFiles,
-        roundId,
-        teamId,
-        "SUBMITTED"
+      const accessToken = tokenService_v0.getAccessToken();
+      console.log("🔹 accessToken:", accessToken);
+
+      const response = await fetch(
+        "http://localhost:9191/submission-service/api/v1/submissions",
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
       );
 
-      // Update UI with the response
+      if (!response.ok) throw new Error("Failed to submit");
+
+      const data = await response.json();
+      const submission = data.data;
       onSubmissionComplete(submission);
       setSelectedFiles([]);
     } catch (error) {

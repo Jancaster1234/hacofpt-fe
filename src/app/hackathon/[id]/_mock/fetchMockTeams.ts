@@ -9,7 +9,7 @@ export const fetchMockTeams = (
     setTimeout(() => {
       const mockTeams: Team[] = [
         {
-          id: "team1",
+          id: "1",
           name: "Team Alpha",
           teamLeader: {
             id: "user123",
@@ -81,7 +81,7 @@ export const fetchMockTeams = (
           updatedAt: new Date().toISOString(),
         },
         {
-          id: "team2",
+          id: "2",
           name: "Team Beta",
           teamLeader: {
             id: "user789",

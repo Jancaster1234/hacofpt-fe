@@ -2,13 +2,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import { User } from "@/types/entities/user";
 import InformationTab from "@/app/profile/_components/InformationTab";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import HackathonParticipatedTab from "@/app/profile/_components/HackathonParticipatedTab";
 import AwardTab from "@/app/profile/_components/AwardTab";
-
+import { userService } from "@/services/user.service";
+import { useEffect, useState } from "react";
 const userMock: User = {
   id: "1",
   firstName: "Phan Thanh Phuc",
@@ -131,7 +131,38 @@ const userMock: User = {
 };
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<User>(userMock);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userId = "1"; // Replace with dynamic user ID from auth or route params
+        const userData = await userService.getUserById(userId);
+        setUser(userData);
+      } catch (err) {
+        setError("Failed to load user profile.");
+        console.error("Error fetching user:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center mt-6">Loading profile...</p>;
+  }
+
+  if (error || !user) {
+    return (
+      <p className="text-center text-red-500 mt-6">
+        {error || "User not found"}
+      </p>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6">

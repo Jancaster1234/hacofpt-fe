@@ -13,9 +13,9 @@ import { User } from "@/types/entities/user";
 // };
 
 class UserService {
-  async getUserById(userId: string): Promise<Partial<User>> {
+  async getUserById(userId: string): Promise<User> {
     try {
-      const response = await apiService.auth.get<Partial<User>>(
+      const response = await apiService.auth.get<User>(
         `/identity-service/api/v1/users/${userId}`
       );
       return response.data;

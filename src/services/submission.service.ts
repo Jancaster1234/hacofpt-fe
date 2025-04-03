@@ -4,7 +4,10 @@ import { Submission } from "@/types/entities/submission";
 import { tokenService_v0 } from "@/services/token.service_v0";
 
 class SubmissionService {
-  async getSubmissionsByRoundAndCreator(roundId: string, createdByUsername: string): Promise<Partial<Submission>[]> {
+  async getSubmissionsByRoundAndCreator(
+    roundId: string,
+    createdByUsername: string
+  ): Promise<Partial<Submission>[]> {
     try {
       const response = await apiService.auth.get<Partial<Submission>[]>(
         `/submission-service/api/v1/submissions/by-round-created?roundId=${roundId}&createdByUsername=${createdByUsername}`
@@ -16,7 +19,33 @@ class SubmissionService {
     }
   }
 
-  async getSubmissionsByTeamAndRound(teamId: string, roundId: string): Promise<Partial<Submission>[]> {
+  async createSubmission(
+    roundId: string,
+    teamId: string,
+    status: string,
+    files: File[]
+  ) {
+    const formData = new FormData();
+    formData.append("roundId", roundId.toString());
+    formData.append("teamId", teamId.toString());
+    formData.append("status", status);
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    const response = await apiService.auth.post<>(
+      "/submission-service/api/v1/submissions",
+      formData
+    );
+
+    return response.data;
+  }
+
+  async getSubmissionsByTeamAndRound(
+    teamId: string,
+    roundId: string
+  ): Promise<Partial<Submission>[]> {
     try {
       const response = await apiService.auth.get<Partial<Submission>[]>(
         `/submission-service/api/v1/submissions/by-team-round?teamId=${teamId}&roundId=${roundId}`
