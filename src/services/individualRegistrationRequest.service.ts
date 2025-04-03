@@ -65,6 +65,27 @@ class IndividualRegistrationRequestService {
       throw error;
     }
   }
+
+  async deleteIndividualRegistration(id: string): Promise<IndividualRegistrationRequest> {
+    try {
+      const response = await fetch("/api/v1/individuals", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data: { id } }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error deleting individual registration:", error);
+      throw error;
+    }
+  }
+  
 }
 
 export const individualRegistrationRequestService =
