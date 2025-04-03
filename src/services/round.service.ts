@@ -51,6 +51,28 @@ class RoundService {
       throw error;
     }
   }
+
+  async deleteRound(id: string): Promise<void> {
+    try {
+      const requestData = {
+        id: id
+      };
+
+      const response = await fetch("/hackathon-service/api/v1/rounds", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json", 
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete round: ${response.statusText}`);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export const roundService = new RoundService();

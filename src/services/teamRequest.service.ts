@@ -77,7 +77,9 @@ class TeamRequestService {
     }
   }
 
-  async reviewTeamRequest(data: TeamRequestReviewPayload): Promise<TeamRequest> {
+  async reviewTeamRequest(
+    data: TeamRequestReviewPayload
+  ): Promise<TeamRequest> {
     try {
       const response = await apiService.auth.post<TeamRequest>(
         "/hackathon-service/api/v1/teams/requests/review",
@@ -98,10 +100,10 @@ class TeamRequestService {
       if (!response.ok) {
         throw new Error("Failed to delete team request.");
       }
-
     } catch (error) {
       throw error;
     }
+  }
 }
 
 export const teamRequestService = new TeamRequestService();
