@@ -89,6 +89,19 @@ class TeamRequestService {
       throw error;
     }
   }
+
+  async deleteTeamRequest(id: string): Promise<void> {
+    try {
+      const response = await apiService.auth.delete<TeamRequest>(
+        `/hackathon-service/api/v1/teams/requests/${id}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to delete team request.");
+      }
+
+    } catch (error) {
+      throw error;
+    }
 }
 
 export const teamRequestService = new TeamRequestService();
