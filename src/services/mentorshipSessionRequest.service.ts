@@ -40,6 +40,31 @@ class MentorshipSessionRequestService {
       throw error;
     }
   }
+
+  async deleteMentorshipRequestSession(id: string): Promise<MentorshipSessionRequest> {
+    try {
+      const requestData = {
+        data: id,
+      };
+
+      const response = await fetch("/hackathon-service/api/v1/mentorship/sessions", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete mentorship session: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error deleting mentorship session:", error);
+      throw error;
+    }
+  }
 }
 
 export const mentorshipSessionRequestService =
