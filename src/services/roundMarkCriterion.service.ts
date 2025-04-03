@@ -40,6 +40,16 @@ class RoundMarkCriterionService {
       throw error;
     }
   }
+
+  async deleteRoundMarkCriterion(id: string): Promise<void> {
+    try {
+      await apiService.auth.delete<void>(`/submission-service/api/v1/roundmarkcriteria/${id}`);
+      console.log("RoundMarkCriterion deleted successfully");
+    } catch (error) {
+      console.error("Error deleting RoundMarkCriterion:", error);
+      throw error;
+    }
+  }
 }
 
 export const roundMarkCriterionService = new RoundMarkCriterionService();
