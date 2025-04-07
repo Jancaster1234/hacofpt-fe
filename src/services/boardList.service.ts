@@ -8,6 +8,10 @@ type BoardListPayload = {
     boardId: string;
   };
 
+  type BoardListUpdatePayload = {
+    id: string;
+    position: number;
+  };  
 class BoardListService {
 
   // Create a new Board List
@@ -60,6 +64,19 @@ class BoardListService {
       await apiService.auth.delete<void>(`/communication-service/api/v1/board-lists/${id}`);
     } catch (error) {
       console.error("Error deleting board list:", error);
+      throw error;
+    }
+  }
+
+  async bulkUpdateBoardLists(data: BoardListUpdatePayload[]): Promise<BoardList[]> {
+    try {
+      const response = await apiService.auth.put<BoardList[]>(
+        "/communication-service/api/v1/board-lists/bulk-update",
+        data
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error bulk updating board lists:", error);
       throw error;
     }
   }

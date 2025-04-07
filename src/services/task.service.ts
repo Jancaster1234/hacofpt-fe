@@ -12,6 +12,11 @@ type TaskPayload = {
   taskLabels: string[]; // list of task label ids
 };
 
+type TaskUpdatePayload = {
+  id: string;
+  boardListId: string;
+  position: number;
+};
 class TaskService {
 
   // Create a new Task
@@ -64,6 +69,19 @@ class TaskService {
       return response.data;
     } catch (error) {
       console.error("Error fetching all Tasks:", error);
+      throw error;
+    }
+  }
+
+  async bulkUpdateTasks(data: TaskUpdatePayload[]): Promise<Task[]> {
+    try {
+      const response = await apiService.auth.put<Task[]>(
+        "/communication-service/api/v1/tasks/bulk-update",
+        data
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error bulk updating tasks:", error);
       throw error;
     }
   }
