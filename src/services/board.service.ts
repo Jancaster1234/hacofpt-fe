@@ -65,6 +65,18 @@ class BoardService {
       throw error;
     }
   }
+
+  async getBoardsByTeamAndHackathon(teamId: string, hackathonId: string): Promise<Board[]> {
+    try {
+      const response = await apiService.auth.get<Board[]>(
+        `/communication-service/api/v1/boards/by-team-and-hackathon?teamId=${teamId}&hackathonId=${hackathonId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching boards by team and hackathon:", error);
+      throw error;
+    }
+  }
 }
 
 export const boardService = new BoardService();
