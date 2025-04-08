@@ -98,5 +98,45 @@ class FileUrlService {
       throw error;
     }
   }
+
+  // Get file URLs by device ID
+  async getFileUrlsByDeviceId(deviceId: string): Promise<FileUrl[]> {
+    try {
+      const response = await fetch(`/identity-service/api/v1/devices/${deviceId}/file-urls`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokenService_v0.getAccessToken()}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file URLs for device: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching file URLs by device ID:", error);
+      throw error;
+    }
+  }
+
+  // Get a file URL by each ID
+  async getFileUrlById(id: string): Promise<FileUrl> {
+    try {
+      const response = await fetch(`/identity-service/api/v1/devices/file-urls/${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokenService_v0.getAccessToken()}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file URL by ID: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching file URL by ID:", error);
+      throw error;
+    }
+  }
 }
 export const fileUrlService = new FileUrlService();
