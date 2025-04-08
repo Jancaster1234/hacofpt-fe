@@ -86,6 +86,17 @@ class IndividualRegistrationRequestService {
     }
   }
   
+  async getByHackathonId(hackathonId: string): Promise<IndividualRegistrationRequest[]> {
+    try {
+      const response = await apiService.auth.get<IndividualRegistrationRequest[]>(
+        `/hackathon-service/api/v1/individuals/filter-by-hackathon?hackathonId=${hackathonId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching individual registration requests by hackathonId:", error);
+      throw error;
+    }
+  }
 }
 
 export const individualRegistrationRequestService =
