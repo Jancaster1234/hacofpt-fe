@@ -4,6 +4,7 @@ import { Schedule } from "@/types/entities/schedule";
 
 type ScheduleRequestPayload = {
   teamId: string;
+  hackathonId: string;
   name: string;
   description: string;
 };

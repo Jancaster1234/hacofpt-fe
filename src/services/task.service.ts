@@ -2,17 +2,24 @@ import { apiService } from "@/services/apiService_v0";
 import { Task } from "@/types/entities/task"; // Assuming Task is your entity
 
 type TaskPayload = {
-  title: string;
-  description: string;
-  position: number;
-  boardListId: string;
-  dueDate: string;
-  assignees: string[]; // list of assignee ids
-  comments: string[];  // list of comment ids
-  taskLabels: string[]; // list of task label ids
+  title: string;          
+  description: string;     
+  position: number;        
+  boardListId: string;   
+  dueDate: string;     
+  fileUrls: string[]; 
 };
 
 type TaskUpdatePayload = {
+  title: string;          
+  description: string;     
+  position: number;        
+  boardListId: string;   
+  dueDate: string;     
+  fileUrls: string[]; 
+};
+
+type TaskUpdateBulkPayload = {
   id: string;
   boardListId: string;
   position: number;
@@ -31,7 +38,7 @@ class TaskService {
   }
 
   // Update an existing Task
-  async updateTask(id: string, data: TaskPayload): Promise<Task> {
+  async updateTask(id: string, data: TaskUpdatePayload): Promise<Task> {
     try {
       const response = await apiService.auth.put<Task>(`/communication-service/api/v1/tasks/${id}`, data);
       return response.data;
@@ -73,7 +80,7 @@ class TaskService {
     }
   }
 
-  async bulkUpdateTasks(data: TaskUpdatePayload[]): Promise<Task[]> {
+  async bulkUpdateTasks(data: TaskUpdateBulkPayload[]): Promise<Task[]> {
     try {
       const response = await apiService.auth.put<Task[]>(
         "/communication-service/api/v1/tasks/bulk-update",

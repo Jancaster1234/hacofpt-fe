@@ -11,6 +11,7 @@ type ScheduleEventRequestPayload = {
   endTime: string;
   isRecurring: boolean;
   recurrenceRule: string;
+  fileUrls: string[]; 
 };
 
 class ScheduleEventService {
