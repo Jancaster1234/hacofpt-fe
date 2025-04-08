@@ -106,6 +106,18 @@ class ScheduleService {
     }
   }
 
+  async getSchedulesByTeamAndHackathon(teamId: string, hackathonId: string): Promise<Schedule[]> {
+    try {
+      const response = await apiService.auth.get<Schedule[]>(
+        `/communication-service/api/v1/schedules/by-team-and-hackathon?teamId=${teamId}&hackathonId=${hackathonId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching schedules by team and hackathon:", error);
+      throw error;
+    }
+  }
+
 }
 
 export const scheduleService = new ScheduleService();
