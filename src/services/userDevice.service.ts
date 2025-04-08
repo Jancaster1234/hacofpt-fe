@@ -1,4 +1,3 @@
-// src/services/userDevice.service.ts
 import { UserDevice } from "@/types/entities/userDevice";
 import { tokenService_v0 } from "@/services/token.service_v0";
 
@@ -78,6 +77,120 @@ class UserDeviceService {
       return dataResponse as UserDevice;
     } catch (error) {
       console.error("Error updating UserDevice:", error);
+      throw error;
+    }
+  }
+
+  // Get all UserDevices
+  async getAllUserDevices(): Promise<UserDevice[]> {
+    try {
+      const response = await fetch("/identity-service/api/v1/user-devices", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokenService_v0.getAccessToken()}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errMsg = await response.text();
+        throw new Error(`Failed to fetch user devices: ${errMsg}`);
+      }
+
+      const dataResponse = await response.json();
+      return dataResponse.data as UserDevice[];
+    } catch (error) {
+      console.error("Error fetching UserDevices:", error);
+      throw error;
+    }
+  }
+
+  // Get UserDevice by ID
+  async getUserDevice(id: string): Promise<UserDevice> {
+    try {
+      const response = await fetch(`/identity-service/api/v1/user-devices/${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokenService_v0.getAccessToken()}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errMsg = await response.text();
+        throw new Error(`Failed to fetch user device: ${errMsg}`);
+      }
+
+      const dataResponse = await response.json();
+      return dataResponse.data as UserDevice;
+    } catch (error) {
+      console.error("Error fetching UserDevice:", error);
+      throw error;
+    }
+  }
+
+  // Get UserDevices by deviceId
+  async getUserDevicesByDeviceId(deviceId: string): Promise<UserDevice[]> {
+    try {
+      const response = await fetch(`/identity-service/api/v1/user-devices/device/${deviceId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokenService_v0.getAccessToken()}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errMsg = await response.text();
+        throw new Error(`Failed to fetch user devices by deviceId: ${errMsg}`);
+      }
+
+      const dataResponse = await response.json();
+      return dataResponse.data as UserDevice[];
+    } catch (error) {
+      console.error("Error fetching UserDevices by deviceId:", error);
+      throw error;
+    }
+  }
+
+  // Get UserDevices by userId
+  async getUserDevicesByUserId(userId: string): Promise<UserDevice[]> {
+    try {
+      const response = await fetch(`/identity-service/api/v1/user-devices/user/${userId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${tokenService_v0.getAccessToken()}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errMsg = await response.text();
+        throw new Error(`Failed to fetch user devices by userId: ${errMsg}`);
+      }
+
+      const dataResponse = await response.json();
+      return dataResponse.data as UserDevice[];
+    } catch (error) {
+      console.error("Error fetching UserDevices by userId:", error);
+      throw error;
+    }
+  }
+
+  // Delete UserDevice
+  async deleteUserDevice(id: string): Promise<void> {
+    try {
+      const response = await fetch(`/identity-service/api/v1/user-devices/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${tokenService_v0.getAccessToken()}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errMsg = await response.text();
+        throw new Error(`Failed to delete user device: ${errMsg}`);
+      }
+
+      console.log("UserDevice deleted successfully");
+    } catch (error) {
+      console.error("Error deleting UserDevice:", error);
       throw error;
     }
   }
