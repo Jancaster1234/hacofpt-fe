@@ -84,6 +84,20 @@ class TeamRoundService {
       throw error;
     }
   }
+
+  // Bulk update team rounds
+  async updateBulkTeamRounds(data: TeamRoundPayload[]): Promise<TeamRound[]> {
+    try {
+      const response = await apiService.auth.put<TeamRound[]>(
+        "/hackathon-service/api/v1/team-rounds/bulk", 
+        data
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error bulk updating team rounds:", error);
+      throw error;
+    }
+  }
 }
 
 export const teamRoundService = new TeamRoundService();
