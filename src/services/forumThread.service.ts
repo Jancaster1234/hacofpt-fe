@@ -63,5 +63,17 @@ class ForumThreadService {
       throw error;
     }
   }
+
+  async getForumThreadsByCategory(categoryId: string): Promise<ForumThread[]> {
+    try {
+      const response = await apiService.auth.get<ForumThread[]>(
+        `/communication-service/api/v1/forum-threads/category/${categoryId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching forum threads by category:", error);
+      throw error;
+    }
+  }
 }
 export const forumThreadService = new ForumThreadService();
