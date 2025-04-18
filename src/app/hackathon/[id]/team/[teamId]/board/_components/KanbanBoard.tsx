@@ -52,6 +52,8 @@ export default function KanbanBoard({
   const [currentLoadingList, setCurrentLoadingList] = useState<string | null>(
     null
   );
+  // Add state for the enhanced board with labels
+  const [enhancedBoard, setEnhancedBoard] = useState<Board | null>(null);
 
   // Check if current user is board owner
   const isOwner = board?.owner?.id == user?.id;
@@ -80,14 +82,22 @@ export default function KanbanBoard({
         // Load board users first (for header display)
         const { data: boardUsers } =
           await boardUserService.getBoardUsersByBoardId(board.id);
-        setBoard({
-          ...board,
-          boardUsers,
-        });
 
-        // Load board labels (needed for task labels)
+        // Load board labels (needed for task labels and BoardHeader)
         const { data: boardLabels } =
           await boardLabelService.getBoardLabelsByBoardId(board.id);
+
+        // Update the enhanced board with users and labels
+        const updatedBoard = {
+          ...board,
+          boardUsers,
+          boardLabels, // Add the labels to the board object
+        };
+
+        // Update both states
+        setBoard(updatedBoard);
+        setEnhancedBoard(updatedBoard);
+
         const boardLabelsMap = boardLabels.reduce(
           (map, label) => {
             map[label.id] = label;
@@ -402,9 +412,9 @@ export default function KanbanBoard({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header - now passing the enhanced board with labels */}
       <BoardHeader
-        board={board}
+        board={enhancedBoard || board}
         isOwner={isOwner}
         onOpenUserManagement={() => setInviteModalOpen(true)}
         onEdit={() => setIsEditingBoard(true)}
@@ -451,7 +461,7 @@ export default function KanbanBoard({
       {/* User Management Modal */}
       {isInviteModalOpen && (
         <BoardUserManagement
-          board={board}
+          board={enhancedBoard || board}
           team={team}
           isOpen={isInviteModalOpen}
           onClose={() => setInviteModalOpen(false)}

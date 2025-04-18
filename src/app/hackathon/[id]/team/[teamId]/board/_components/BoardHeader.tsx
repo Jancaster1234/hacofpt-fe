@@ -175,6 +175,7 @@ function BoardLabelManagement({
     setIsLoading(true);
 
     try {
+      // Make sure the board ID is passed to the createLabel function
       const newLabel = await createLabel(newLabelName, newLabelColor);
       if (newLabel) {
         setLabels([...labels, newLabel]);
@@ -207,6 +208,7 @@ function BoardLabelManagement({
         );
         setEditingLabel(null);
         setNewLabelName("");
+        setNewLabelColor(colorOptions[0].value);
       }
     } catch (error) {
       console.error("Error updating label:", error);
@@ -274,16 +276,20 @@ function BoardLabelManagement({
         {/* Label Form */}
         <div className="mb-6 bg-gray-50 p-4 rounded-lg">
           <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="labelName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               {editingLabel ? "Update Label" : "Add New Label"}
             </label>
             <input
+              id="labelName"
               type="text"
               value={newLabelName}
               onChange={(e) => setNewLabelName(e.target.value)}
               placeholder="Label name"
               className="w-full p-2 border border-gray-300 rounded-md mb-2"
-              disabled={!isOwner || isLoading}
+              disabled={isLoading}
             />
           </div>
 
@@ -304,8 +310,10 @@ function BoardLabelManagement({
                   }`}
                   style={{ backgroundColor: color.value }}
                   title={color.name}
-                  disabled={!isOwner || isLoading}
-                />
+                  disabled={isLoading}
+                >
+                  <span className="sr-only">{color.name}</span>
+                </button>
               ))}
             </div>
           </div>
@@ -315,14 +323,14 @@ function BoardLabelManagement({
               <>
                 <button
                   onClick={handleUpdateLabel}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md flex-1"
-                  disabled={!isOwner || isLoading}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md flex-1 disabled:bg-blue-300"
+                  disabled={!isOwner || isLoading || !newLabelName.trim()}
                 >
                   {isLoading ? "Updating..." : "Update Label"}
                 </button>
                 <button
                   onClick={cancelEdit}
-                  className="px-4 py-2 border border-gray-300 rounded-md"
+                  className="px-4 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                   disabled={isLoading}
                 >
                   Cancel
@@ -331,7 +339,7 @@ function BoardLabelManagement({
             ) : (
               <button
                 onClick={handleAddLabel}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md w-full"
+                className="px-4 py-2 bg-blue-500 text-white rounded-md w-full disabled:bg-blue-300"
                 disabled={!isOwner || !newLabelName.trim() || isLoading}
               >
                 {isLoading ? "Adding..." : "Add Label"}
@@ -365,6 +373,7 @@ function BoardLabelManagement({
                         onClick={() => startEditLabel(label)}
                         className="text-gray-500 hover:text-blue-500"
                         disabled={isLoading}
+                        aria-label="Edit label"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -385,6 +394,7 @@ function BoardLabelManagement({
                         onClick={() => handleDeleteLabel(label.id)}
                         className="text-gray-500 hover:text-red-500"
                         disabled={isLoading}
+                        aria-label="Delete label"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
