@@ -1,10 +1,11 @@
-// src/components/calendar/event/EventAttendeesSection.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User } from "@/types/entities/user";
 import {
   ScheduleEventAttendee,
   ScheduleEventStatus,
 } from "@/types/entities/scheduleEventAttendee";
+import { scheduleEventAttendeeService } from "@/services/scheduleEventAttendee.service";
+
 interface EventAttendeesSectionProps {
   attendees: ScheduleEventAttendee[];
   setAttendees: (attendees: ScheduleEventAttendee[]) => void;
@@ -19,42 +20,113 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
   scheduleEventId,
 }) => {
   const [showMemberSelector, setShowMemberSelector] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddAttendee = (user: User) => {
+  // Load attendees when component mounts or schedule event ID changes
+  useEffect(() => {
+    if (scheduleEventId) {
+      loadAttendees();
+    }
+  }, [scheduleEventId]);
+
+  const loadAttendees = async () => {
+    if (!scheduleEventId) return;
+
+    setIsLoading(true);
+    try {
+      const { data } =
+        await scheduleEventAttendeeService.getAttendeesByScheduleEventId(
+          scheduleEventId
+        );
+      setAttendees(data);
+    } catch (error) {
+      console.error("Failed to load attendees", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddAttendee = async (user: User) => {
+    if (!scheduleEventId) return;
+
     // Check if user is already an attendee
     if (attendees.some((a) => a.userId === user.id)) {
       return;
     }
 
-    const newAttendee: ScheduleEventAttendee = {
-      id: `attendee-${Date.now()}`,
-      scheduleEventId: scheduleEventId,
-      user,
-      userId: user.id,
-      status: "INVITED",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    setIsLoading(true);
+    try {
+      // Make API call to add attendee
+      const { data: newAttendee } =
+        await scheduleEventAttendeeService.addAttendeeToScheduleEvent({
+          scheduleEventId,
+          userId: user.id,
+          status: "INVITED",
+        });
 
-    setAttendees([...attendees, newAttendee]);
-    setShowMemberSelector(false);
+      // Update local state with the new attendee from API
+      setAttendees([...attendees, newAttendee]);
+    } catch (error) {
+      console.error("Failed to add attendee", error);
+    } finally {
+      setIsLoading(false);
+      setShowMemberSelector(false);
+    }
   };
 
-  const handleRemoveAttendee = (attendeeId: string) => {
-    setAttendees(attendees.filter((a) => a.id !== attendeeId));
+  const handleRemoveAttendee = async (attendeeId: string) => {
+    setIsLoading(true);
+    try {
+      // Make API call to remove attendee
+      await scheduleEventAttendeeService.removeAttendeeFromScheduleEvent(
+        attendeeId
+      );
+
+      // Update local state
+      setAttendees(attendees.filter((a) => a.id !== attendeeId));
+    } catch (error) {
+      console.error("Failed to remove attendee", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleChangeStatus = (
+  const handleChangeStatus = async (
     attendeeId: string,
     status: ScheduleEventStatus
   ) => {
-    setAttendees(
-      attendees.map((a) =>
-        a.id === attendeeId
-          ? { ...a, status, updatedAt: new Date().toISOString() }
-          : a
-      )
-    );
+    if (!scheduleEventId) return;
+
+    setIsLoading(true);
+    try {
+      // Get the attendee object
+      const attendee = attendees.find((a) => a.id === attendeeId);
+
+      if (!attendee) {
+        console.error("Attendee not found");
+        return;
+      }
+
+      // Make API call to update attendee's status
+      const { data: updatedAttendee } =
+        await scheduleEventAttendeeService.updateScheduleEventAttendee(
+          attendeeId,
+          {
+            scheduleEventId: scheduleEventId,
+            userId: attendee.userId,
+            status: status,
+          }
+        );
+
+      // Update local state with the updated attendee data from API
+      setAttendees(
+        attendees.map((a) => (a.id === attendeeId ? updatedAttendee : a))
+      );
+    } catch (error) {
+      console.error("Failed to update attendee status", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Filter out team members who are already attendees
@@ -72,10 +144,17 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
           type="button"
           onClick={() => setShowMemberSelector(!showMemberSelector)}
           className="px-3 py-1.5 text-xs font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+          disabled={isLoading}
         >
           Add Attendee
         </button>
       </div>
+
+      {isLoading && (
+        <div className="text-center py-3">
+          <p className="text-sm text-gray-500">Loading attendees...</p>
+        </div>
+      )}
 
       {showMemberSelector && (
         <div className="mb-4 p-3 border border-gray-200 rounded-lg bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
@@ -140,6 +219,7 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
                     )
                   }
                   className="text-xs rounded-lg border border-gray-300 bg-transparent p-1 dark:border-gray-700 dark:bg-gray-800"
+                  disabled={isLoading}
                 >
                   <option value="INVITED">Invited</option>
                   <option value="CONFIRMED">Confirmed</option>
@@ -148,6 +228,7 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
                 <button
                   onClick={() => handleRemoveAttendee(attendee.id)}
                   className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                  disabled={isLoading}
                 >
                   <svg
                     className="w-5 h-5 text-gray-500 dark:text-gray-400"
@@ -167,7 +248,9 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">No attendees added yet.</p>
+        !isLoading && (
+          <p className="text-sm text-gray-500">No attendees added yet.</p>
+        )
       )}
     </div>
   );
