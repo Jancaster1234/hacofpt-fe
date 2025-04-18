@@ -57,7 +57,7 @@ class BoardListService {
   ): Promise<{ data: BoardList[]; message?: string }> {
     try {
       const response = await apiService.auth.get<BoardList[]>(
-        `/communication-service/api/v1/board-lists/filter-by-board?boardId=${boardId}`
+        `/communication-service/api/v1/board-lists/by-board/${boardId}`
       );
 
       if (!response || !response.data) {
