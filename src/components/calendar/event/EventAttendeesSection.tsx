@@ -1,3 +1,4 @@
+// src/components/calendar/event/EventAttendeesSection.tsx
 import React, { useState, useEffect } from "react";
 import { User } from "@/types/entities/user";
 import {

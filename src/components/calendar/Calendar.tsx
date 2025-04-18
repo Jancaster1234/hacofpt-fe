@@ -25,6 +25,7 @@ import { ScheduleEventReminder } from "@/types/entities/scheduleEventReminder";
 import { scheduleService } from "@/services/schedule.service";
 import { scheduleEventService } from "@/services/scheduleEvent.service";
 import { teamService } from "@/services/team.service";
+import { ScheduleEventLabel } from "@/types/entities/scheduleEvent";
 
 export interface CalendarEvent extends EventInput {
   extendedProps: {

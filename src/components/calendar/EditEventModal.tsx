@@ -16,6 +16,7 @@ import EventRemindersSection from "./event/EventRemindersSection";
 import { scheduleEventService } from "@/services/scheduleEvent.service";
 import { fileUrlService } from "@/services/fileUrl.service";
 import { scheduleEventAttendeeService } from "@/services/scheduleEventAttendee.service";
+import { scheduleEventReminderService } from "@/services/scheduleEventReminder.service";
 
 interface EditEventModalProps {
   isOpen: boolean;
@@ -95,6 +96,20 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
     }
   };
 
+  const loadEventReminders = async () => {
+    if (!selectedEvent?.id) return;
+
+    try {
+      const { data } =
+        await scheduleEventReminderService.getScheduleEventRemindersByScheduleEventId(
+          selectedEvent.id
+        );
+      setReminders(data);
+    } catch (error) {
+      console.error("Failed to load event reminders", error);
+    }
+  };
+
   useEffect(() => {
     // Populate modal fields when selectedEvent changes and modal is open
     if (isOpen && selectedEvent) {
@@ -128,11 +143,8 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
       // Load event attendees via API
       loadEventAttendees();
 
-      // Remove this line since we're now loading from API
-      // setAttendees(selectedEvent.extendedProps?.attendees || []);
-      // For demo purposes, we'll initialize these arrays
-      // In a real app, you would fetch this data from your backend
-      setReminders(selectedEvent.extendedProps?.reminders || []);
+      // Load event reminders via API
+      loadEventReminders();
     }
   }, [selectedEvent, isOpen]);
 

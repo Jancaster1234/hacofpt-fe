@@ -1,7 +1,8 @@
 // src/components/calendar/event/EventRemindersSection.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { ScheduleEventReminder } from "@/types/entities/scheduleEventReminder";
+import { scheduleEventReminderService } from "@/services/scheduleEventReminder.service";
 
 interface EventRemindersSectionProps {
   reminders: ScheduleEventReminder[];
@@ -16,25 +17,72 @@ const EventRemindersSection: React.FC<EventRemindersSectionProps> = ({
 }) => {
   const { user } = useAuth();
   const [remindAt, setRemindAt] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddReminder = () => {
-    if (!user || !remindAt) return;
+  // Load reminders for this event when component mounts
+  useEffect(() => {
+    const loadReminders = async () => {
+      if (!scheduleEventId) return;
 
-    const newReminder: ScheduleEventReminder = {
-      id: `reminder-${Date.now()}`,
-      scheduleEventId: scheduleEventId,
-      userId: user.id,
-      remindAt,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      try {
+        setIsLoading(true);
+        const { data } =
+          await scheduleEventReminderService.getScheduleEventRemindersByScheduleEventId(
+            scheduleEventId
+          );
+        setReminders(data);
+      } catch (error) {
+        console.error("Failed to load event reminders", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    setReminders([...reminders, newReminder]);
-    setRemindAt("");
+    loadReminders();
+  }, [scheduleEventId, setReminders]);
+
+  const handleAddReminder = async () => {
+    if (!user || !remindAt || !scheduleEventId) return;
+
+    try {
+      setIsLoading(true);
+
+      // Call the API to create a new reminder
+      const { data: newReminder } =
+        await scheduleEventReminderService.createScheduleEventReminder({
+          scheduleEventId: scheduleEventId,
+          userId: user.id,
+          remindAt: remindAt,
+        });
+
+      // Update the UI with the new reminder
+      setReminders([...reminders, newReminder]);
+
+      // Clear the input field
+      setRemindAt("");
+    } catch (error) {
+      console.error("Failed to add reminder:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRemoveReminder = (reminderId: string) => {
-    setReminders(reminders.filter((r) => r.id !== reminderId));
+  const handleRemoveReminder = async (reminderId: string) => {
+    try {
+      setIsLoading(true);
+
+      // Call the API to delete the reminder
+      await scheduleEventReminderService.deleteScheduleEventReminder(
+        reminderId
+      );
+
+      // Update the UI by removing the deleted reminder
+      setReminders(reminders.filter((r) => r.id !== reminderId));
+    } catch (error) {
+      console.error("Failed to remove reminder:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -49,18 +97,21 @@ const EventRemindersSection: React.FC<EventRemindersSectionProps> = ({
           value={remindAt}
           onChange={(e) => setRemindAt(e.target.value)}
           className="flex-1 h-10 rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+          disabled={isLoading}
         />
         <button
           type="button"
           onClick={handleAddReminder}
-          disabled={!remindAt}
+          disabled={!remindAt || isLoading}
           className="px-4 py-2 text-xs font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Add
+          {isLoading ? "Adding..." : "Add"}
         </button>
       </div>
 
-      {reminders.length > 0 ? (
+      {isLoading && reminders.length === 0 ? (
+        <p className="text-sm text-gray-500">Loading reminders...</p>
+      ) : reminders.length > 0 ? (
         <div className="space-y-2">
           {reminders.map((reminder) => (
             <div
@@ -95,7 +146,8 @@ const EventRemindersSection: React.FC<EventRemindersSectionProps> = ({
               </div>
               <button
                 onClick={() => handleRemoveReminder(reminder.id)}
-                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                disabled={isLoading}
+                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
               >
                 <svg
                   className="w-5 h-5 text-gray-500 dark:text-gray-400"
