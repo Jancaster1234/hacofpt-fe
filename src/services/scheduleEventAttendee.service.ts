@@ -98,7 +98,7 @@ class ScheduleEventAttendeeService {
   ): Promise<{ data: ScheduleEventAttendee[]; message?: string }> {
     try {
       const response = await apiService.auth.get<ScheduleEventAttendee[]>(
-        `/communication-service/api/v1/schedule-event-attendees/by-schedule-event/${scheduleEventId}`
+        `/communication-service/api/v1/schedule-event-attendees/by-event/${scheduleEventId}`
       );
 
       if (!response || !response.data) {
