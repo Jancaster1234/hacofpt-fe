@@ -200,7 +200,7 @@ class FileUrlService {
   ): Promise<{ data: FileUrl[]; message?: string }> {
     try {
       const response = await apiService.auth.get<FileUrl[]>(
-        `/hackathon-service/api/v1/files?scheduleEventId=${scheduleEventId}`
+        `/communication-service/api/v1/schedule-events/${scheduleEventId}/file-urls`
       );
 
       if (!response || !response.data) {

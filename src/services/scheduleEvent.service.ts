@@ -93,7 +93,7 @@ class ScheduleEventService {
   ): Promise<{ data: ScheduleEvent; message?: string }> {
     try {
       const response = await apiService.auth.put<ScheduleEvent>(
-        `/communication-service/api/v1/schedule-events/${id}`,
+        `/communication-service/api/v1/schedule-events/update-info/${id}`,
         { data: data }
       );
 
@@ -123,8 +123,8 @@ class ScheduleEventService {
     fileUrls: string[]
   ): Promise<{ data: FileUrl[]; message?: string }> {
     try {
-      const response = await apiService.auth.post<FileUrl[]>(
-        `/communication-service/api/v1/schedule-events/${scheduleEventId}/files`,
+      const response = await apiService.auth.put<FileUrl[]>(
+        `/communication-service/api/v1/schedule-events/update-files/${scheduleEventId}`,
         { data: { fileUrls } }
       );
 
