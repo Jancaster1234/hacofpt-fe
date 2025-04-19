@@ -56,7 +56,7 @@ export default function KanbanBoard({
   const [enhancedBoard, setEnhancedBoard] = useState<Board | null>(null);
 
   // Check if current user is board owner
-  const isOwner = board?.owner?.id == user?.id;
+  const isOwner = board?.ownerId == user?.id;
 
   // Load board data progressively
   useEffect(() => {
