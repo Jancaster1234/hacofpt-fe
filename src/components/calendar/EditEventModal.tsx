@@ -15,7 +15,6 @@ import EventAttendeesSection from "./event/EventAttendeesSection";
 import EventRemindersSection from "./event/EventRemindersSection";
 import { scheduleEventService } from "@/services/scheduleEvent.service";
 import { fileUrlService } from "@/services/fileUrl.service";
-import { scheduleEventAttendeeService } from "@/services/scheduleEventAttendee.service";
 import { scheduleEventReminderService } from "@/services/scheduleEventReminder.service";
 
 interface EditEventModalProps {
@@ -81,21 +80,6 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
     }
   };
 
-  // Load event attendees
-  const loadEventAttendees = async () => {
-    if (!selectedEvent?.id) return;
-
-    try {
-      const { data } =
-        await scheduleEventAttendeeService.getAttendeesByScheduleEventId(
-          selectedEvent.id
-        );
-      setAttendees(data);
-    } catch (error) {
-      console.error("Failed to load event attendees", error);
-    }
-  };
-
   const loadEventReminders = async () => {
     if (!selectedEvent?.id) return;
 
@@ -140,11 +124,11 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
       // Load event files via API
       loadEventFiles();
 
-      // Load event attendees via API
-      loadEventAttendees();
-
       // Load event reminders via API
       loadEventReminders();
+
+      // The attendees will be loaded by the EventAttendeesSection component
+      // So we don't need to call loadEventAttendees here
     }
   }, [selectedEvent, isOpen]);
 
