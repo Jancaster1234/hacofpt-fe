@@ -45,7 +45,7 @@ export async function createScheduleEvent(
       location: eventData.location || "",
       startTime: eventData.startTime,
       endTime: eventData.endTime || eventData.startTime, // Default to start time if not provided
-      eventLabel: eventData.eventLabel, // Pass the eventLabel to the service
+      eventLabel: eventData.eventLabel?.toUpperCase() as any,
       isRecurring: false, // Default to false
       recurrenceRule: undefined, // Default to undefined
     });
@@ -95,7 +95,9 @@ export async function addEventToCalendar(
     end: createdEvent.endTime,
     allDay: false,
     extendedProps: {
-      calendar: createdEvent.eventLabel || "primary",
+      calendar:
+        (createdEvent.eventLabel?.toLowerCase() as ScheduleEventLabel) ||
+        "primary",
       scheduleId: createdEvent.scheduleId || scheduleId,
       description: createdEvent.description,
       location: createdEvent.location,

@@ -168,7 +168,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
             location: eventLocation,
             startTime: eventStartDate,
             endTime: eventEndDate || eventStartDate,
-            eventLabel: eventLabel,
+            eventLabel: eventLabel?.toUpperCase() as any,
             isRecurring: false,
             recurrenceRule: undefined,
           }

@@ -161,7 +161,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
           end: event.endTime,
           allDay: false,
           extendedProps: {
-            calendar: event.eventLabel || "primary",
+            calendar: event.eventLabel?.toLowerCase() || "primary",
             scheduleId: schedule.id,
             description: event.description,
             location: event.location,
