@@ -160,7 +160,7 @@ class FeedbackService {
     try {
       const response = await apiService.auth.post<Feedback>(
         "/feedback-service/api/v1/feedbacks",
-        data
+        { data: data }
       );
 
       if (!response || !response.data) {
