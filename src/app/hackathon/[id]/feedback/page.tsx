@@ -213,7 +213,7 @@ export default function HackathonFeedback() {
         // Create new feedback
         const feedbackData = {
           hackathonId,
-          teamId: user.teamId || "individual",
+          //teamId: user.teamId || "individual",
           // If you have mentorId available, add it here
           // mentorId: "your-mentor-id"
         };
