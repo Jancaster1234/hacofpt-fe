@@ -16,6 +16,8 @@ export default function CreateThreadModal({
   onClose,
 }: CreateThreadModalProps) {
   const [title, setTitle] = useState("");
+  const [isPinned, setIsPinned] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -40,8 +42,8 @@ export default function CreateThreadModal({
       const { data } = await forumThreadService.createForumThread({
         title: title.trim(),
         forumCategoryId: categoryId,
-        isLocked: false,
-        isPinned: false,
+        isLocked: isAdmin ? isLocked : false,
+        isPinned: isAdmin ? isPinned : false,
       });
 
       if (data && data.id) {
@@ -118,6 +120,8 @@ export default function CreateThreadModal({
                 <input
                   type="checkbox"
                   id="pin-thread"
+                  checked={isPinned}
+                  onChange={(e) => setIsPinned(e.target.checked)}
                   className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 />
                 <label
@@ -132,6 +136,8 @@ export default function CreateThreadModal({
                 <input
                   type="checkbox"
                   id="lock-thread"
+                  checked={isLocked}
+                  onChange={(e) => setIsLocked(e.target.checked)}
                   className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 />
                 <label
