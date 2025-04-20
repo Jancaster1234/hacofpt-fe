@@ -2,7 +2,8 @@
 import { useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { format, isPast } from "date-fns";
+import { format, isPast, parseISO } from "date-fns";
+import Image from "next/image";
 import TaskEditModal from "./TaskEdit/TaskEditModal";
 import { Task } from "@/types/entities/task";
 import { useKanbanStore } from "@/store/kanbanStore";
@@ -15,10 +16,7 @@ export default function KanbanTask({ task }: KanbanTaskProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const isDragging = useRef(false);
   const clickStartPosition = useRef({ x: 0, y: 0 });
-  console.log(
-    "🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹Task in kanban task:",
-    task
-  );
+
   const {
     attributes,
     listeners,
@@ -38,12 +36,17 @@ export default function KanbanTask({ task }: KanbanTaskProps) {
     opacity: isDraggingNow ? 0.5 : 1,
   };
 
-  // Format date and check if past due
-  const formattedDate = task.dueDate
-    ? format(new Date(task.dueDate), "MMM d")
-    : null;
+  // Format date and time
+  const formatDueDate = () => {
+    if (!task.dueDate) return null;
 
-  const isPastDue = task.dueDate && isPast(new Date(task.dueDate));
+    const date = parseISO(task.dueDate);
+    const formattedDate = format(date, "MMM d");
+    const formattedTime = format(date, "h:mm a");
+    return { formattedDate, formattedTime, isPastDue: isPast(date) };
+  };
+
+  const dueDate = formatDueDate();
 
   const board = useKanbanStore((state) => state.board);
 
@@ -86,7 +89,6 @@ export default function KanbanTask({ task }: KanbanTaskProps) {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >
-        {/* Rest of your component remains the same */}
         {/* Task Title */}
         <p className="font-medium">{task.title}</p>
 
@@ -115,20 +117,22 @@ export default function KanbanTask({ task }: KanbanTaskProps) {
         )}
 
         {/* Task Meta */}
-        <div className="flex justify-between items-center text-sm text-gray-400">
-          {/* Due Date */}
-          {formattedDate && (
-            <span
-              className={`flex items-center gap-1 ${isPastDue ? "text-red-500" : ""}`}
+        <div className="flex flex-wrap gap-3 items-center text-sm text-gray-400">
+          {/* Due Date with improved display */}
+          {dueDate && (
+            <div
+              className={`flex items-center gap-1 ${dueDate.isPastDue ? "text-red-500" : ""}`}
+              title={dueDate.isPastDue ? "Past Due" : "Due Date"}
             >
-              <span>⏰</span>
-              <span>{formattedDate}</span>
-            </span>
+              <span>🗓️</span>
+              <span>{dueDate.formattedDate}</span>
+              <span className="text-xs">at {dueDate.formattedTime}</span>
+            </div>
           )}
 
           {/* Show attachments count if any */}
           {task.fileUrls && task.fileUrls.length > 0 && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1" title="Attachments">
               <span>📎</span>
               <span>{task.fileUrls.length}</span>
             </span>
@@ -136,33 +140,37 @@ export default function KanbanTask({ task }: KanbanTaskProps) {
 
           {/* Show comments count if any */}
           {task.comments && task.comments.length > 0 && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1" title="Comments">
               <span>💬</span>
               <span>{task.comments.length}</span>
             </span>
           )}
         </div>
 
-        {/* Task Assignees */}
+        {/* Task Assignees using next/image */}
         {task.assignees && task.assignees.length > 0 && (
           <div className="flex -space-x-2">
-            {task.assignees
-              .slice(0, 3)
-              .map(
-                (assignee) =>
-                  assignee.user && (
-                    <img
-                      key={assignee.id}
+            {task.assignees.slice(0, 3).map(
+              (assignee) =>
+                assignee.user && (
+                  <div
+                    key={assignee.id}
+                    className="relative w-6 h-6 rounded-full border-2 border-white overflow-hidden"
+                    title={`${assignee.user.firstName} ${assignee.user.lastName}`}
+                  >
+                    <Image
                       src={
                         assignee.user.avatarUrl ||
                         "https://via.placeholder.com/30"
                       }
                       alt={`${assignee.user.firstName} ${assignee.user.lastName}`}
-                      className="w-6 h-6 rounded-full border-2 border-white"
-                      title={`${assignee.user.firstName} ${assignee.user.lastName}`}
+                      fill
+                      sizes="24px"
+                      className="object-cover"
                     />
-                  )
-              )}
+                  </div>
+                )
+            )}
             {task.assignees.length > 3 && (
               <span className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full border-2 border-white text-xs">
                 +{task.assignees.length - 3}
