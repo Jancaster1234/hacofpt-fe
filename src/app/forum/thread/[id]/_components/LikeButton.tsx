@@ -40,8 +40,9 @@ export default function LikeButton({
 
   useEffect(() => {
     const fetchLikes = async () => {
+      // Skip fetching if we already have likes from props
       if (initialLikes.length > 0 || externalLikes) {
-        // Use the provided likes
+        // Find user's like in the current likes array
         const currentUserName = currentUsername || user?.username;
         if (currentUserName) {
           const existingLike = likes.find(
@@ -74,7 +75,7 @@ export default function LikeButton({
     };
 
     fetchLikes();
-  }, [threadPostId, user, currentUsername, initialLikes, likes, externalLikes]);
+  }, [threadPostId, user, currentUsername, initialLikes, externalLikes]);
 
   const handleLikeToggle = async () => {
     if (!user && !currentUsername) return;

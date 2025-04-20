@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { User } from "@/types/entities/user";
+import { userService } from "@/services/user.service";
 
 type UserRole = "TEAM_MEMBER" | "JUDGE" | "MENTOR" | "ADMIN" | "ORGANIZER";
 
@@ -26,12 +27,8 @@ export default function UserInfo({
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        // We'd replace this with a real API call to get user data
-        const response = await fetch(`/api/users/by-username/${username}`);
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        }
+        const { data } = await userService.getUserByUsername(username);
+        setUser(data);
       } catch (error) {
         console.error("Failed to fetch user data:", error);
       } finally {
