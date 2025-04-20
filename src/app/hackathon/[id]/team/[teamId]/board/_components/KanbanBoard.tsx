@@ -157,7 +157,11 @@ export default function KanbanBoard({
                 // UPDATED: Keep taskLabels as an array of TaskLabel objects
                 // with an additional boardLabel property containing the full board label data
                 const enhancedTaskLabels = taskLabels.map((taskLabel) => ({
-                  ...taskLabel,
+                  id: taskLabel.id,
+                  taskId: taskLabel.taskId,
+                  boardLabelId: taskLabel.boardLabelId,
+                  createdAt: taskLabel.createdAt,
+                  updatedAt: taskLabel.updatedAt,
                   boardLabel: taskLabel.boardLabelId
                     ? boardLabelsMap[taskLabel.boardLabelId]
                     : undefined,
@@ -166,7 +170,11 @@ export default function KanbanBoard({
                 // UPDATED: Keep taskAssignees as an array of TaskAssignee objects
                 // with an additional user property containing the full user data
                 const enhancedAssignees = taskAssignees.map((assignee) => ({
-                  ...assignee,
+                  id: assignee.id,
+                  taskId: assignee.taskId,
+                  userId: assignee.userId,
+                  createdAt: assignee.createdAt,
+                  updatedAt: assignee.updatedAt,
                   user: assignee.userId
                     ? teamUsersMap[assignee.userId]
                     : undefined,
@@ -179,7 +187,8 @@ export default function KanbanBoard({
                   status: list.name.toLowerCase().replace(/\s+/g, "-"),
                   description: task.description || "",
                   dueDate: task.dueDate,
-                  position: task.position,
+                  position: task.position, // Make sure the position is included
+                  // UPDATED: Use the enhanced arrays
                   taskAssignees: enhancedAssignees,
                   taskLabels: enhancedTaskLabels,
                   fileUrls,
