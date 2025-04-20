@@ -154,7 +154,8 @@ export default function KanbanBoard({
                   taskAssigneeService.getTaskAssigneesByTaskId(task.id),
                 ]);
 
-                // Enhance taskLabels with their associated boardLabel information
+                // UPDATED: Keep taskLabels as an array of TaskLabel objects
+                // with an additional boardLabel property containing the full board label data
                 const enhancedTaskLabels = taskLabels.map((taskLabel) => ({
                   ...taskLabel,
                   boardLabel: taskLabel.boardLabelId
@@ -162,11 +163,12 @@ export default function KanbanBoard({
                     : undefined,
                 }));
 
-                // Map task assignees (which now only contain user IDs) to the actual user data from teamUsersMap
+                // UPDATED: Keep taskAssignees as an array of TaskAssignee objects
+                // with an additional user property containing the full user data
                 const enhancedAssignees = taskAssignees.map((assignee) => ({
                   ...assignee,
-                  user: assignee.user?.id
-                    ? teamUsersMap[assignee.user.id]
+                  user: assignee.userId
+                    ? teamUsersMap[assignee.userId]
                     : undefined,
                 }));
 
@@ -177,15 +179,9 @@ export default function KanbanBoard({
                   status: list.name.toLowerCase().replace(/\s+/g, "-"),
                   description: task.description || "",
                   dueDate: task.dueDate,
-                  position: task.position, // Make sure the position is included
-                  assignees:
-                    enhancedAssignees
-                      ?.map((assignee) => assignee.user)
-                      .filter(Boolean) || [],
-                  labels:
-                    enhancedTaskLabels
-                      ?.map((tl) => tl.boardLabel)
-                      .filter(Boolean) || [],
+                  position: task.position,
+                  taskAssignees: enhancedAssignees,
+                  taskLabels: enhancedTaskLabels,
                   fileUrls,
                   comments,
                 };

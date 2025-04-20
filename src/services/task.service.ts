@@ -109,7 +109,7 @@ class TaskService {
   ): Promise<{ data: Task; message?: string }> {
     try {
       const response = await apiService.auth.put<Task>(
-        `/communication-service/api/v1/tasks/${id}`,
+        `/communication-service/api/v1/tasks/update-info/${id}`,
         { data: data }
       );
 
@@ -135,7 +135,7 @@ class TaskService {
   ): Promise<{ data: Task[]; message?: string }> {
     try {
       const response = await apiService.auth.get<Task[]>(
-        `/communication-service/api/v1/tasks?boardListId=${boardListId}`
+        `/communication-service/api/v1/tasks/by-board-list/${boardListId}`
       );
 
       if (!response || !response.data) {

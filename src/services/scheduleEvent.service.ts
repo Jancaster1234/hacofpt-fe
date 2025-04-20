@@ -135,7 +135,7 @@ class ScheduleEventService {
       }
 
       return {
-        data: response.data,
+        data: response.data.fileUrls,
         message: response.message || "Schedule event files added successfully",
       };
     } catch (error: any) {

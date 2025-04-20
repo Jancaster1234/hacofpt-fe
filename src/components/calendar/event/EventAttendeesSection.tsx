@@ -110,7 +110,7 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
 
       // Make API call to update attendee's status
       const { data: updatedAttendee } =
-        await scheduleEventAttendeeService.updateScheduleEventAttendee(
+        await scheduleEventAttendeeService.updateScheduleEventAttendeeStatus(
           attendeeId,
           {
             scheduleEventId: scheduleEventId,

@@ -69,6 +69,40 @@ class ScheduleEventAttendeeService {
     }
   }
 
+  async updateScheduleEventAttendeeStatus(
+    id: string,
+    data: {
+      scheduleEventId: string;
+      userId: string;
+      status?: string;
+    }
+  ): Promise<{ data: ScheduleEventAttendee; message?: string }> {
+    try {
+      const response = await apiService.auth.put<ScheduleEventAttendee>(
+        `/communication-service/api/v1/schedule-event-attendees/${id}/status?status=${data.status}`,
+        { data: data }
+      );
+
+      if (!response || !response.data) {
+        throw new Error(
+          response?.message || "Failed to update schedule event attendee"
+        );
+      }
+
+      return {
+        data: response.data,
+        message:
+          response.message || "Schedule event attendee updated successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<ScheduleEventAttendee>(
+        error,
+        {} as ScheduleEventAttendee,
+        "[ScheduleEventAttendee Service] Error updating schedule event attendee:"
+      );
+    }
+  }
+
   // Remove a user as an attendee from a schedule event
   async removeAttendeeFromScheduleEvent(
     id: string

@@ -15,7 +15,10 @@ export default function KanbanTask({ task }: KanbanTaskProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const isDragging = useRef(false);
   const clickStartPosition = useRef({ x: 0, y: 0 });
-
+  console.log(
+    "🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹Task in kanban task:",
+    task
+  );
   const {
     attributes,
     listeners,

@@ -225,7 +225,7 @@ class FileUrlService {
   ): Promise<{ data: FileUrl[]; message?: string }> {
     try {
       const response = await apiService.auth.get<FileUrl[]>(
-        `/hackathon-service/api/v1/files?taskId=${taskId}`
+        `/communication-service/api/v1/tasks/${taskId}/file-urls`
       );
 
       if (!response || !response.data) {
@@ -298,7 +298,7 @@ class FileUrlService {
   async deleteFileUrl(id: string): Promise<{ message?: string }> {
     try {
       const response = await apiService.auth.delete<void>(
-        `/hackathon-service/api/v1/files/${id}`
+        `/communication-service/api/v1/file-urls/${id}`
       );
 
       return {

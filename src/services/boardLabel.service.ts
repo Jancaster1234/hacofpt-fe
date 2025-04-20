@@ -86,7 +86,7 @@ class BoardLabelService {
   }): Promise<{ data: BoardLabel; message?: string }> {
     try {
       const response = await apiService.auth.post<BoardLabel>(
-        "/api/v1/board-labels",
+        "/communication-service/api/v1/board-labels",
         { data: data }
       );
 

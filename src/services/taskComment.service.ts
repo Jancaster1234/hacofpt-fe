@@ -141,7 +141,7 @@ class TaskCommentService {
   ): Promise<{ data: TaskComment[]; message?: string }> {
     try {
       const response = await apiService.auth.get<TaskComment[]>(
-        `/communication-service/api/v1/task-comments/by-task/${taskId}`
+        `/communication-service/api/v1/task-comments/task/${taskId}`
       );
 
       if (!response || !response.data) {

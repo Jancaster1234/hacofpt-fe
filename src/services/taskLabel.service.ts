@@ -114,7 +114,7 @@ class TaskLabelService {
   ): Promise<{ data: TaskLabel[]; message?: string }> {
     try {
       const response = await apiService.auth.get<TaskLabel[]>(
-        `/communication-service/api/v1/task-labels?taskId=${taskId}`
+        `/communication-service/api/v1/task-labels/by-task/${taskId}`
       );
 
       if (!response || !response.data) {
