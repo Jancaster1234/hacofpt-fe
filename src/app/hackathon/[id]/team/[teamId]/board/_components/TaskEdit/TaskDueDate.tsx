@@ -11,14 +11,51 @@ interface TaskDueDateProps {
 
 export default function TaskDueDate({ dueDate, onChange }: TaskDueDateProps) {
   const [isSelecting, setIsSelecting] = useState(false);
+
+  // Format displayed date and time separately
   const formattedDate = dueDate ? format(parseISO(dueDate), "MMM d, yyyy") : "";
+  const formattedTime = dueDate ? format(parseISO(dueDate), "h:mm a") : "";
   const isPastDue = dueDate && isPast(parseISO(dueDate));
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newDate = e.target.value
-      ? new Date(e.target.value).toISOString()
-      : undefined;
-    onChange(newDate);
+  // Parse existing date and time values for form inputs
+  const dateValue = dueDate ? dueDate.split("T")[0] : "";
+  const timeValue = dueDate ? format(parseISO(dueDate), "HH:mm") : "12:00"; // Default to noon
+
+  const handleDateTimeChange = (type: "date" | "time", value: string) => {
+    if (type === "date" && !value) {
+      // If date is cleared, remove the whole due date
+      onChange(undefined);
+      return;
+    }
+
+    // Create a base date to work with
+    let selectedDate: Date;
+
+    if (dueDate) {
+      // Use existing date as base if available
+      selectedDate = parseISO(dueDate);
+    } else {
+      // Otherwise create a new date
+      selectedDate = new Date();
+    }
+
+    if (type === "date") {
+      // Update just the date portion
+      const newDate = new Date(value);
+      selectedDate.setFullYear(
+        newDate.getFullYear(),
+        newDate.getMonth(),
+        newDate.getDate()
+      );
+    } else if (type === "time") {
+      // Parse time string (HH:MM) and update hours and minutes
+      const [hours, minutes] = value.split(":").map(Number);
+      selectedDate.setHours(hours, minutes, 0, 0);
+    }
+
+    // Format to ISO string in the required format: YYYY-MM-DDTHH:MM:SS
+    const formattedISODate = selectedDate.toISOString().split(".")[0];
+    onChange(formattedISODate);
   };
 
   return (
@@ -33,12 +70,27 @@ export default function TaskDueDate({ dueDate, onChange }: TaskDueDateProps) {
 
       {isSelecting && (
         <div className="mt-2 p-2 bg-white border border-gray-300 rounded-md shadow-sm">
-          <input
-            type="date"
-            value={dueDate ? dueDate.split("T")[0] : ""}
-            onChange={handleDateChange}
-            className="w-full p-1 border border-gray-300 rounded text-sm"
-          />
+          <div className="mb-2">
+            <label className="block text-xs text-gray-700 mb-1">Date</label>
+            <input
+              type="date"
+              value={dateValue}
+              onChange={(e) => handleDateTimeChange("date", e.target.value)}
+              className="w-full p-1 border border-gray-300 rounded text-sm"
+            />
+          </div>
+
+          <div className="mb-2">
+            <label className="block text-xs text-gray-700 mb-1">Time</label>
+            <input
+              type="time"
+              value={timeValue}
+              onChange={(e) => handleDateTimeChange("time", e.target.value)}
+              className="w-full p-1 border border-gray-300 rounded text-sm"
+              disabled={!dateValue} // Disable time if no date is selected
+            />
+          </div>
+
           <div className="mt-2 flex justify-between">
             <button
               onClick={() => onChange(undefined)}
@@ -59,7 +111,7 @@ export default function TaskDueDate({ dueDate, onChange }: TaskDueDateProps) {
       {dueDate && !isSelecting && (
         <div className="mt-1 ml-7 text-xs">
           <span className={isPastDue ? "text-red-500" : "text-gray-600"}>
-            {formattedDate}
+            {formattedDate} at {formattedTime}
           </span>
         </div>
       )}

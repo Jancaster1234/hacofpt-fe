@@ -1,7 +1,7 @@
 // src/app/hackathon/[id]/team/[teamId]/board/_components/TaskEdit/TaskAssignees.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { User } from "@/types/entities/user";
 import { taskAssigneeService } from "@/services/taskAssignee.service";
 
