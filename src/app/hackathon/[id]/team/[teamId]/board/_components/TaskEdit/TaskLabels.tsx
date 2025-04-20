@@ -1,7 +1,7 @@
 // src/app/hackathon/[id]/team/[teamId]/board/_components/TaskEdit/TaskLabels.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BoardLabel } from "@/types/entities/boardLabel";
 import { taskLabelService } from "@/services/taskLabel.service";
 
@@ -22,23 +22,14 @@ export default function TaskLabels({
   const [labels, setLabels] = useState<BoardLabel[]>(selectedLabels);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Load task labels when component mounts
-  useEffect(() => {
-    const fetchTaskLabels = async () => {
-      try {
-        const { data } = await taskLabelService.getTaskLabelsByTaskId(taskId);
-        const taskBoardLabels = data
-          .map((tl) => tl.boardLabel)
-          .filter(Boolean) as BoardLabel[];
-        setLabels(taskBoardLabels);
-      } catch (err) {
-        console.error("Error fetching task labels:", err);
-      }
-    };
-
-    fetchTaskLabels();
-  }, [taskId]);
+  console.log(
+    "selectedLabels in src/app/hackathon/[id]/team/[teamId]/board/_components/TaskEdit/TaskLabels.tsx",
+    selectedLabels
+  );
+  console.log(
+    "labels in src/app/hackathon/[id]/team/[teamId]/board/_components/TaskEdit/TaskLabels.tsx",
+    labels
+  );
 
   const toggleLabel = async (label: BoardLabel) => {
     try {

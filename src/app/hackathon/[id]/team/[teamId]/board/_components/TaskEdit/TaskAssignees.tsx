@@ -23,24 +23,6 @@ export default function TaskAssignees({
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load task assignees when component mounts
-  useEffect(() => {
-    const fetchTaskAssignees = async () => {
-      try {
-        const { data } =
-          await taskAssigneeService.getTaskAssigneesByTaskId(taskId);
-        const assignedUsers = data
-          .map((ta) => ta.user)
-          .filter(Boolean) as User[];
-        setCurrentAssignees(assignedUsers);
-      } catch (err) {
-        console.error("Error fetching task assignees:", err);
-      }
-    };
-
-    fetchTaskAssignees();
-  }, [taskId]);
-
   const toggleAssignee = async (user: User) => {
     try {
       setIsUpdating(true);
