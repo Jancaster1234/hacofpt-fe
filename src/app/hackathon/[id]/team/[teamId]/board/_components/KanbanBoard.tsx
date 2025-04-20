@@ -189,7 +189,7 @@ export default function KanbanBoard({
                   dueDate: task.dueDate,
                   position: task.position, // Make sure the position is included
                   // UPDATED: Use the enhanced arrays
-                  taskAssignees: enhancedAssignees,
+                  assignees: enhancedAssignees,
                   taskLabels: enhancedTaskLabels,
                   fileUrls,
                   comments,
