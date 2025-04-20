@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { FileUrl } from "@/types/entities/fileUrl";
 import { formatDistance } from "date-fns";
 import { fileUrlService } from "@/services/fileUrl.service";
@@ -70,9 +71,7 @@ export default function TaskAttachments({
     }
   };
 
-  // Don't render if there are no files and we're not uploading
-  if (files.length === 0 && !isUploading) return null;
-
+  // Always render the component, even with no files
   return (
     <div className="bg-gray-50 p-3 rounded-md">
       <h3 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
@@ -80,67 +79,81 @@ export default function TaskAttachments({
         Attachments ({files.length})
       </h3>
 
-      <div className="space-y-2">
-        {files.map((file) => (
-          <div
-            key={file.id}
-            className="flex items-start border-b border-gray-200 pb-2"
-          >
-            {/* File preview/icon */}
-            <div className="mr-3 mt-1">
-              {file.fileType.startsWith("image/") ? (
-                <img
-                  src={file.fileUrl}
-                  alt={file.fileName}
-                  className="w-10 h-10 object-cover rounded"
-                />
-              ) : (
-                <div className="w-10 h-10 bg-gray-200 flex items-center justify-center rounded">
-                  <span className="text-xs">File</span>
+      {files.length > 0 && (
+        <div className="space-y-2">
+          {files.map((file) => (
+            <div
+              key={file.id}
+              className="flex items-start border-b border-gray-200 pb-2"
+            >
+              {/* File preview/icon */}
+              <div className="mr-3 mt-1">
+                {file.fileType.startsWith("image/") ? (
+                  <div className="relative w-10 h-10">
+                    <Image
+                      src={file.fileUrl}
+                      alt={file.fileName}
+                      fill
+                      sizes="40px"
+                      className="object-cover rounded"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 bg-gray-200 flex items-center justify-center rounded">
+                    <span className="text-xs">File</span>
+                  </div>
+                )}
+              </div>
+
+              {/* File details */}
+              <div className="flex-1">
+                <div className="flex justify-between">
+                  <span className="font-medium text-sm">{file.fileName}</span>
+                  <span className="text-xs text-gray-500">
+                    {formatDistance(
+                      new Date(file.createdAt || ""),
+                      new Date(),
+                      {
+                        addSuffix: true,
+                      }
+                    )}
+                  </span>
                 </div>
-              )}
-            </div>
-
-            {/* File details */}
-            <div className="flex-1">
-              <div className="flex justify-between">
-                <span className="font-medium text-sm">{file.fileName}</span>
-                <span className="text-xs text-gray-500">
-                  {formatDistance(new Date(file.createdAt || ""), new Date(), {
-                    addSuffix: true,
-                  })}
-                </span>
-              </div>
-              <div className="text-xs text-gray-500">
-                {(file.fileSize / 1024).toFixed(1)} KB
-              </div>
-              <div className="mt-1 flex space-x-2">
-                <a
-                  href={file.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-500 hover:underline"
-                >
-                  Download
-                </a>
-                <button
-                  onClick={() => handleRemoveFile(file.id)}
-                  className="text-xs text-red-500 hover:underline"
-                >
-                  Remove
-                </button>
+                <div className="text-xs text-gray-500">
+                  {(file.fileSize / 1024).toFixed(1)} KB
+                </div>
+                <div className="mt-1 flex space-x-2">
+                  <a
+                    href={file.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-500 hover:underline"
+                  >
+                    Download
+                  </a>
+                  <button
+                    onClick={() => handleRemoveFile(file.id)}
+                    className="text-xs text-red-500 hover:underline"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+      )}
 
-        {isUploading && (
-          <div className="flex items-center justify-center py-2">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
-            <span className="ml-2 text-sm text-gray-600">Uploading...</span>
-          </div>
-        )}
-      </div>
+      {files.length === 0 && !isUploading && (
+        <p className="text-sm text-gray-500 mb-3">No attachments yet</p>
+      )}
+
+      {isUploading && (
+        <div className="flex items-center justify-center py-2">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+          <span className="ml-2 text-sm text-gray-600">Uploading...</span>
+        </div>
+      )}
 
       <div className="mt-3">
         <label className="cursor-pointer inline-block">

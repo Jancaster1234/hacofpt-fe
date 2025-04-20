@@ -75,8 +75,8 @@ class TaskService {
     fileUrls: string[]
   ): Promise<{ data: FileUrl[]; message?: string }> {
     try {
-      const response = await apiService.auth.post<FileUrl[]>(
-        `/communication-service/api/v1/tasks/${taskId}/files`,
+      const response = await apiService.auth.put<FileUrl[]>(
+        `/communication-service/api/v1/tasks/update-files/${taskId}`,
         { data: { fileUrls } }
       );
 

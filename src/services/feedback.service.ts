@@ -82,7 +82,7 @@ class FeedbackService {
   ): Promise<{ data: Feedback[]; message?: string }> {
     try {
       const response = await apiService.auth.get<Feedback[]>(
-        `/feedback-service/api/v1/feedbacks/by-hackathon?hackathonId=${hackathonId}`
+        `/feedback-service/api/v1/feedbacks/hackathon/${hackathonId}`
       );
 
       if (!response || !response.data) {
@@ -132,7 +132,7 @@ class FeedbackService {
   ): Promise<{ data: Feedback[]; message?: string }> {
     try {
       const response = await apiService.auth.get<Feedback[]>(
-        `/feedback-service/api/v1/feedbacks/by-creator?username=${encodeURIComponent(username)}`
+        `/feedback-service/api/v1/feedbacks/by-creator/${encodeURIComponent(username)}`
       );
 
       if (!response || !response.data) {
