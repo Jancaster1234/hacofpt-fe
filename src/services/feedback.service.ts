@@ -7,7 +7,7 @@ class FeedbackService {
   async getAllFeedbacks(): Promise<{ data: Feedback[]; message?: string }> {
     try {
       const response = await apiService.auth.get<Feedback[]>(
-        "/feedback-service/api/v1/feedbacks"
+        "/analytics-service/api/v1/feedbacks"
       );
 
       if (!response || !response.data) {
@@ -32,7 +32,7 @@ class FeedbackService {
   ): Promise<{ data: Feedback; message?: string }> {
     try {
       const response = await apiService.auth.get<Feedback>(
-        `/feedback-service/api/v1/feedbacks/${id}`
+        `/analytics-service/api/v1/feedbacks/${id}`
       );
 
       if (!response || !response.data) {
@@ -57,7 +57,7 @@ class FeedbackService {
   ): Promise<{ data: Feedback[]; message?: string }> {
     try {
       const response = await apiService.auth.get<Feedback[]>(
-        `/feedback-service/api/v1/feedbacks/by-team?teamId=${teamId}`
+        `/analytics-service/api/v1/feedbacks/by-team?teamId=${teamId}`
       );
 
       if (!response || !response.data) {
@@ -82,7 +82,7 @@ class FeedbackService {
   ): Promise<{ data: Feedback[]; message?: string }> {
     try {
       const response = await apiService.auth.get<Feedback[]>(
-        `/feedback-service/api/v1/feedbacks/hackathon/${hackathonId}`
+        `/analytics-service/api/v1/feedbacks/hackathon/${hackathonId}`
       );
 
       if (!response || !response.data) {
@@ -107,7 +107,7 @@ class FeedbackService {
   ): Promise<{ data: Feedback[]; message?: string }> {
     try {
       const response = await apiService.auth.get<Feedback[]>(
-        `/feedback-service/api/v1/feedbacks/by-mentor?mentorId=${mentorId}`
+        `/analytics-service/api/v1/feedbacks/by-mentor?mentorId=${mentorId}`
       );
 
       if (!response || !response.data) {
@@ -132,7 +132,7 @@ class FeedbackService {
   ): Promise<{ data: Feedback[]; message?: string }> {
     try {
       const response = await apiService.auth.get<Feedback[]>(
-        `/feedback-service/api/v1/feedbacks/by-creator/${encodeURIComponent(username)}`
+        `/analytics-service/api/v1/feedbacks/by-creator/${encodeURIComponent(username)}`
       );
 
       if (!response || !response.data) {
@@ -159,7 +159,7 @@ class FeedbackService {
   }): Promise<{ data: Feedback; message?: string }> {
     try {
       const response = await apiService.auth.post<Feedback>(
-        "/feedback-service/api/v1/feedbacks",
+        "/analytics-service/api/v1/feedbacks",
         { data: data }
       );
 
@@ -190,7 +190,7 @@ class FeedbackService {
   ): Promise<{ data: Feedback; message?: string }> {
     try {
       const response = await apiService.auth.put<Feedback>(
-        `/feedback-service/api/v1/feedbacks/${id}`,
+        `/analytics-service/api/v1/feedbacks/${id}`,
         data
       );
 
@@ -214,7 +214,7 @@ class FeedbackService {
   async deleteFeedback(id: string): Promise<{ message?: string }> {
     try {
       const response = await apiService.auth.delete(
-        `/feedback-service/api/v1/feedbacks/${id}`
+        `/analytics-service/api/v1/feedbacks/${id}`
       );
 
       return {
