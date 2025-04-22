@@ -111,13 +111,16 @@ class ThreadPostService {
     }
   }
 
-  async deleteThreadPost(id: string): Promise<{ message?: string }> {
+  async deleteThreadPost(
+    id: string
+  ): Promise<{ data: ThreadPost; message?: string }> {
     try {
-      const response = await apiService.auth.delete(
+      const response = await apiService.auth.delete<ThreadPost>(
         `/communication-service/api/v1/thread-posts/${id}`
       );
 
       return {
+        data: response.data,
         message: response.message || "Thread post deleted successfully",
       };
     } catch (error: any) {
