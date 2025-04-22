@@ -152,7 +152,7 @@ class IndividualRegistrationRequestService {
 
   async getIndividualRegistrationsByHackathonIdAndStatus(
     hackathonId: string,
-    status: "PENDING" | "APPROVED" | "REJECTED"
+    status: "PENDING" | "APPROVED" | "REJECTED" | "COMPLETED"
   ): Promise<{ data: IndividualRegistrationRequest[]; message?: string }> {
     try {
       const response = await apiService.auth.get<

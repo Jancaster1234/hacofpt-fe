@@ -2,6 +2,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { TeamParticipantsTab } from "./TeamParticipantsTab";
+import { IndividualParticipantsTab } from "./IndividualParticipantsTab";
 
 type TabKey =
   | "information"
@@ -20,10 +22,15 @@ const tabs: { key: TabKey; label: string }[] = [
 
 export default function HackathonTabs({
   content,
+  hackathonId,
 }: {
   content: Record<TabKey, string | string[]>;
+  hackathonId: string;
 }) {
   const [activeTab, setActiveTab] = useState<TabKey>("information");
+  const [participantSubTab, setParticipantSubTab] = useState<
+    "teams" | "individuals"
+  >("teams");
 
   useEffect(() => {
     const hash = window.location.hash.replace("#", "") as TabKey;
@@ -58,7 +65,40 @@ export default function HackathonTabs({
 
       {/* Tab Content */}
       <div className="mt-4 p-4 border rounded-lg bg-white">
-        {Array.isArray(content[activeTab]) ? (
+        {activeTab === "participant" ? (
+          <div>
+            {/* Participant Subtabs */}
+            <div className="flex mb-4 border-b">
+              <button
+                onClick={() => setParticipantSubTab("teams")}
+                className={`px-4 py-2 ${
+                  participantSubTab === "teams"
+                    ? "border-b-2 border-blue-500 font-medium"
+                    : "text-gray-500"
+                }`}
+              >
+                Teams
+              </button>
+              <button
+                onClick={() => setParticipantSubTab("individuals")}
+                className={`px-4 py-2 ${
+                  participantSubTab === "individuals"
+                    ? "border-b-2 border-blue-500 font-medium"
+                    : "text-gray-500"
+                }`}
+              >
+                Individual Participants
+              </button>
+            </div>
+
+            {/* Participant Content based on subtab */}
+            {participantSubTab === "teams" ? (
+              <TeamParticipantsTab hackathonId={hackathonId} />
+            ) : (
+              <IndividualParticipantsTab hackathonId={hackathonId} />
+            )}
+          </div>
+        ) : Array.isArray(content[activeTab]) ? (
           <ul className="list-disc pl-5">
             {(content[activeTab] as string[]).map((doc, index) => (
               <li key={index}>

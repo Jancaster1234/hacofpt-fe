@@ -77,6 +77,7 @@ export default function HackathonDetail() {
           documentation: hackathon.documentation,
           contact: hackathon.contact,
         }}
+        hackathonId={id}
       />
     </div>
   );

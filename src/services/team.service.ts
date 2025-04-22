@@ -52,6 +52,31 @@ class TeamService {
       );
     }
   }
+
+  async getTeamsByHackathonId(
+    hackathonId: string
+  ): Promise<{ data: Team[]; message?: string }> {
+    try {
+      const response = await apiService.auth.get<Team[]>(
+        `/hackathon-service/api/v1/teams/by-hackathon?hackathonId=${hackathonId}`
+      );
+
+      if (!response || !response.data) {
+        throw new Error("Failed to retrieve teams for hackathon");
+      }
+
+      return {
+        data: response.data,
+        message: response.message || "Teams retrieved successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<Team[]>(
+        error,
+        [],
+        "[Team Service] Error fetching teams by hackathonId:"
+      );
+    }
+  }
 }
 
 export const teamService = new TeamService();
