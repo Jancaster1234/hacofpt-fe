@@ -7,6 +7,7 @@ import {
 } from "@/types/entities/scheduleEventAttendee";
 import { scheduleEventAttendeeService } from "@/services/scheduleEventAttendee.service";
 import { userService } from "@/services/user.service";
+import { useAuth } from "@/hooks/useAuth_v0";
 
 interface EventAttendeesSectionProps {
   attendees: ScheduleEventAttendee[];
@@ -30,6 +31,9 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
   const [attendeesWithUsers, setAttendeesWithUsers] = useState<
     AttendeeWithUser[]
   >([]);
+
+  // Get current user from auth hook
+  const { user: currentUser } = useAuth();
 
   // Load attendees when component mounts or schedule event ID changes
   useEffect(() => {
@@ -180,6 +184,16 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
     }
   };
 
+  // Check if current user is an organizer
+  const isOrganizer = currentUser?.userRoles?.some(
+    (userRole) => userRole.role.name === "ORGANIZER"
+  );
+
+  // Check if the attendee is the current user
+  const isCurrentUserAttendee = (userId?: string) => {
+    return userId === currentUser?.id;
+  };
+
   // Filter out team members who are already attendees
   const availableTeamMembers = teamMembers.filter(
     (member) => !attendees.some((a) => a.userId === member.id)
@@ -242,61 +256,78 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
 
       {attendeesWithUsers.length > 0 ? (
         <div className="space-y-2">
-          {attendeesWithUsers.map((attendee) => (
-            <div
-              key={attendee.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-gray-800"
-            >
-              <div className="flex items-center">
-                <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
-                  {attendee.user?.firstName?.charAt(0) || "U"}
+          {attendeesWithUsers.map((attendee) => {
+            const canManageAttendee =
+              isOrganizer || isCurrentUserAttendee(attendee.userId);
+            return (
+              <div
+                key={attendee.id}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-gray-800"
+              >
+                <div className="flex items-center">
+                  <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
+                    {attendee.user?.firstName?.charAt(0) || "U"}
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium">
+                      {attendee.user?.firstName} {attendee.user?.lastName}
+                      {isCurrentUserAttendee(attendee.userId) && (
+                        <span className="ml-2 text-xs text-brand-500">
+                          (You)
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {attendee.user?.email}
+                    </p>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium">
-                    {attendee.user?.firstName} {attendee.user?.lastName}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {attendee.user?.email}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <select
-                  value={attendee.status}
-                  onChange={(e) =>
-                    handleChangeStatus(
-                      attendee.id,
-                      e.target.value as ScheduleEventStatus
-                    )
-                  }
-                  className="text-xs rounded-lg border border-gray-300 bg-transparent p-1 dark:border-gray-700 dark:bg-gray-800"
-                  disabled={isLoading}
-                >
-                  <option value="INVITED">Invited</option>
-                  <option value="CONFIRMED">Confirmed</option>
-                  <option value="DECLINED">Declined</option>
-                </select>
-                <button
-                  onClick={() => handleRemoveAttendee(attendee.id)}
-                  className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                  disabled={isLoading}
-                >
-                  <svg
-                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={attendee.status}
+                    onChange={(e) =>
+                      handleChangeStatus(
+                        attendee.id,
+                        e.target.value as ScheduleEventStatus
+                      )
+                    }
+                    className={`text-xs rounded-lg border border-gray-300 bg-transparent p-1 dark:border-gray-700 dark:bg-gray-800 ${
+                      !canManageAttendee
+                        ? "opacity-60 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    disabled={isLoading || !canManageAttendee}
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                </button>
+                    <option value="INVITED">Invited</option>
+                    <option value="CONFIRMED">Confirmed</option>
+                    <option value="DECLINED">Declined</option>
+                  </select>
+                  <button
+                    onClick={() => handleRemoveAttendee(attendee.id)}
+                    className={`p-1 rounded-full ${
+                      canManageAttendee
+                        ? "hover:bg-gray-200 dark:hover:bg-gray-700"
+                        : "opacity-60 cursor-not-allowed"
+                    }`}
+                    disabled={isLoading || !canManageAttendee}
+                  >
+                    <svg
+                      className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         !isLoading && (

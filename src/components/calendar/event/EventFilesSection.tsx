@@ -17,6 +17,10 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(50); // Mock progress value
+  const [apiMessage, setApiMessage] = useState<string | undefined>(undefined);
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success"
+  );
 
   useEffect(() => {
     // Fetch files when component mounts and scheduleEventId is available
@@ -29,11 +33,23 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
     if (!scheduleEventId) return;
 
     try {
-      const { data: fileUrls } =
+      const { data: fileUrls, message } =
         await fileUrlService.getFileUrlsByScheduleEventId(scheduleEventId);
       setFiles(fileUrls);
-    } catch (error) {
+
+      if (message) {
+        setApiMessage(message);
+        setMessageType(fileUrls.length > 0 ? "success" : "error");
+      }
+    } catch (error: any) {
       console.error("Failed to load event files:", error);
+      // Extract message from error response if available
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to load event files";
+      setApiMessage(errorMessage);
+      setMessageType("error");
     }
   };
 
@@ -43,31 +59,56 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
       return;
 
     setUploading(true);
+    setApiMessage(undefined); // Clear previous messages
 
     try {
       // Convert FileList to File array
       const filesArray = Array.from(selectedFiles);
 
       // Step 1: Upload files to the communication service
-      const { data: uploadedFiles } =
+      const { data: uploadedFiles, message: uploadMessage } =
         await fileUrlService.uploadMultipleFilesCommunication(filesArray);
+
+      if (uploadMessage) {
+        setApiMessage(uploadMessage);
+        setMessageType(uploadedFiles.length > 0 ? "success" : "error");
+      }
 
       // Step 2: Extract fileUrls from the uploaded files
       const fileUrls = uploadedFiles.map((file) => file.fileUrl);
 
       // Step 3: Associate the uploaded files with the schedule event
       if (fileUrls.length > 0 && scheduleEventId) {
-        const { data: associatedFiles } =
+        const { data: associatedFiles, message: associateMessage } =
           await scheduleEventService.createScheduleEventFiles(
             scheduleEventId,
             fileUrls
           );
 
-        // Step 4: Update local state with the associated files
-        setFiles([...files, ...associatedFiles]);
+        if (associateMessage) {
+          setApiMessage(associateMessage);
+          setMessageType(associatedFiles.length > 0 ? "success" : "error");
+        }
+
+        // Step 4: Update local state with the associated files - prevent duplicates by ID
+        const updatedFiles = [
+          ...files,
+          ...associatedFiles.filter(
+            (newFile) =>
+              !files.some((existingFile) => existingFile.id === newFile.id)
+          ),
+        ];
+        setFiles(updatedFiles);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading files:", error);
+      // Extract message from error response if available
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Error uploading files";
+      setApiMessage(errorMessage);
+      setMessageType("error");
     } finally {
       setUploading(false);
     }
@@ -76,13 +117,28 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
   const handleRemoveFile = async (fileId: string) => {
     try {
       // Call API to delete file
-      await fileUrlService.deleteFileUrl(fileId);
+      const { message } = await fileUrlService.deleteFileUrl(fileId);
 
       // Update local state
       setFiles(files.filter((file) => file.id !== fileId));
-    } catch (error) {
+
+      if (message) {
+        setApiMessage(message);
+        setMessageType("success");
+      }
+    } catch (error: any) {
       console.error("Error removing file:", error);
+      // Extract message from error response if available
+      const errorMessage =
+        error.response?.data?.message || error.message || "Error removing file";
+      setApiMessage(errorMessage);
+      setMessageType("error");
     }
+  };
+
+  const handleFileClick = (fileUrl: string) => {
+    // Open the file URL in a new tab
+    window.open(fileUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -90,6 +146,24 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
       <h6 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
         Attachments
       </h6>
+
+      {apiMessage && (
+        <div
+          className={`mb-4 p-3 rounded-md text-sm ${
+            messageType === "error"
+              ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+              : "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+          }`}
+        >
+          {apiMessage}
+          <button
+            className="float-right text-xs hover:underline"
+            onClick={() => setApiMessage(undefined)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <div className="mb-4">
         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800">
@@ -147,7 +221,10 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
               key={file.id}
               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-gray-800"
             >
-              <div className="flex items-center">
+              <div
+                className="flex items-center flex-grow cursor-pointer"
+                onClick={() => handleFileClick(file.fileUrl)}
+              >
                 <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg dark:bg-gray-700">
                   <svg
                     className="w-5 h-5 text-gray-500 dark:text-gray-400"
@@ -172,7 +249,10 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
                 </div>
               </div>
               <button
-                onClick={() => handleRemoveFile(file.id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent click from bubbling to parent
+                  handleRemoveFile(file.id);
+                }}
                 className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
