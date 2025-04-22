@@ -6,12 +6,17 @@ import {
   ScheduleEventStatus,
 } from "@/types/entities/scheduleEventAttendee";
 import { scheduleEventAttendeeService } from "@/services/scheduleEventAttendee.service";
+import { userService } from "@/services/user.service";
 
 interface EventAttendeesSectionProps {
   attendees: ScheduleEventAttendee[];
   setAttendees: (attendees: ScheduleEventAttendee[]) => void;
   teamMembers: User[];
   scheduleEventId?: string;
+}
+
+interface AttendeeWithUser extends ScheduleEventAttendee {
+  user?: User;
 }
 
 const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
@@ -22,6 +27,9 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
 }) => {
   const [showMemberSelector, setShowMemberSelector] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [attendeesWithUsers, setAttendeesWithUsers] = useState<
+    AttendeeWithUser[]
+  >([]);
 
   // Load attendees when component mounts or schedule event ID changes
   useEffect(() => {
@@ -29,6 +37,11 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
       loadAttendees();
     }
   }, [scheduleEventId]);
+
+  // Fetch user information for each attendee when attendees array changes
+  useEffect(() => {
+    fetchUsersForAttendees();
+  }, [attendees]);
 
   const loadAttendees = async () => {
     if (!scheduleEventId) return;
@@ -42,6 +55,43 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
       setAttendees(data);
     } catch (error) {
       console.error("Failed to load attendees", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchUsersForAttendees = async () => {
+    if (!attendees.length) {
+      setAttendeesWithUsers([]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const updatedAttendees = await Promise.all(
+        attendees.map(async (attendee) => {
+          if (!attendee.userId) {
+            return { ...attendee, user: undefined };
+          }
+
+          try {
+            const { data: user } = await userService.getUserById(
+              attendee.userId
+            );
+            return { ...attendee, user };
+          } catch (error) {
+            console.error(
+              `Failed to fetch user for attendee ${attendee.id}`,
+              error
+            );
+            return { ...attendee, user: undefined };
+          }
+        })
+      );
+
+      setAttendeesWithUsers(updatedAttendees);
+    } catch (error) {
+      console.error("Failed to fetch users for attendees", error);
     } finally {
       setIsLoading(false);
     }
@@ -190,9 +240,9 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
         </div>
       )}
 
-      {attendees.length > 0 ? (
+      {attendeesWithUsers.length > 0 ? (
         <div className="space-y-2">
-          {attendees.map((attendee) => (
+          {attendeesWithUsers.map((attendee) => (
             <div
               key={attendee.id}
               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-gray-800"
