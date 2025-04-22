@@ -155,13 +155,7 @@ export default function BoardUserManagement({
 
     try {
       // Instead of actually deleting, we'll update with isDeleted set to true
-      const response = await boardUserService.updateBoardUser(boardUser.id, {
-        boardId: boardUser.boardId,
-        userId: boardUser.userId,
-        role: boardUser.role,
-        isDeleted: true,
-        deletedById: user?.id,
-      });
+      const response = await boardUserService.deleteBoardUser(boardUser.id);
 
       if (response.data) {
         // Remove from local state

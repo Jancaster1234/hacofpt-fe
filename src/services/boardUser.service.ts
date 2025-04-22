@@ -169,13 +169,16 @@ class BoardUserService {
     }
   }
 
-  async deleteBoardUser(id: string): Promise<{ message?: string }> {
+  async deleteBoardUser(
+    id: string
+  ): Promise<{ data: BoardUser; message?: string }> {
     try {
-      const response = await apiService.auth.delete(
+      const response = await apiService.auth.delete<BoardUser>(
         `/communication-service/api/v1/board-users/${id}`
       );
 
       return {
+        data: response.data,
         message: response.message || "Board user deleted successfully",
       };
     } catch (error: any) {
