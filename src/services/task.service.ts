@@ -85,7 +85,7 @@ class TaskService {
       }
 
       return {
-        data: response.data,
+        data: response.data.fileUrls,
         message: response.message || "Task files added successfully",
       };
     } catch (error: any) {
