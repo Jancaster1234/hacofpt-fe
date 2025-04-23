@@ -225,29 +225,35 @@ export default function KanbanBoard({
     loadBoardData();
   }, [board, isLoading, team, setBoard, setColumns]);
 
-  // Handle drag start event
+  // Update the handleDragStart function
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    setActiveId(active.id as string);
+    // Extract the actual ID without the prefix
+    const activeId = active.id.toString();
+    setActiveId(activeId);
   };
 
-  // Update the handleDragOver function
+  // Update the handleDragOver function to handle empty columns better:
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
 
     if (!over) return;
 
-    const activeId = active.id as string;
-    const overId = over.id as string;
+    // Extract the actual IDs without prefixes
+    const activeIdWithPrefix = active.id.toString();
+    const overIdWithPrefix = over.id.toString();
 
-    // Check if this is a column being dragged over
-    const isActiveColumn = useKanbanStore
-      .getState()
-      .columns.some((col) => col.id === activeId);
+    // Check if we're dealing with columns or tasks
+    const isActiveColumn = activeIdWithPrefix.startsWith("column-");
+    const isOverColumn = overIdWithPrefix.startsWith("column-");
 
-    const isOverColumn = useKanbanStore
-      .getState()
-      .columns.some((col) => col.id === overId);
+    // Extract the actual IDs
+    const activeId = isActiveColumn
+      ? activeIdWithPrefix.replace("column-", "")
+      : activeIdWithPrefix.replace("task-", "");
+    const overId = isOverColumn
+      ? overIdWithPrefix.replace("column-", "")
+      : overIdWithPrefix.replace("task-", "");
 
     // If we're dragging a column over another column, it's handled elsewhere
     if (isActiveColumn && isOverColumn) return;
@@ -256,31 +262,33 @@ export default function KanbanBoard({
     const activeTask = useKanbanStore
       .getState()
       .columns.flatMap((col) => col.tasks)
-      .find((task) => task.id === activeId);
+      .find((task) => `task-${task.id}` === activeIdWithPrefix);
 
-    // Find the task or column we're dragging over
-    const overTask = useKanbanStore
-      .getState()
-      .columns.flatMap((col) => col.tasks)
-      .find((task) => task.id === overId);
-
-    // If the target is not a task (might be a column), return
+    // If no active task is found, return
     if (!activeTask) return;
 
     // If we're dragging over a column directly
     if (isOverColumn) {
-      // Move the task to the end of the target column
+      // Find the source column that contains the task
       const sourceColumnId = useKanbanStore
         .getState()
         .columns.find((column) =>
-          column.tasks.some((task) => task.id === activeId)
+          column.tasks.some((task) => `task-${task.id}` === activeIdWithPrefix)
         )?.id;
 
+      // Only move if we have a source column and it's different from the target
       if (sourceColumnId && sourceColumnId !== overId) {
+        // Move the task to the target column
         useKanbanStore.getState().moveTask(activeId, sourceColumnId, overId);
       }
       return;
     }
+
+    // Find the task we're dragging over
+    const overTask = useKanbanStore
+      .getState()
+      .columns.flatMap((col) => col.tasks)
+      .find((task) => `task-${task.id}` === overIdWithPrefix);
 
     // If we're not dragging over another task, return
     if (!overTask) return;
@@ -288,11 +296,15 @@ export default function KanbanBoard({
     // Find the columns for both tasks
     const overColumn = useKanbanStore
       .getState()
-      .columns.find((col) => col.tasks.some((task) => task.id === overId));
+      .columns.find((col) =>
+        col.tasks.some((task) => `task-${task.id}` === overIdWithPrefix)
+      );
 
     const activeColumn = useKanbanStore
       .getState()
-      .columns.find((col) => col.tasks.some((task) => task.id === activeId));
+      .columns.find((col) =>
+        col.tasks.some((task) => `task-${task.id}` === activeIdWithPrefix)
+      );
 
     if (!overColumn || !activeColumn) return;
 
@@ -306,7 +318,7 @@ export default function KanbanBoard({
 
     // If tasks are in the same column, reorder tasks
     const overTaskIndex = overColumn.tasks.findIndex(
-      (task) => task.id === overId
+      (task) => `task-${task.id}` === overIdWithPrefix
     );
 
     // Reorder tasks in the column
@@ -315,22 +327,30 @@ export default function KanbanBoard({
       .reorderTasksInColumn(overColumn.id, activeId, overTaskIndex);
   };
 
-  // Update the handleDragEnd function to include task sorting
+  // Update the handleDragEnd function to be consistent with handleDragOver
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
 
     if (!over) return;
 
-    const activeId = active.id as string;
-    const overId = over.id as string;
+    // Extract the actual IDs without prefixes
+    const activeIdWithPrefix = active.id.toString();
+    const overIdWithPrefix = over.id.toString();
 
-    // Check if this is a column being dragged
-    const isColumn = useKanbanStore
-      .getState()
-      .columns.some((col) => col.id === activeId);
+    // Check if we're dealing with columns or tasks
+    const isActiveColumn = activeIdWithPrefix.startsWith("column-");
+    const isOverColumn = overIdWithPrefix.startsWith("column-");
 
-    if (isColumn) {
+    // Extract the actual IDs
+    const activeId = isActiveColumn
+      ? activeIdWithPrefix.replace("column-", "")
+      : activeIdWithPrefix.replace("task-", "");
+    const overId = isOverColumn
+      ? overIdWithPrefix.replace("column-", "")
+      : overIdWithPrefix.replace("task-", "");
+
+    if (isActiveColumn) {
       // Find current and target index
       const columns = useKanbanStore.getState().columns;
       const currentIndex = columns.findIndex((col) => col.id === activeId);
@@ -346,30 +366,24 @@ export default function KanbanBoard({
     const activeTask = useKanbanStore
       .getState()
       .columns.flatMap((col) => col.tasks)
-      .find((task) => task.id === activeId);
+      .find((task) => `task-${task.id}` === activeIdWithPrefix);
 
     if (!activeTask) return;
 
     // Check if we're dropping on a column
-    const isOverColumn = useKanbanStore
-      .getState()
-      .columns.some((col) => col.id === overId);
-
     if (isOverColumn) {
       // This is a task being dragged to a column
       const sourceColumnId = useKanbanStore
         .getState()
         .columns.find((column) =>
-          column.tasks.some((task) => task.id === activeId)
+          column.tasks.some((task) => `task-${task.id}` === activeIdWithPrefix)
         )?.id;
 
       if (sourceColumnId && sourceColumnId !== overId) {
         moveTask(activeId, sourceColumnId, overId);
       }
-    } else {
-      // This is a task being dragged over another task
-      // The reordering is handled in handleDragOver
     }
+    // The reordering within the same column is handled in handleDragOver
   };
 
   // Show loading skeleton if board data is still loading
@@ -433,7 +447,7 @@ export default function KanbanBoard({
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={sortedColumns.map((col) => col.id)}
+          items={sortedColumns.map((col) => `column-${col.id}`)}
           strategy={horizontalListSortingStrategy}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

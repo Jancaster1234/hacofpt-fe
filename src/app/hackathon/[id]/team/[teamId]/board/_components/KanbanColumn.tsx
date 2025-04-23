@@ -17,12 +17,14 @@ interface KanbanColumnProps {
   column: Column;
   isActive?: boolean;
   isLoading?: boolean;
+  isDraggingOver?: boolean;
 }
 
 export default function KanbanColumn({
   column,
   isActive,
   isLoading = false,
+  isDraggingOver = false,
 }: KanbanColumnProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [columnName, setColumnName] = useState(column.title);
@@ -31,10 +33,15 @@ export default function KanbanColumn({
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
 
-  const { setNodeRef: droppableRef } = useDroppable({ id: column.id });
+  const { setNodeRef: droppableRef } = useDroppable({
+    id: `column-${column.id}`,
+  });
 
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: column.id });
+    useSortable({
+      id: `column-${column.id}`, // Add a prefix to distinguish it as a column
+      data: { type: "column", column },
+    });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -77,9 +84,9 @@ export default function KanbanColumn({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className={`bg-gray-100 p-4 rounded-xl shadow-lg w-full min-h-[400px] ${
+      className={`bg-gray-100 p-4 rounded-xl shadow-lg w-full min-h-[400px] transition-all ${
         isActive ? "opacity-50" : ""
-      }`}
+      } ${isDraggingOver ? "ring-2 ring-blue-400 bg-gray-50" : ""}`}
     >
       {/* Column Header */}
       <div className="flex justify-between items-center mb-4">
@@ -163,7 +170,11 @@ export default function KanbanColumn({
       </div>
 
       {/* Droppable area for tasks */}
-      <div ref={droppableRef} className="space-y-3 min-h-[300px]">
+      <div
+        ref={droppableRef}
+        className="space-y-3 min-h-[300px] flex flex-col"
+        style={{ flexGrow: 1 }}
+      >
         {isLoading ? (
           // Skeleton cards when loading
           <>
@@ -175,15 +186,21 @@ export default function KanbanColumn({
             ))}
           </>
         ) : (
-          // Actual tasks
-          <SortableContext
-            items={column.tasks.map((task) => task.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {column.tasks.map((task) => (
-              <KanbanTask key={task.id} task={task} />
-            ))}
-          </SortableContext>
+          <>
+            <SortableContext
+              items={column.tasks.map((task) => `task-${task.id}`)}
+              strategy={verticalListSortingStrategy}
+            >
+              {column.tasks.map((task) => (
+                <KanbanTask key={task.id} task={task} />
+              ))}
+            </SortableContext>
+            {column.tasks.length === 0 && (
+              <div className="h-full flex-grow flex items-center justify-center text-gray-400 text-sm italic">
+                Drop cards here
+              </div>
+            )}
+          </>
         )}
       </div>
 

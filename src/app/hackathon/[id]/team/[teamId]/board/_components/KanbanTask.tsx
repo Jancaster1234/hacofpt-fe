@@ -25,8 +25,11 @@ export default function KanbanTask({ task }: KanbanTaskProps) {
     transition,
     isDragging: isDraggingNow,
   } = useSortable({
-    id: task.id,
-    data: { task },
+    id: `task-${task.id}`, // Add a prefix to distinguish it as a task
+    data: {
+      type: "task",
+      task,
+    },
   });
 
   // Apply CSS transform from dnd-kit

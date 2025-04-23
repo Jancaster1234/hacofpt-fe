@@ -282,6 +282,9 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   },
 
   // Task operations
+  // src/store/kanbanStore.ts
+  // Update the moveTask function:
+
   moveTask: (taskId, fromColumnId, toColumnId) => {
     set((state) => {
       const sourceColumn = state.columns.find((col) => col.id === fromColumnId);
@@ -309,7 +312,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       // Add task to the end of target column
       const targetPosition = targetColumn.tasks.length;
 
-      // Prepare updates for API call
+      // Prepare updates for API call with explicit positions
       const updates = [
         {
           id: taskId,
@@ -332,24 +335,32 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       // Call API to update task positions
       updateTaskPositions(updates).catch((error) => {
         console.error("Failed to update task positions:", error);
-        // Could handle error state here
       });
 
-      // Create new columns array
+      // Create new columns array with updated task positions
       const updatedColumns = state.columns.map((col) => {
         if (col.id === fromColumnId) {
           return {
             ...col,
             tasks: updatedSourceTasks.map((t, idx) => ({
               ...t,
-              position: idx,
+              position: idx, // Make sure positions are sequential
             })),
           };
         }
         if (col.id === toColumnId) {
+          const updatedTargetTasks = [
+            ...col.tasks,
+            { ...updatedTask, position: targetPosition },
+          ];
+
+          // Ensure positions are correct and sequential
           return {
             ...col,
-            tasks: [...col.tasks, { ...updatedTask, position: targetPosition }],
+            tasks: updatedTargetTasks.map((t, idx) => ({
+              ...t,
+              position: idx,
+            })),
           };
         }
         return col;
