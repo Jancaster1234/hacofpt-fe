@@ -1,4 +1,4 @@
-// src/hooks/use-toast.ts
+// src/hooks/use-toast.tsx
 import { useToastStore } from "@/store/toast-store";
 
 export const useToast = () => {
