@@ -178,8 +178,12 @@ export default function TaskEditModal({
     );
   };
 
-  const handleAddFile = (file: FileUrl) => {
-    setFiles((prevFiles) => [...prevFiles, file]);
+  const handleAddFile = (file: FileUrl | FileUrl[]) => {
+    if (Array.isArray(file)) {
+      setFiles((prevFiles) => [...prevFiles, ...file]);
+    } else {
+      setFiles((prevFiles) => [...prevFiles, file]);
+    }
   };
 
   const handleRemoveFile = (fileId: string) => {

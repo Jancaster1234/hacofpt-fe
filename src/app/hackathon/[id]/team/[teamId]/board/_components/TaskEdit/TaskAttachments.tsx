@@ -11,7 +11,7 @@ import { taskService } from "@/services/task.service";
 interface TaskAttachmentsProps {
   files: FileUrl[];
   taskId: string;
-  onAddFile?: (file: FileUrl) => void;
+  onAddFile?: (file: FileUrl | FileUrl[]) => void;
   onRemoveFile?: (fileId: string) => void;
   onError?: (error: string) => void;
 }
@@ -25,36 +25,46 @@ export default function TaskAttachments({
 }: TaskAttachmentsProps) {
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (selectedFiles: File[]) => {
+    if (!selectedFiles.length) return;
+
     try {
       setIsUploading(true);
 
-      // 1. Upload file to get FileUrl object
+      // 1. Upload files to get FileUrl objects
       const { data: uploadedFiles, message } =
-        await fileUrlService.uploadMultipleFilesCommunication([file]);
+        await fileUrlService.uploadMultipleFilesCommunication(selectedFiles);
 
       if (!uploadedFiles || uploadedFiles.length === 0) {
-        throw new Error("Failed to upload file");
+        throw new Error("Failed to upload files");
       }
 
       // 2. Get the fileUrl strings from the response
       const fileUrls = uploadedFiles.map((file) => file.fileUrl);
 
       // 3. Associate files with the task
-      const { data: attachedFiles } = await taskService.createTaskFiles(
+      const { data: allTaskFiles } = await taskService.createTaskFiles(
         taskId,
         fileUrls
       );
 
-      // 4. Notify parent component if callback is provided
-      if (attachedFiles && attachedFiles.length > 0 && onAddFile) {
-        onAddFile(attachedFiles[0]);
+      // 4. Filter out newly added files by comparing URLs with existing files
+      if (allTaskFiles && allTaskFiles.length > 0) {
+        const existingFileUrls = files.map((file) => file.fileUrl);
+        const newlyAddedFiles = allTaskFiles.filter(
+          (file) => !existingFileUrls.includes(file.fileUrl)
+        );
+
+        // 5. Notify parent component if callback is provided
+        if (newlyAddedFiles.length > 0 && onAddFile) {
+          onAddFile(newlyAddedFiles);
+        }
       }
 
-      return attachedFiles;
+      return allTaskFiles;
     } catch (error) {
-      console.error("Error uploading file:", error);
-      if (onError) onError("Failed to upload file. Please try again.");
+      console.error("Error uploading files:", error);
+      if (onError) onError("Failed to upload files. Please try again.");
       return null;
     } finally {
       setIsUploading(false);
@@ -158,15 +168,16 @@ export default function TaskAttachments({
       <div className="mt-3">
         <label className="cursor-pointer inline-block">
           <div className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm">
-            Add Attachment
+            Add Attachments
           </div>
           <input
             type="file"
             className="hidden"
+            multiple
             disabled={isUploading}
             onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleFileUpload(file);
+              const files = e.target.files ? Array.from(e.target.files) : [];
+              if (files.length > 0) handleFileUpload(files);
             }}
           />
         </label>
