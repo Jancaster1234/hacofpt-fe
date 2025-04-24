@@ -55,8 +55,6 @@ export default function KanbanTask({ task }: KanbanTaskProps) {
 
   // Get board labels and team members for the TaskEditModal
   const boardLabels = board?.boardLabels || [];
-  const teamMembers =
-    board?.boardUsers?.map((bu) => bu.user).filter(Boolean) || [];
 
   // Handle mouse down to track if it's a potential drag
   const handleMouseDown = (e: React.MouseEvent) => {
