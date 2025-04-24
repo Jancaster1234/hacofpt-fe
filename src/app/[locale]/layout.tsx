@@ -29,8 +29,19 @@ export default function RootLayout({
 
   useEffect(() => {
     console.log("🔹 AuthProvider: Initializing auth check");
-    checkUser();
-  }, []);
+
+    // Check if this is a locale change
+    const isLocaleChange = sessionStorage.getItem("localeChange") === "true";
+
+    if (isLocaleChange) {
+      // Clear the flag
+      sessionStorage.removeItem("localeChange");
+      console.log("🔹 Skipping auth check during locale change");
+    } else {
+      // Normal behavior - check user authentication
+      checkUser();
+    }
+  }, [locale]);
 
   return (
     <html suppressHydrationWarning lang={locale}>

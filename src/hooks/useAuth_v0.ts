@@ -98,6 +98,12 @@ export function useAuth() {
       console.log("🔹 Fetched user:", userData);
       console.log("🔹 API message:", apiMessage);
 
+      if (!userData || Object.keys(userData).length === 0) {
+        console.warn("❌ Empty user data received, but not clearing token");
+        setAuth({ user: null, loading: false });
+        return { success: false, message: "Invalid user data" };
+      }
+
       setAuth({ user: userData, loading: false });
 
       // Only set message if there's something noteworthy
@@ -108,7 +114,18 @@ export function useAuth() {
       return { success: true, message: apiMessage };
     } catch (error: any) {
       console.error("❌ Failed to fetch user:", error);
-      localStorage.removeItem("accessToken");
+
+      // Only remove token if this is definitely an authentication error
+      if (
+        error.message.includes("401") ||
+        error.message.includes("Unauthorized")
+      ) {
+        console.log("❌ Authentication error, removing token");
+        localStorage.removeItem("accessToken");
+      } else {
+        console.log("❌ Non-authentication error, preserving token");
+      }
+
       setAuth({ user: null, loading: false });
 
       // Only set error message on actual errors, not on session expiration

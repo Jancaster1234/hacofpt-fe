@@ -10,9 +10,15 @@ export default function LanguageSwitcher() {
   const pathname = usePathname();
 
   const handleLocaleChange = (newLocale: string) => {
+    // Store the current authentication state before navigation
+    const accessToken = localStorage.getItem("accessToken");
+
     // Replace the locale segment in the URL
     const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
     router.push(newPath);
+
+    // Set a flag to prevent token removal during locale change
+    sessionStorage.setItem("localeChange", "true");
   };
 
   return (
