@@ -1,20 +1,18 @@
 // src/app/[locale]/hackathon/[id]/page.tsx
 "use client";
-// TODO: [Lv1] check if should cache the page server side and revalidate
-// TODO: [Lv1] check if nextjs able to cache this page client-side
-import { Metadata } from "next";
+
 import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import { Hackathon } from "@/types/entities/hackathon";
+import { hackathonService } from "@/services/hackathon.service";
 import HackathonBanner from "./_components/HackathonBanner";
 import HackathonTabs from "./_components/HackathonTabs";
 import HackathonOverview from "./_components/HackathonOverview";
-import { Hackathon } from "@/types/entities/hackathon";
-import { hackathonService } from "@/services/hackathon.service";
-import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
-// TODO: [Lv1] check if memoization is enabled by default, without the need of enable force-cache
-
-// This function should be memoized to avoid fetching the same data multiple times
 async function getHackathon(id: string): Promise<Hackathon[]> {
   const response = await hackathonService.getHackathonById(id);
   return response.data.length > 0 ? response.data[0] : null;
@@ -23,6 +21,8 @@ async function getHackathon(id: string): Promise<Hackathon[]> {
 export default function HackathonDetail() {
   const params = useParams();
   const id = params.id as string;
+  const t = useTranslations("hackathonDetail");
+  const toast = useToast();
 
   const {
     data: hackathon,
@@ -33,12 +33,20 @@ export default function HackathonDetail() {
     queryFn: () => getHackathon(id),
     staleTime: 60 * 1000, // 1 minute before refetch
     refetchOnWindowFocus: false,
+    onError: (error: any) => {
+      toast.error(error.message || t("errorLoading"));
+    },
+    onSuccess: (data) => {
+      if (data) {
+        toast.success(t("loadedSuccessfully"));
+      }
+    },
   });
 
   // For metadata-related side effects
   useEffect(() => {
     if (hackathon) {
-      document.title = hackathon.title || "Hackathon Detail";
+      document.title = hackathon.title || t("pageTitle");
       // Update meta description if needed
       const metaDescription = document.querySelector(
         'meta[name="description"]'
@@ -47,14 +55,41 @@ export default function HackathonDetail() {
         metaDescription.setAttribute("content", hackathon.description || "");
       }
     }
-  }, [hackathon]);
+  }, [hackathon, t]);
 
-  if (isLoading) return <p>Loading hackathon details...</p>;
-  if (error) return <p>Failed to load hackathon details.</p>;
-  if (!hackathon) return <p>No hackathon found.</p>;
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <LoadingSpinner size="lg" />
+        <span className="ml-3 text-gray-700 dark:text-gray-300">
+          {t("loading")}
+        </span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-4 text-center">
+        <p className="text-red-500 dark:text-red-400 font-medium text-lg">
+          {t("failedToLoad")}
+        </p>
+      </div>
+    );
+  }
+
+  if (!hackathon) {
+    return (
+      <div className="container mx-auto p-4 text-center">
+        <p className="text-gray-700 dark:text-gray-300 font-medium text-lg">
+          {t("noHackathonFound")}
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4 sm:p-6">
+    <div className="container mx-auto p-4 sm:p-6 transition-colors duration-300">
       <HackathonBanner
         bannerImageUrl={hackathon.bannerImageUrl}
         altText={hackathon.title}
