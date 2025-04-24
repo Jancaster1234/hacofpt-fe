@@ -12,7 +12,7 @@
     "contact": "Contact"
   },
   "home": {
-    "title": "Welcome to our Website",
+    "title": "Welcome to our website",
     "description": "This is a multi-language website."
   },
   "hero": {
@@ -44,5 +44,52 @@
       "title": "Real-time Insights",
       "subtitle": "Track hackathon progress with analytics"
     }
+  },
+  "hackathon": {
+    "hackathonPageTitle": "Explore hackathons",
+    "searchPlaceholder": "Search hackathons by title...",
+    "searchHackathons": "Search hackathons",
+    "sortBy": "Sort by",
+    "sortBySuggestion": "Suggestion",
+    "sortByLatest": "Latest",
+    "noHackathonsFound": "No hackathons found. Try adjusting your filters.",
+    "loading": "Loading hackathons...",
+    "failedToLoad": "Failed to load hackathons. Please try again later.",
+    "errorFetchingHackathons": "Error fetching hackathons. Please try again.",
+    "resultsCount": "Found {count} hackathons",
+    "filters": "Filters",
+    "filterBy": "Filter by",
+    "status": "Status",
+    "statusOpen": "Open",
+    "statusOngoing": "Ongoing",
+    "statusClosed": "Closed",
+    "categories": "Categories",
+    "categoryAI": "AI",
+    "categoryWebDevelopment": "Web Development",
+    "categoryMobile": "Mobile",
+    "categoryBlockchain": "Blockchain",
+    "categoryIoT": "IoT",
+    "organizations": "Organizations",
+    "organizationFPT": "FPT",
+    "organizationMicrosoft": "Microsoft",
+    "organizationGoogle": "Google",
+    "organizationAmazon": "Amazon",
+    "organizationMeta": "Meta",
+    "categoryCodingHackathons": "Coding Hackathons",
+    "categoryExternalHackathons": "External Hackathons",
+    "categoryInternalHackathons": "Internal Hackathons",
+    "categoryDesignHackathons": "Design Hackathons",
+    "categoryOthers": "Others",
+    "organizationFPTU": "FPTU",
+    "organizationNASA": "NASA",
+    "organizationIAIHACKATHON": "IAI HACKATHON",
+    "organizationCEHackathon": "CE Hackathon",
+    "organizationOthers": "Others",
+    "statusUpcoming": "Upcoming"
+  },
+  "pagination": {
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "pageInfo": "{current} / {total}"
   }
 }

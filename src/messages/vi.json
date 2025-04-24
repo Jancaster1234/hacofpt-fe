@@ -16,7 +16,7 @@
     "description": "Đây là một trang web đa ngôn ngữ."
   },
   "hero": {
-    "exploreHackathon": "Khám phá Hackathon",
+    "exploreHackathon": "Khám phá hackathon",
     "title": "Khám phá Ý tưởng Đột phá tại FPTU Hackathon",
     "subtitle": "Tham gia cùng sinh viên FPTU trong hành trình sáng tạo và đổi mới.",
     "getStarted": "Bắt đầu",
@@ -44,5 +44,52 @@
       "title": "Thông tin Thời gian thực",
       "subtitle": "Theo dõi tiến trình hackathon với phân tích"
     }
+  },
+  "hackathon": {
+    "hackathonPageTitle": "Khám phá hackathon",
+    "searchPlaceholder": "Tìm kiếm hackathon theo tiêu đề...",
+    "searchHackathons": "Tìm kiếm hackathon",
+    "sortBy": "Sắp xếp theo",
+    "sortBySuggestion": "Đề xuất",
+    "sortByLatest": "Mới nhất",
+    "noHackathonsFound": "Không tìm thấy hackathon nào. Hãy thử điều chỉnh bộ lọc.",
+    "loading": "Đang tải hackathon...",
+    "failedToLoad": "Không thể tải hackathon. Vui lòng thử lại sau.",
+    "errorFetchingHackathons": "Lỗi khi tải hackathon. Vui lòng thử lại.",
+    "resultsCount": "Tìm thấy {count} hackathon",
+    "filters": "Bộ lọc",
+    "filterBy": "Lọc theo",
+    "status": "Trạng thái",
+    "statusOpen": "Mở",
+    "statusOngoing": "Đang diễn ra",
+    "statusClosed": "Đã đóng",
+    "categories": "Danh mục",
+    "categoryAI": "AI",
+    "categoryWebDevelopment": "Phát triển Web",
+    "categoryMobile": "Di động",
+    "categoryBlockchain": "Blockchain",
+    "categoryIoT": "IoT",
+    "organizations": "Tổ chức",
+    "organizationFPT": "FPT",
+    "organizationMicrosoft": "Microsoft",
+    "organizationGoogle": "Google",
+    "organizationAmazon": "Amazon",
+    "organizationMeta": "Meta",
+    "categoryCodingHackathons": "Hackathon Lập Trình",
+    "categoryExternalHackathons": "Hackathon Bên Ngoài",
+    "categoryInternalHackathons": "Hackathon Nội Bộ",
+    "categoryDesignHackathons": "Hackathon Thiết Kế",
+    "categoryOthers": "Khác",
+    "organizationFPTU": "FPTU",
+    "organizationNASA": "NASA",
+    "organizationIAIHACKATHON": "IAI HACKATHON",
+    "organizationCEHackathon": "CE Hackathon",
+    "organizationOthers": "Khác",
+    "statusUpcoming": "Sắp Diễn Ra"
+  },
+  "pagination": {
+    "previousPage": "Trang trước",
+    "nextPage": "Trang sau",
+    "pageInfo": "{current} / {total}"
   }
 }
