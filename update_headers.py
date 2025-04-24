@@ -11,7 +11,7 @@ COMMENT_STYLES = {
     ".css": "/* {path} */\n",      # CSS
     ".html": "<!-- {path} -->\n",  # HTML
     ".java": "// {path}\n",        # Java
-    ".json": "// {path}\n"         # JSON (uses JavaScript-style comments)
+   # ".json": "// {path}\n"         # JSON (uses JavaScript-style comments)
 }
 
 SRC_FOLDER = "src"
