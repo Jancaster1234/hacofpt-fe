@@ -1,7 +1,7 @@
 // src/app/hackathon/[id]/team/[teamId]/board/_components/BoardHeader.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Board } from "@/types/entities/board";
 import { BoardLabel } from "@/types/entities/boardLabel";
 import { useKanbanStore } from "@/store/kanbanStore";
@@ -20,6 +20,11 @@ export default function BoardHeader({
   onEdit,
 }: BoardHeaderProps) {
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
+
+  useEffect(() => {
+    // Update any local state when board details change
+    // For example, if you have any local state derived from board name/description
+  }, [board.name, board.description]);
 
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">

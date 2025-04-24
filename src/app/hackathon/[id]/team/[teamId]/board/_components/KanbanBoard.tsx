@@ -497,16 +497,31 @@ export default function KanbanBoard({
           boardName={boardName}
           boardDescription={boardDescription}
           onSave={async () => {
-            await useKanbanStore
-              .getState()
-              .updateBoardDetails(
-                boardName,
-                boardDescription,
-                board.teamId,
-                board.hackathonId,
-                board.ownerId
-              );
-            setIsEditingBoard(false);
+            try {
+              const updatedBoard = await useKanbanStore
+                .getState()
+                .updateBoardDetails(
+                  boardName,
+                  boardDescription,
+                  board.teamId,
+                  board.hackathonId,
+                  board.ownerId
+                );
+
+              if (updatedBoard) {
+                // Update both board states
+                setBoard(updatedBoard);
+                setEnhancedBoard({
+                  ...updatedBoard,
+                  boardUsers: enhancedBoard?.boardUsers || [],
+                  boardLabels: enhancedBoard?.boardLabels || [],
+                });
+              }
+              setIsEditingBoard(false);
+            } catch (error) {
+              console.error("Error updating board details:", error);
+              // Optionally add error handling UI feedback here
+            }
           }}
           onCancel={() => {
             setBoardName(board.name);

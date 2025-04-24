@@ -374,6 +374,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   },
 
   // Board operations
+  // In useKanbanStore.ts, modify the updateBoardDetails function
   updateBoardDetails: async (
     name,
     description,
@@ -394,11 +395,22 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
         hackathonId,
         ownerId,
       });
+
+      // Make sure we preserve any existing properties that aren't returned by the API
+      const mergedBoard = {
+        ...state.board,
+        name: updatedBoard.name,
+        description: updatedBoard.description,
+        // Preserve other properties from updatedBoard as needed
+        updatedAt: updatedBoard.updatedAt,
+      };
+
       set({
-        board: { ...state.board, ...updatedBoard },
+        board: mergedBoard,
         isLoading: false,
       });
-      return updatedBoard;
+
+      return mergedBoard;
     } catch (error) {
       console.error("Failed to update board:", error);
       set({
