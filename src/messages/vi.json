@@ -1,0 +1,12 @@
+{
+  "_comment": "This is the Vietnamese translation file. Path: src/messages/vi.json",
+  "navigation": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ"
+  },
+  "home": {
+    "title": "Chào mừng đến với trang web của chúng tôi",
+    "description": "Đây là một trang web đa ngôn ngữ."
+  }
+}
