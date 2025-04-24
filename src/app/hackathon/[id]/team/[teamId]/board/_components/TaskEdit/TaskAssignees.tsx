@@ -76,6 +76,28 @@ export default function TaskAssignees({
     }
   };
 
+  const removeAssignee = async (taskAssignee: TaskAssignee) => {
+    try {
+      setIsUpdating(true);
+      setError(null);
+
+      if (taskAssignee.id) {
+        await taskAssigneeService.deleteTaskAssignee(taskAssignee.id);
+
+        // Update parent state by filtering out the deleted assignee
+        const updatedTaskAssignees = taskAssignees.filter(
+          (ta) => ta.id !== taskAssignee.id
+        );
+        onChange(updatedTaskAssignees);
+      }
+    } catch (err) {
+      console.error("Error removing task assignee:", err);
+      setError("Failed to remove assignee");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <div className="mt-2">
       <button
@@ -91,23 +113,37 @@ export default function TaskAssignees({
 
       {/* Display assigned members */}
       {taskAssignees.length > 0 && !isSelecting && (
-        <div className="flex flex-wrap mt-1 ml-7 gap-1">
+        <div className="flex flex-wrap mt-1 ml-7 gap-2">
           {taskAssignees.map(
             (taskAssignee) =>
               taskAssignee.user && (
-                <div key={taskAssignee.id} className="relative w-6 h-6">
-                  <Image
-                    src={
-                      taskAssignee.user.avatarUrl ||
-                      "https://via.placeholder.com/30"
-                    }
-                    alt={`${taskAssignee.user.firstName} ${taskAssignee.user.lastName}`}
-                    className="rounded-full border border-white"
-                    title={`${taskAssignee.user.firstName} ${taskAssignee.user.lastName}`}
-                    fill
-                    sizes="24px"
-                    style={{ objectFit: "cover" }}
-                  />
+                <div key={taskAssignee.id} className="relative group">
+                  <div className="relative w-6 h-6">
+                    <Image
+                      src={
+                        taskAssignee.user.avatarUrl ||
+                        "https://via.placeholder.com/30"
+                      }
+                      alt={`${taskAssignee.user.firstName} ${taskAssignee.user.lastName}`}
+                      className="rounded-full border border-white"
+                      title={`${taskAssignee.user.firstName} ${taskAssignee.user.lastName}`}
+                      fill
+                      sizes="24px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </div>
+                  {/* X button overlay that appears on hover */}
+                  <button
+                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeAssignee(taskAssignee);
+                    }}
+                    disabled={isUpdating}
+                    title="Remove assignee"
+                  >
+                    ×
+                  </button>
                 </div>
               )
           )}
