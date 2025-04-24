@@ -2,61 +2,73 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { User } from "@/types/entities/user";
 import { taskAssigneeService } from "@/services/taskAssignee.service";
+import { TaskAssignee } from "@/types/entities/taskAssignee";
 
 interface TaskAssigneesProps {
-  assignees: User[];
+  taskAssignees: TaskAssignee[];
   availableMembers: User[];
-  onChange: (assignees: User[]) => void;
+  onChange: (taskAssignees: TaskAssignee[]) => void;
   taskId: string;
 }
 
 export default function TaskAssignees({
-  assignees,
+  taskAssignees,
   availableMembers,
   onChange,
   taskId,
 }: TaskAssigneesProps) {
   const [isSelecting, setIsSelecting] = useState(false);
-  const [currentAssignees, setCurrentAssignees] = useState<User[]>(assignees);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Create a map of assigned user IDs for quick lookup
+  const assignedUserIds = new Set(
+    taskAssignees.map((ta) => ta.user?.id).filter(Boolean)
+  );
 
   const toggleAssignee = async (user: User) => {
     try {
       setIsUpdating(true);
       setError(null);
 
-      const isAssigned = currentAssignees.some((a) => a.id === user.id);
+      const isAssigned = assignedUserIds.has(user.id);
 
       if (isAssigned) {
         // Find the taskAssignee to delete
-        const { data: taskAssignees } =
+        const { data: existingTaskAssignees } =
           await taskAssigneeService.getTaskAssigneesByTaskId(taskId);
-        const assigneeToDelete = taskAssignees.find(
+        const assigneeToDelete = existingTaskAssignees.find(
           (ta) => ta.user?.id === user.id
         );
 
         if (assigneeToDelete) {
           await taskAssigneeService.deleteTaskAssignee(assigneeToDelete.id);
-        }
 
-        // Update local state
-        const newAssignees = currentAssignees.filter((a) => a.id !== user.id);
-        setCurrentAssignees(newAssignees);
-        onChange(newAssignees);
+          // Update parent state by filtering out the deleted assignee
+          const updatedTaskAssignees = taskAssignees.filter(
+            (ta) => ta.user?.id !== user.id
+          );
+          onChange(updatedTaskAssignees);
+        }
       } else {
         // Add new assignee
-        await taskAssigneeService.createTaskAssignee({
-          taskId,
-          userId: user.id,
-        });
+        const { data: newTaskAssignee } =
+          await taskAssigneeService.createTaskAssignee({
+            taskId,
+            userId: user.id,
+          });
 
-        // Update local state
-        const newAssignees = [...currentAssignees, user];
-        setCurrentAssignees(newAssignees);
-        onChange(newAssignees);
+        if (newTaskAssignee) {
+          // Make sure the new task assignee has the user info
+          newTaskAssignee.user = user;
+
+          // Update parent state by adding the new task assignee
+          const updatedTaskAssignees = [...taskAssignees, newTaskAssignee];
+          onChange(updatedTaskAssignees);
+        }
       }
     } catch (err) {
       console.error("Error updating task assignee:", err);
@@ -80,17 +92,27 @@ export default function TaskAssignees({
       {error && <div className="mt-1 ml-7 text-xs text-red-500">{error}</div>}
 
       {/* Display assigned members */}
-      {currentAssignees.length > 0 && !isSelecting && (
+      {taskAssignees.length > 0 && !isSelecting && (
         <div className="flex flex-wrap mt-1 ml-7 gap-1">
-          {currentAssignees.map((user) => (
-            <img
-              key={user.id}
-              src={user.avatarUrl || "https://via.placeholder.com/30"}
-              alt={`${user.firstName} ${user.lastName}`}
-              className="w-6 h-6 rounded-full border border-white"
-              title={`${user.firstName} ${user.lastName}`}
-            />
-          ))}
+          {taskAssignees.map(
+            (taskAssignee) =>
+              taskAssignee.user && (
+                <div key={taskAssignee.id} className="relative w-6 h-6">
+                  <Image
+                    src={
+                      taskAssignee.user.avatarUrl ||
+                      "https://via.placeholder.com/30"
+                    }
+                    alt={`${taskAssignee.user.firstName} ${taskAssignee.user.lastName}`}
+                    className="rounded-full border border-white"
+                    title={`${taskAssignee.user.firstName} ${taskAssignee.user.lastName}`}
+                    fill
+                    sizes="24px"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              )
+          )}
         </div>
       )}
 
@@ -99,7 +121,7 @@ export default function TaskAssignees({
         <div className="mt-2 p-2 bg-white border border-gray-300 rounded-md shadow-sm">
           <div className="max-h-48 overflow-y-auto">
             {availableMembers.map((user) => {
-              const isAssigned = currentAssignees.some((a) => a.id === user.id);
+              const isAssigned = assignedUserIds.has(user.id);
               return (
                 <div
                   key={user.id}
@@ -108,11 +130,16 @@ export default function TaskAssignees({
                   }`}
                   onClick={() => !isUpdating && toggleAssignee(user)}
                 >
-                  <img
-                    src={user.avatarUrl || "https://via.placeholder.com/30"}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    className="w-6 h-6 rounded-full mr-2"
-                  />
+                  <div className="relative w-6 h-6 mr-2">
+                    <Image
+                      src={user.avatarUrl || "https://via.placeholder.com/30"}
+                      alt={`${user.firstName} ${user.lastName}`}
+                      className="rounded-full"
+                      fill
+                      sizes="24px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </div>
                   <span className="text-sm">{`${user.firstName} ${user.lastName}`}</span>
                   {isAssigned && <span className="ml-auto">✓</span>}
                 </div>

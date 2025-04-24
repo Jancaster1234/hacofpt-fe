@@ -4,31 +4,28 @@
 import { useState } from "react";
 import { BoardLabel } from "@/types/entities/boardLabel";
 import { taskLabelService } from "@/services/taskLabel.service";
+import { TaskLabel } from "@/types/entities/taskLabel";
 
 interface TaskLabelsProps {
-  selectedLabels: BoardLabel[];
+  taskLabels: TaskLabel[];
   availableLabels: BoardLabel[];
-  onChange: (labels: BoardLabel[]) => void;
+  onChange: (taskLabels: TaskLabel[]) => void;
   taskId: string;
 }
 
 export default function TaskLabels({
-  selectedLabels,
+  taskLabels,
   availableLabels,
   onChange,
   taskId,
 }: TaskLabelsProps) {
   const [isSelecting, setIsSelecting] = useState(false);
-  const [labels, setLabels] = useState<BoardLabel[]>(selectedLabels);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  console.log(
-    "selectedLabels in src/app/hackathon/[id]/team/[teamId]/board/_components/TaskEdit/TaskLabels.tsx",
-    selectedLabels
-  );
-  console.log(
-    "labels in src/app/hackathon/[id]/team/[teamId]/board/_components/TaskEdit/TaskLabels.tsx",
-    labels
+
+  // Create a map of selected label IDs for quick lookup
+  const selectedLabelIds = new Set(
+    taskLabels.map((tl) => tl.boardLabel?.id).filter(Boolean)
   );
 
   const toggleLabel = async (label: BoardLabel) => {
@@ -36,35 +33,40 @@ export default function TaskLabels({
       setIsUpdating(true);
       setError(null);
 
-      const isSelected = labels.some((l) => l.id === label.id);
+      const isSelected = selectedLabelIds.has(label.id);
 
       if (isSelected) {
         // Find the taskLabel to delete
-        const { data: taskLabels } =
+        const { data: existingTaskLabels } =
           await taskLabelService.getTaskLabelsByTaskId(taskId);
-        const taskLabelToDelete = taskLabels.find(
+        const taskLabelToDelete = existingTaskLabels.find(
           (tl) => tl.boardLabel?.id === label.id
         );
 
         if (taskLabelToDelete) {
           await taskLabelService.deleteTaskLabel(taskLabelToDelete.id);
-        }
 
-        // Update local state
-        const newLabels = labels.filter((l) => l.id !== label.id);
-        setLabels(newLabels);
-        onChange(newLabels);
+          // Update parent state by filtering out the deleted label
+          const updatedTaskLabels = taskLabels.filter(
+            (tl) => tl.boardLabel?.id !== label.id
+          );
+          onChange(updatedTaskLabels);
+        }
       } else {
         // Add new label
-        await taskLabelService.createTaskLabel({
+        const { data: newTaskLabel } = await taskLabelService.createTaskLabel({
           taskId,
           boardLabelId: label.id,
         });
 
-        // Update local state
-        const newLabels = [...labels, label];
-        setLabels(newLabels);
-        onChange(newLabels);
+        if (newTaskLabel) {
+          // Make sure the new task label has the board label info
+          newTaskLabel.boardLabel = label;
+
+          // Update parent state by adding the new task label
+          const updatedTaskLabels = [...taskLabels, newTaskLabel];
+          onChange(updatedTaskLabels);
+        }
       }
     } catch (err) {
       console.error("Error updating task label:", err);
@@ -88,16 +90,19 @@ export default function TaskLabels({
       {error && <div className="mt-1 ml-7 text-xs text-red-500">{error}</div>}
 
       {/* Display selected labels */}
-      {labels.length > 0 && !isSelecting && (
+      {taskLabels.length > 0 && !isSelecting && (
         <div className="flex flex-wrap mt-1 ml-7 gap-1">
-          {labels.map((label) => (
-            <div
-              key={label.id}
-              className="h-2 w-10 rounded"
-              style={{ backgroundColor: label.color }}
-              title={label.name}
-            />
-          ))}
+          {taskLabels.map(
+            (taskLabel) =>
+              taskLabel.boardLabel && (
+                <div
+                  key={taskLabel.id}
+                  className="h-2 w-10 rounded"
+                  style={{ backgroundColor: taskLabel.boardLabel.color }}
+                  title={taskLabel.boardLabel.name}
+                />
+              )
+          )}
         </div>
       )}
 
@@ -106,7 +111,7 @@ export default function TaskLabels({
         <div className="mt-2 p-2 bg-white border border-gray-300 rounded-md shadow-sm">
           <div className="max-h-48 overflow-y-auto">
             {availableLabels.map((label) => {
-              const isSelected = labels.some((l) => l.id === label.id);
+              const isSelected = selectedLabelIds.has(label.id);
               return (
                 <div
                   key={label.id}

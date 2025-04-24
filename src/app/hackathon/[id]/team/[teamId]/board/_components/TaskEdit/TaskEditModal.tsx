@@ -193,8 +193,32 @@ export default function TaskEditModal({
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
   };
-  console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹TaskEditModal", updatedTask);
-  console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹Task", task);
+
+  // Add handlers for labels and assignees
+  const handleLabelsChange = (labels: BoardLabel[]) => {
+    setUpdatedTask({
+      ...updatedTask,
+      taskLabels: labels.map((label) => ({
+        id: "", // This will be generated on the server
+        taskId: task.id,
+        boardLabelId: label.id,
+        boardLabel: label,
+      })),
+    });
+  };
+
+  const handleAssigneesChange = (assignees: User[]) => {
+    setUpdatedTask({
+      ...updatedTask,
+      assignees: assignees.map((user) => ({
+        id: "", // This will be generated on the server
+        taskId: task.id,
+        userId: user.id,
+        user: user,
+      })),
+    });
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
       <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -260,13 +284,12 @@ export default function TaskEditModal({
 
                 {/* Task Labels */}
                 <TaskLabels
-                  selectedLabels={
-                    updatedTask.taskLabels
-                      ?.map((tl) => tl.boardLabel)
-                      .filter(Boolean) || []
-                  }
+                  taskLabels={updatedTask.taskLabels || []}
                   availableLabels={boardLabels}
                   taskId={task.id}
+                  onChange={(taskLabels) =>
+                    setUpdatedTask({ ...updatedTask, taskLabels })
+                  }
                 />
 
                 {/* Task Due Date */}
@@ -279,12 +302,12 @@ export default function TaskEditModal({
 
                 {/* Task Assignees */}
                 <TaskAssignees
-                  assignees={
-                    updatedTask.assignees?.map((a) => a.user).filter(Boolean) ||
-                    []
-                  }
+                  taskAssignees={updatedTask.assignees || []}
                   availableMembers={teamMembers}
                   taskId={task.id}
+                  onChange={(assignees) =>
+                    setUpdatedTask({ ...updatedTask, assignees })
+                  }
                 />
               </div>
 
