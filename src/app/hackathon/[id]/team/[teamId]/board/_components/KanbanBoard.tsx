@@ -83,6 +83,9 @@ export default function KanbanBoard({
         const { data: boardUsers } =
           await boardUserService.getBoardUsersByBoardId(board.id);
 
+        // Filter out deleted board users before updating the board
+        const activeBoardUsers = boardUsers.filter((bu) => !bu.isDeleted);
+
         // Load board labels (needed for task labels and BoardHeader)
         const { data: boardLabels } =
           await boardLabelService.getBoardLabelsByBoardId(board.id);
@@ -90,7 +93,7 @@ export default function KanbanBoard({
         // Update the enhanced board with users and labels
         const updatedBoard = {
           ...board,
-          boardUsers,
+          boardUsers: activeBoardUsers, // Only include active (non-deleted) board users
           boardLabels, // Add the labels to the board object
         };
 

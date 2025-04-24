@@ -3,6 +3,7 @@
 
 import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import Image from "next/image";
 import { Board } from "@/types/entities/board";
 import { BoardUser, BoardUserRole } from "@/types/entities/boardUser";
 import { Team } from "@/types/entities/team";
@@ -45,8 +46,8 @@ export default function BoardUserManagement({
     try {
       const response = await boardUserService.getBoardUsersByBoardId(board.id);
       if (response.data) {
-        // Filter out deleted users
-        setBoardUsers(response.data.filter((bu) => !bu.isDeleted));
+        // Store all board users, including deleted ones
+        setBoardUsers(response.data);
       } else {
         setError("Failed to fetch board users");
       }
@@ -58,10 +59,11 @@ export default function BoardUserManagement({
     }
   };
 
-  // Filter team members who are not already board users
+  // Filter team members who are not already active board users
   const availableTeamMembers =
     team?.teamMembers?.filter(
-      (tm) => !boardUsers.some((bu) => bu.user?.id === tm.user.id)
+      (tm) =>
+        !boardUsers.some((bu) => !bu.isDeleted && bu.user?.id === tm.user.id)
     ) || [];
 
   const handleAddUser = async () => {
@@ -71,12 +73,33 @@ export default function BoardUserManagement({
     setError(null);
 
     try {
-      const response = await boardUserService.createBoardUser({
-        boardId: board.id,
-        userId: selectedTeamMember,
-        role: selectedRole,
-        isDeleted: false,
-      });
+      // Check if this user was previously deleted (soft-deleted)
+      const existingBoardUser = boardUsers.find(
+        (bu) => bu.userId === selectedTeamMember && bu.isDeleted
+      );
+
+      let response;
+
+      if (existingBoardUser) {
+        // If the user was previously soft-deleted, restore them by updating isDeleted to false
+        response = await boardUserService.updateBoardUser(
+          existingBoardUser.id,
+          {
+            boardId: board.id,
+            userId: selectedTeamMember,
+            role: selectedRole,
+            isDeleted: false,
+          }
+        );
+      } else {
+        // Create a new board user if they didn't exist before
+        response = await boardUserService.createBoardUser({
+          boardId: board.id,
+          userId: selectedTeamMember,
+          role: selectedRole,
+          isDeleted: false,
+        });
+      }
 
       if (response.data) {
         // Find the user details from team members
@@ -86,12 +109,23 @@ export default function BoardUserManagement({
 
         if (teamMember) {
           // Ensure the complete user object is attached
-          const newBoardUser: BoardUser = {
+          const updatedBoardUser: BoardUser = {
             ...response.data,
             user: teamMember.user,
           };
 
-          setBoardUsers([...boardUsers, newBoardUser]);
+          // If restoring a soft-deleted user, replace their entry
+          if (existingBoardUser) {
+            setBoardUsers(
+              boardUsers.map((bu) =>
+                bu.id === updatedBoardUser.id ? updatedBoardUser : bu
+              )
+            );
+          } else {
+            // Otherwise add the new user
+            setBoardUsers([...boardUsers, updatedBoardUser]);
+          }
+
           setSelectedTeamMember("");
         }
       } else {
@@ -116,10 +150,10 @@ export default function BoardUserManagement({
 
     try {
       const response = await boardUserService.updateBoardUser(boardUser.id, {
-        boardId: boardUser.boardId,
-        userId: boardUser.userId,
+        boardId: boardUser.board?.id,
+        userId: boardUser.user?.id,
         role: newRole,
-        isDeleted: false,
+        isDeleted: boardUser.isDeleted, // Maintain the current delete status
       });
 
       if (response.data) {
@@ -154,12 +188,16 @@ export default function BoardUserManagement({
     setError(null);
 
     try {
-      // Instead of actually deleting, we'll update with isDeleted set to true
+      // Use the deleteBoardUser endpoint which performs a soft delete
       const response = await boardUserService.deleteBoardUser(boardUser.id);
 
       if (response.data) {
-        // Remove from local state
-        setBoardUsers(boardUsers.filter((bu) => bu.id !== boardUser.id));
+        // Update the local state to mark the user as deleted
+        setBoardUsers(
+          boardUsers.map((bu) =>
+            bu.id === boardUser.id ? { ...bu, isDeleted: true } : bu
+          )
+        );
       } else {
         setError(response.message || "Failed to remove user");
       }
@@ -170,6 +208,9 @@ export default function BoardUserManagement({
       setIsLoading(false);
     }
   };
+
+  // Filter out deleted users for display
+  const activeBoardUsers = boardUsers.filter((bu) => !bu.isDeleted);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -199,24 +240,29 @@ export default function BoardUserManagement({
                 <h3 className="font-medium mb-2">Current Users</h3>
                 {isLoading ? (
                   <div className="text-center py-4">Loading users...</div>
-                ) : boardUsers.length === 0 ? (
+                ) : activeBoardUsers.length === 0 ? (
                   <div className="text-gray-500 italic">No users found</div>
                 ) : (
                   <div className="space-y-2">
-                    {boardUsers.map((boardUser) => (
+                    {activeBoardUsers.map((boardUser) => (
                       <div
                         key={boardUser.id}
                         className="flex justify-between items-center p-2 border rounded"
                       >
                         <div className="flex items-center space-x-3">
-                          <img
-                            src={
-                              boardUser.user?.avatarUrl ||
-                              "https://via.placeholder.com/40"
-                            }
-                            alt={`${boardUser.user?.firstName} ${boardUser.user?.lastName}`}
-                            className="w-8 h-8 rounded-full"
-                          />
+                          <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                            <Image
+                              src={
+                                boardUser.user?.avatarUrl ||
+                                "https://via.placeholder.com/40"
+                              }
+                              alt={`${boardUser.user?.firstName} ${boardUser.user?.lastName}`}
+                              fill
+                              sizes="32px"
+                              className="object-cover"
+                              priority
+                            />
+                          </div>
                           <span>
                             {boardUser.user?.firstName}{" "}
                             {boardUser.user?.lastName}
