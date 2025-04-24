@@ -20,6 +20,8 @@ import { taskCommentService } from "@/services/taskComment.service";
 import { FileUrl } from "@/types/entities/fileUrl";
 import { TaskComment } from "@/types/entities/taskComment";
 import { fileUrlService } from "@/services/fileUrl.service";
+import { TaskLabel } from "@/types/entities/taskLabel";
+import { TaskAssignee } from "@/types/entities/taskAssignee";
 
 interface TaskEditModalProps {
   task: Task;
@@ -271,24 +273,24 @@ export default function TaskEditModal({
   };
 
   // Add handlers for labels and assignees
-  const handleLabelsChange = (labels: BoardLabel[]) => {
+  const handleLabelsChange = (taskLabels: TaskLabel[]) => {
     // Update local state
     setUpdatedTask({
       ...updatedTask,
-      taskLabels: labels,
+      taskLabels: taskLabels,
     });
 
     // Update the task in the store
     const updatedTaskWithLabels = {
       ...updatedTask,
-      taskLabels: labels,
+      taskLabels: taskLabels,
       comments,
       fileUrls: files,
     };
     updateTask(updatedTaskWithLabels);
   };
 
-  const handleAssigneesChange = (assignees: User[]) => {
+  const handleAssigneesChange = (assignees: TaskAssignee[]) => {
     // Update local state
     setUpdatedTask({
       ...updatedTask,
