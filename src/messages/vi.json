@@ -149,5 +149,40 @@
       "teams": "Đội",
       "individuals": "Cá nhân"
     }
+  },
+  "enrollment": {
+    "overviewTitle": "Tổng quan đăng ký",
+    "myTeams": "Đội của tôi",
+    "teamRequests": "Yêu cầu đội",
+    "individualRegistrations": "Đăng ký cá nhân",
+    "close": "Đóng"
+  },
+  "individualRegistration": {
+    "yourRegistrations": "Đăng ký cá nhân của bạn",
+    "registerAsIndividual": "Đăng ký cá nhân",
+    "processing": "Đang xử lý...",
+    "noRegistrationsFound": "Không tìm thấy đăng ký cá nhân nào.",
+    "clickToRegister": "Nhấn nút ở trên để đăng ký với tư cách cá nhân.",
+    "registrationFor": "Đăng ký cho {title}",
+    "status": "Trạng thái",
+    "submitted": "Đã gửi",
+    "reviewedBy": "Được xem xét bởi",
+    "deleteRegistration": "Xóa đăng ký",
+    "statusPENDING": "Đang chờ",
+    "statusAPPROVED": "Đã duyệt",
+    "statusREJECTED": "Bị từ chối",
+    "statusUNDER_REVIEW": "Đang xem xét",
+    "warningExistingRegistration": "Bạn đã có đăng ký cá nhân với trạng thái: {status}",
+    "warningExistingTeamRequest": "Bạn đã có yêu cầu đội với trạng thái: {status}",
+    "errorAlreadyRegisteredIndividual": "Bạn đã có đăng ký cá nhân cho hackathon này với trạng thái: {status}.",
+    "errorAlreadyTeamRequest": "Bạn đã có yêu cầu đội cho hackathon này với trạng thái: {status}. Vui lòng hủy yêu cầu trước khi đăng ký cá nhân.",
+    "registrationSuccess": "Đăng ký cá nhân của bạn đã được gửi thành công.",
+    "registrationError": "Không thể tạo đăng ký cá nhân. Vui lòng thử lại.",
+    "registrationErrorUnexpected": "Đã xảy ra lỗi không mong muốn khi tạo đăng ký của bạn.",
+    "deletionErrorNonPending": "Bạn chỉ có thể xóa đăng ký có trạng thái ĐANG CHỜ. Trạng thái hiện tại: {status}",
+    "registrationDeleted": "Đăng ký cá nhân của bạn đã được xóa thành công.",
+    "deletionError": "Không thể xóa đăng ký cá nhân. Vui lòng thử lại.",
+    "submittingRegistration": "Đang gửi đăng ký của bạn...",
+    "deletingRegistration": "Đang xóa đăng ký của bạn..."
   }
 }

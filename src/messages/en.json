@@ -149,5 +149,40 @@
       "teams": "Teams",
       "individuals": "Individuals"
     }
+  },
+  "enrollment": {
+    "overviewTitle": "Enrollment overview",
+    "myTeams": "My teams",
+    "teamRequests": "Team requests",
+    "individualRegistrations": "Individual registrations",
+    "close": "Close"
+  },
+  "individualRegistration": {
+    "yourRegistrations": "Your individual registrations",
+    "registerAsIndividual": "Register as individual",
+    "processing": "Processing...",
+    "noRegistrationsFound": "No individual enrollments found.",
+    "clickToRegister": "Click the button above to register as an individual.",
+    "registrationFor": "Registration for {title}",
+    "status": "Status",
+    "submitted": "Submitted",
+    "reviewedBy": "Reviewed by",
+    "deleteRegistration": "Delete registration",
+    "statusPENDING": "Pending",
+    "statusAPPROVED": "Approved",
+    "statusREJECTED": "Rejected",
+    "statusUNDER_REVIEW": "Under review",
+    "warningExistingRegistration": "You already have an individual registration with status: {status}",
+    "warningExistingTeamRequest": "You already have a team request with status: {status}",
+    "errorAlreadyRegisteredIndividual": "You already have an individual registration for this hackathon with status: {status}.",
+    "errorAlreadyTeamRequest": "You already have a team request for this hackathon with status: {status}. Please cancel it first to register as an individual.",
+    "registrationSuccess": "Your individual registration has been submitted successfully.",
+    "registrationError": "Failed to create individual registration. Please try again.",
+    "registrationErrorUnexpected": "An unexpected error occurred while creating your registration.",
+    "deletionErrorNonPending": "You can only delete registrations with PENDING status. Current status: {status}",
+    "registrationDeleted": "Your individual registration has been deleted successfully.",
+    "deletionError": "Failed to delete individual registration. Please try again.",
+    "submittingRegistration": "Submitting your registration...",
+    "deletingRegistration": "Deleting your registration..."
   }
 }
