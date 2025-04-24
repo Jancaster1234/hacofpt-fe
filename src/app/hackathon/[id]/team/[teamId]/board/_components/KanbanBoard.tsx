@@ -455,7 +455,7 @@ export default function KanbanBoard({
               <KanbanColumn
                 key={column.id}
                 column={column}
-                isActive={activeId === column.id}
+                isActive={activeId === `column-${column.id}`}
                 isLoading={loading || currentLoadingList === column.id}
               />
             ))}
