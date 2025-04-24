@@ -2,7 +2,6 @@
 
 // TODO: [Lv1] check if should cache the page server side and revalidate
 // TODO: [Lv1] check if nextjs able to cache this page client-side
-import { Metadata } from "next";
 import HackathonBanner from "./_components/HackathonBanner";
 import HackathonTabs from "./_components/HackathonTabs";
 import HackathonOverview from "./_components/HackathonOverview";
@@ -23,18 +22,18 @@ async function getHackathon(id: string): Promise<Hackathon> {
   return res.json();
 }
 
-//`params` is necessary here for fetching metadata dynamically, SEO purposes
-export async function generateMetadata({
-  params,
-}: HackathonProps): Promise<Metadata> {
-  // Await the params object
-  const id = (await params).id;
-  const hackathon = await getHackathon(id);
-  return {
-    title: hackathon.title,
-    description: hackathon.description,
-  };
-}
+// //`params` is necessary here for fetching metadata dynamically, SEO purposes
+// export async function generateMetadata({
+//   params,
+// }: HackathonProps): Promise<Metadata> {
+//   // Await the params object
+//   const id = (await params).id;
+//   const hackathon = await getHackathon(id);
+//   return {
+//     title: hackathon.title,
+//     description: hackathon.description,
+//   };
+// }
 
 export default async function HackathonDetail({ params }: HackathonProps) {
   // Await the params object
