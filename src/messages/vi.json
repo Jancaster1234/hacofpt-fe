@@ -91,5 +91,36 @@
     "previousPage": "Trang trước",
     "nextPage": "Trang sau",
     "pageInfo": "{current} / {total}"
+  },
+  "loadingSpinner": {
+    "loading": "Đang tải..."
+  },
+
+  "hackathonCard": {
+    "enroll": "Thời gian đăng ký",
+    "viewDetails": "Xem chi tiết"
+  },
+
+  "hackathonDetail": {
+    "pageTitle": "Chi tiết Hackathon",
+    "loading": "Đang tải thông tin hackathon...",
+    "errorLoading": "Lỗi khi tải thông tin hackathon",
+    "loadedSuccessfully": "Tải thông tin hackathon thành công",
+    "failedToLoad": "Không thể tải thông tin hackathon",
+    "noHackathonFound": "Không tìm thấy hackathon với ID này"
+  },
+
+  "hackathonTabs": {
+    "tabs": {
+      "information": "Thông tin",
+      "description": "Mô tả",
+      "participant": "Người tham gia",
+      "documentation": "Tài liệu",
+      "contact": "Liên hệ"
+    },
+    "subtabs": {
+      "teams": "Đội",
+      "individuals": "Cá nhân"
+    }
   }
 }

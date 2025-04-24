@@ -91,5 +91,36 @@
     "previousPage": "Previous page",
     "nextPage": "Next page",
     "pageInfo": "{current} / {total}"
+  },
+  "loadingSpinner": {
+    "loading": "Loading..."
+  },
+
+  "hackathonCard": {
+    "enroll": "Enrollment period",
+    "viewDetails": "View details"
+  },
+
+  "hackathonDetail": {
+    "pageTitle": "Hackathon Details",
+    "loading": "Loading hackathon details...",
+    "errorLoading": "Error loading hackathon details",
+    "loadedSuccessfully": "Hackathon details loaded successfully",
+    "failedToLoad": "Failed to load hackathon details",
+    "noHackathonFound": "No hackathon found with this ID"
+  },
+
+  "hackathonTabs": {
+    "tabs": {
+      "information": "Information",
+      "description": "Description",
+      "participant": "Participants",
+      "documentation": "Documentation",
+      "contact": "Contact"
+    },
+    "subtabs": {
+      "teams": "Teams",
+      "individuals": "Individuals"
+    }
   }
 }
