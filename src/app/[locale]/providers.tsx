@@ -15,24 +15,42 @@ export function Providers({
 }) {
   const [queryClient] = useState(() => new QueryClient());
   const [messages, setMessages] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadMessages = async () => {
       try {
+        setIsLoading(true);
         const importedMessages = (await import(`../../messages/${locale}.json`))
           .default;
         setMessages(importedMessages);
       } catch (error) {
-        console.error("Failed to load messages:", error);
+        console.error(`Failed to load messages for locale: ${locale}`, error);
+        // Fallback to English if the requested locale doesn't exist
+        if (locale !== "en") {
+          try {
+            const fallbackMessages = (await import(`../../messages/en.json`))
+              .default;
+            setMessages(fallbackMessages);
+          } catch (fallbackError) {
+            console.error("Failed to load fallback messages:", fallbackError);
+          }
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadMessages();
   }, [locale]);
 
-  // Don't render until messages are loaded
-  if (!messages) {
-    return null; // Or a loading indicator
+  // Show a loading indicator while messages are being loaded
+  if (isLoading || !messages) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   return (

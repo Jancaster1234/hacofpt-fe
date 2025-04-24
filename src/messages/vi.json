@@ -1,5 +1,11 @@
 {
   "_comment": "This is the Vietnamese translation file. Path: src/messages/vi.json",
+  "common": {
+    "languages": {
+      "english": "Tiếng Anh",
+      "vietnamese": "Tiếng Việt"
+    }
+  },
   "navigation": {
     "home": "Trang chủ",
     "about": "Giới thiệu",
@@ -8,5 +14,35 @@
   "home": {
     "title": "Chào mừng đến với trang web của chúng tôi",
     "description": "Đây là một trang web đa ngôn ngữ."
+  },
+  "hero": {
+    "exploreHackathon": "Khám phá Hackathon",
+    "title": "Khám phá Ý tưởng Đột phá tại FPTU Hackathon",
+    "subtitle": "Tham gia cùng sinh viên FPTU trong hành trình sáng tạo và đổi mới.",
+    "getStarted": "Bắt đầu",
+    "worldBackgroundAlt": "Bản đồ thế giới",
+    "hackathon1Alt": "Hackathon 1",
+    "hackathon2Alt": "Hackathon 2",
+    "hackathon3Alt": "Hackathon 3"
+  },
+  "services": {
+    "sectionTitle": "DỊCH VỤ",
+    "sectionDescription": "Nền tảng quản lý các cuộc thi hackathon dành riêng cho sinh viên FPTU.",
+    "service1": {
+      "title": "Quản lý Đăng ký",
+      "subtitle": "Đăng ký dễ dàng và theo dõi tiến trình"
+    },
+    "service2": {
+      "title": "Tổ chức Hiệu quả",
+      "subtitle": "Công cụ lập lịch và thông báo"
+    },
+    "service3": {
+      "title": "Hợp tác Nhóm",
+      "subtitle": "Giao tiếp liền mạch cho các đội"
+    },
+    "service4": {
+      "title": "Thông tin Thời gian thực",
+      "subtitle": "Theo dõi tiến trình hackathon với phân tích"
+    }
   }
 }

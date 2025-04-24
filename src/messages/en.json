@@ -1,5 +1,11 @@
 {
   "_comment": "This is the English translation file. Path: src/messages/en.json",
+  "common": {
+    "languages": {
+      "english": "English",
+      "vietnamese": "Vietnamese"
+    }
+  },
   "navigation": {
     "home": "Home",
     "about": "About",
@@ -8,5 +14,35 @@
   "home": {
     "title": "Welcome to our Website",
     "description": "This is a multi-language website."
+  },
+  "hero": {
+    "exploreHackathon": "Explore Hackathon",
+    "title": "Discover Breakthrough Ideas at FPTU Hackathon",
+    "subtitle": "Join FPTU students on a journey of creativity and innovation.",
+    "getStarted": "Get Started",
+    "worldBackgroundAlt": "World Background",
+    "hackathon1Alt": "Hackathon 1",
+    "hackathon2Alt": "Hackathon 2",
+    "hackathon3Alt": "Hackathon 3"
+  },
+  "services": {
+    "sectionTitle": "SERVICES",
+    "sectionDescription": "A platform for managing hackathon competitions exclusively for FPTU students.",
+    "service1": {
+      "title": "Manage Registrations",
+      "subtitle": "Easy registration and progress tracking"
+    },
+    "service2": {
+      "title": "Efficient Organization",
+      "subtitle": "Tools for scheduling and notifications"
+    },
+    "service3": {
+      "title": "Team Collaboration",
+      "subtitle": "Seamless communication for teams"
+    },
+    "service4": {
+      "title": "Real-time Insights",
+      "subtitle": "Track hackathon progress with analytics"
+    }
   }
 }
