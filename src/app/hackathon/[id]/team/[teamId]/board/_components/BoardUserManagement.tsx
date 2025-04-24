@@ -8,7 +8,7 @@ import { Board } from "@/types/entities/board";
 import { BoardUser, BoardUserRole } from "@/types/entities/boardUser";
 import { Team } from "@/types/entities/team";
 import { useAuth } from "@/hooks/useAuth_v0";
-import { boardUserService } from "@/services/boardUser.service";
+import { useKanbanStore } from "@/store/kanbanStore";
 
 interface BoardUserManagementProps {
   board: Board;
@@ -26,38 +26,27 @@ export default function BoardUserManagement({
   isOwner,
 }: BoardUserManagementProps) {
   const { user } = useAuth();
-  const [boardUsers, setBoardUsers] = useState<BoardUser[]>([]);
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>("");
   const [selectedRole, setSelectedRole] = useState<BoardUserRole>("MEMBER");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch board users when the component mounts or board changes
+  // Use KanbanStore for state management
+  const {
+    createBoardUser,
+    updateBoardUserRole,
+    deleteBoardUser,
+    isLoading,
+    setError: setStoreError,
+  } = useKanbanStore();
+
+  // Get boardUsers from the KanbanStore's board object
+  const boardUsers = useKanbanStore((state) => state.board?.boardUsers || []);
+
   useEffect(() => {
-    if (board?.id) {
-      fetchBoardUsers();
-    }
-  }, [board?.id]);
-
-  const fetchBoardUsers = async () => {
-    setIsLoading(true);
+    // Clear any errors when opening/closing modal
     setError(null);
-
-    try {
-      const response = await boardUserService.getBoardUsersByBoardId(board.id);
-      if (response.data) {
-        // Store all board users, including deleted ones
-        setBoardUsers(response.data);
-      } else {
-        setError("Failed to fetch board users");
-      }
-    } catch (err) {
-      setError("An error occurred while fetching board users");
-      console.error("Error fetching board users:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setStoreError(null);
+  }, [isOpen, setStoreError]);
 
   // Filter team members who are not already active board users
   const availableTeamMembers =
@@ -69,73 +58,28 @@ export default function BoardUserManagement({
   const handleAddUser = async () => {
     if (!selectedTeamMember || !isOwner) return;
 
-    setIsLoading(true);
     setError(null);
-
     try {
       // Check if this user was previously deleted (soft-deleted)
       const existingBoardUser = boardUsers.find(
         (bu) => bu.userId === selectedTeamMember && bu.isDeleted
       );
 
-      let response;
-
       if (existingBoardUser) {
-        // If the user was previously soft-deleted, restore them by updating isDeleted to false
-        response = await boardUserService.updateBoardUser(
-          existingBoardUser.id,
-          {
-            boardId: board.id,
-            userId: selectedTeamMember,
-            role: selectedRole,
-            isDeleted: false,
-          }
-        );
+        // If the user was previously soft-deleted, update their role and isDeleted status
+        await updateBoardUserRole(existingBoardUser.id, selectedRole);
+
+        // The store already updates the state, so we don't need to do anything else
       } else {
         // Create a new board user if they didn't exist before
-        response = await boardUserService.createBoardUser({
-          boardId: board.id,
-          userId: selectedTeamMember,
-          role: selectedRole,
-          isDeleted: false,
-        });
+        await createBoardUser(selectedTeamMember, selectedRole);
       }
 
-      if (response.data) {
-        // Find the user details from team members
-        const teamMember = team?.teamMembers?.find(
-          (tm) => tm.user.id === selectedTeamMember
-        );
-
-        if (teamMember) {
-          // Ensure the complete user object is attached
-          const updatedBoardUser: BoardUser = {
-            ...response.data,
-            user: teamMember.user,
-          };
-
-          // If restoring a soft-deleted user, replace their entry
-          if (existingBoardUser) {
-            setBoardUsers(
-              boardUsers.map((bu) =>
-                bu.id === updatedBoardUser.id ? updatedBoardUser : bu
-              )
-            );
-          } else {
-            // Otherwise add the new user
-            setBoardUsers([...boardUsers, updatedBoardUser]);
-          }
-
-          setSelectedTeamMember("");
-        }
-      } else {
-        setError(response.message || "Failed to add user to board");
-      }
+      // Reset the selection
+      setSelectedTeamMember("");
     } catch (err) {
       setError("An error occurred while adding the user");
       console.error("Error adding user:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -145,32 +89,13 @@ export default function BoardUserManagement({
   ) => {
     if (!isOwner) return;
 
-    setIsLoading(true);
     setError(null);
-
     try {
-      const response = await boardUserService.updateBoardUser(boardUser.id, {
-        boardId: boardUser.board?.id,
-        userId: boardUser.user?.id,
-        role: newRole,
-        isDeleted: boardUser.isDeleted, // Maintain the current delete status
-      });
-
-      if (response.data) {
-        // Update local state
-        setBoardUsers(
-          boardUsers.map((bu) =>
-            bu.id === boardUser.id ? { ...bu, role: newRole } : bu
-          )
-        );
-      } else {
-        setError(response.message || "Failed to update user role");
-      }
+      await updateBoardUserRole(boardUser.id, newRole);
+      // The store already updates the state
     } catch (err) {
       setError("An error occurred while updating the user role");
       console.error("Error updating user role:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -184,28 +109,13 @@ export default function BoardUserManagement({
       return;
     }
 
-    setIsLoading(true);
     setError(null);
-
     try {
-      // Use the deleteBoardUser endpoint which performs a soft delete
-      const response = await boardUserService.deleteBoardUser(boardUser.id);
-
-      if (response.data) {
-        // Update the local state to mark the user as deleted
-        setBoardUsers(
-          boardUsers.map((bu) =>
-            bu.id === boardUser.id ? { ...bu, isDeleted: true } : bu
-          )
-        );
-      } else {
-        setError(response.message || "Failed to remove user");
-      }
+      await deleteBoardUser(boardUser.id);
+      // The store already updates the state
     } catch (err) {
       setError("An error occurred while removing the user");
       console.error("Error removing user:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -228,9 +138,9 @@ export default function BoardUserManagement({
               </p>
             )}
 
-            {error && (
+            {(error || useKanbanStore.getState().error) && (
               <div className="mt-2 p-2 bg-red-100 text-red-700 rounded">
-                {error}
+                {error || useKanbanStore.getState().error}
               </div>
             )}
 

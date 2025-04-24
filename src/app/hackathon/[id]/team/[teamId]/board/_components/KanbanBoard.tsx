@@ -86,6 +86,9 @@ export default function KanbanBoard({
         // Filter out deleted board users before updating the board
         const activeBoardUsers = boardUsers.filter((bu) => !bu.isDeleted);
 
+        // Update boardUsers in the store
+        useKanbanStore.getState().setBoardUsers(boardUsers);
+
         // Load board labels (needed for task labels and BoardHeader)
         const { data: boardLabels } =
           await boardLabelService.getBoardLabelsByBoardId(board.id);
@@ -483,7 +486,7 @@ export default function KanbanBoard({
       {/* User Management Modal */}
       {isInviteModalOpen && (
         <BoardUserManagement
-          board={enhancedBoard || board}
+          board={useKanbanStore.getState().board || board}
           team={team}
           isOpen={isInviteModalOpen}
           onClose={() => setInviteModalOpen(false)}

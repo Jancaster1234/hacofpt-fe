@@ -14,8 +14,10 @@ import {
 } from "@/services/boardService";
 import { Board } from "@/types/entities/board";
 import { BoardLabel } from "@/types/entities/boardLabel";
-import { BoardList } from "@/types/entities/boardList";
+import { BoardUser, BoardUserRole } from "@/types/entities/boardUser";
+import { boardUserService } from "@/services/boardUser.service";
 import { taskService } from "@/services/task.service";
+
 export type Task = {
   id: string;
   title: string;
@@ -31,7 +33,7 @@ export type Task = {
 export type Column = {
   id: string;
   title: string;
-  position: number; // Updated to number to match BoardList type
+  position: number;
   tasks: Task[];
 };
 
@@ -92,6 +94,21 @@ interface KanbanState {
   ) => Promise<BoardLabel | null>;
   deleteLabel: (labelId: string) => Promise<boolean>;
 
+  // BoardUser operations (new additions)
+  setBoardUsers: (boardUsers: BoardUser[]) => void;
+  addBoardUser: (boardUser: BoardUser) => void;
+  updateBoardUser: (boardUser: BoardUser) => void;
+  removeBoardUser: (boardUserId: string) => void;
+  createBoardUser: (
+    userId: string,
+    role: BoardUserRole
+  ) => Promise<BoardUser | null>;
+  updateBoardUserRole: (
+    boardUserId: string,
+    role: BoardUserRole
+  ) => Promise<BoardUser | null>;
+  deleteBoardUser: (boardUserId: string) => Promise<boolean>;
+
   // Drag and drop boardList position update
   boardListPositionUpdateTimer: NodeJS.Timeout | null;
   pendingPositionUpdates: { id: string; position: number }[];
@@ -102,7 +119,7 @@ interface KanbanState {
 }
 
 export const useKanbanStore = create<KanbanState>((set, get) => ({
-  // Initial state - removed hardcoded sample data
+  // Initial state
   board: null,
   columns: [],
   isLoading: false,
@@ -118,15 +135,177 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   setError: (error) => set({ error }),
   setLoading: (isLoading) => set({ isLoading }),
 
+  // BoardUser operations (new implementations)
+  setBoardUsers: (boardUsers) => {
+    set((state) => {
+      if (!state.board) return state;
+      return {
+        board: {
+          ...state.board,
+          boardUsers,
+        },
+      };
+    });
+  },
+
+  addBoardUser: (boardUser) => {
+    set((state) => {
+      if (!state.board) return state;
+      const currentBoardUsers = state.board.boardUsers || [];
+      return {
+        board: {
+          ...state.board,
+          boardUsers: [...currentBoardUsers, boardUser],
+        },
+      };
+    });
+  },
+
+  updateBoardUser: (updatedBoardUser) => {
+    set((state) => {
+      if (!state.board || !state.board.boardUsers) return state;
+      return {
+        board: {
+          ...state.board,
+          boardUsers: state.board.boardUsers.map((bu) =>
+            bu.id === updatedBoardUser.id ? updatedBoardUser : bu
+          ),
+        },
+      };
+    });
+  },
+
+  removeBoardUser: (boardUserId) => {
+    set((state) => {
+      if (!state.board || !state.board.boardUsers) return state;
+      // Mark as deleted rather than removing
+      return {
+        board: {
+          ...state.board,
+          boardUsers: state.board.boardUsers.map((bu) =>
+            bu.id === boardUserId ? { ...bu, isDeleted: true } : bu
+          ),
+        },
+      };
+    });
+  },
+
+  createBoardUser: async (userId, role) => {
+    const state = get();
+    if (!state.board) return null;
+
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await boardUserService.createBoardUser({
+        boardId: state.board.id,
+        userId,
+        role,
+        isDeleted: false,
+      });
+
+      if (response.data) {
+        // Add the new board user to state
+        const newBoardUser = response.data;
+        get().addBoardUser(newBoardUser);
+        set({ isLoading: false });
+        return newBoardUser;
+      } else {
+        throw new Error(response.message || "Failed to create board user");
+      }
+    } catch (error) {
+      console.error("Failed to create board user:", error);
+      set({
+        isLoading: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to create board user",
+      });
+      return null;
+    }
+  },
+
+  updateBoardUserRole: async (boardUserId, role) => {
+    const state = get();
+    if (!state.board) return null;
+
+    set({ isLoading: true, error: null });
+
+    try {
+      // Find the board user to update
+      const boardUser = state.board.boardUsers?.find(
+        (bu) => bu.id === boardUserId
+      );
+      if (!boardUser) {
+        throw new Error("Board user not found");
+      }
+
+      const response = await boardUserService.updateBoardUser(boardUserId, {
+        boardId: boardUser.boardId,
+        userId: boardUser.userId,
+        role,
+        isDeleted: boardUser.isDeleted,
+      });
+
+      if (response.data) {
+        // Update the board user in state
+        const updatedBoardUser = response.data;
+        get().updateBoardUser(updatedBoardUser);
+        set({ isLoading: false });
+        return updatedBoardUser;
+      } else {
+        throw new Error(response.message || "Failed to update board user");
+      }
+    } catch (error) {
+      console.error("Failed to update board user:", error);
+      set({
+        isLoading: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update board user",
+      });
+      return null;
+    }
+  },
+
+  deleteBoardUser: async (boardUserId) => {
+    const state = get();
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await boardUserService.deleteBoardUser(boardUserId);
+      if (response.data) {
+        // Mark the board user as deleted in state
+        get().removeBoardUser(boardUserId);
+        set({ isLoading: false });
+        return true;
+      } else {
+        throw new Error(response.message || "Failed to delete board user");
+      }
+    } catch (error) {
+      console.error("Failed to delete board user:", error);
+      set({
+        isLoading: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete board user",
+      });
+      return false;
+    }
+  },
+
   createTask: async (listId, taskData) => {
     const state = get();
     if (!state.board) return null;
 
-    const column = state.columns.find((col) => col.id === listId);
-    if (!column) return null;
-
     try {
       // Calculate the position based on existing tasks
+      const column = state.columns.find((col) => col.id === listId);
+      if (!column) return null;
+
       const position = column.tasks.length;
 
       // Mock API call - replace with actual API when available
@@ -167,6 +346,8 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       return null;
     }
   },
+
+  // ... (rest of the existing methods)
 
   // Update a task with new information
   updateTask: (updatedTask) => {
@@ -284,10 +465,6 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     }
   },
 
-  // Task operations
-  // src/store/kanbanStore.ts
-  // Update the moveTask function:
-
   moveTask: (taskId, fromColumnId, toColumnId) => {
     set((state) => {
       const sourceColumn = state.columns.find((col) => col.id === fromColumnId);
@@ -374,7 +551,6 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   },
 
   // Board operations
-  // In useKanbanStore.ts, modify the updateBoardDetails function
   updateBoardDetails: async (
     name,
     description,
@@ -421,6 +597,9 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       return null;
     }
   },
+
+  // Rest of existing methods...
+  // Include all the remaining methods from the original code
 
   // BoardList operations
   createList: async (name, position) => {
@@ -566,7 +745,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
 
     const newTimer = setTimeout(() => {
       get().processPendingPositionUpdates();
-    }, 3000); // Changed from 30000 (30 seconds) to 3000 (3 seconds) for better user experience
+    }, 3000);
 
     set({ boardListPositionUpdateTimer: newTimer });
   },
