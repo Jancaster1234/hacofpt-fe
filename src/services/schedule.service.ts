@@ -62,6 +62,54 @@ class ScheduleService {
     }
   }
 
+  async getAdminSchedule(): Promise<{ data: Schedule; message?: string }> {
+    try {
+      const response = await apiService.auth.get<Schedule[]>(
+        `/communication-service/api/v1/schedules/admin`
+      );
+
+      if (!response || !response.data || response.data.length === 0) {
+        throw new Error("No admin schedules found");
+      }
+
+      return {
+        data: response.data[0],
+        message: response.message,
+      };
+    } catch (error: any) {
+      return handleApiError<Schedule>(
+        error,
+        {} as Schedule,
+        "[Schedule Service] Error getting admin schedule:"
+      );
+    }
+  }
+
+  async getHackathonOperatingScheduleByHackathonId(
+    hackathonId: string
+  ): Promise<{ data: Schedule; message?: string }> {
+    try {
+      const response = await apiService.auth.get<Schedule[]>(
+        `/communication-service/api/v1/schedules/operating?hackathonId=${hackathonId}`
+      );
+
+      if (!response || !response.data || response.data.length === 0) {
+        throw new Error("No hackathon operating schedules found");
+      }
+
+      return {
+        data: response.data[0],
+        message: response.message,
+      };
+    } catch (error: any) {
+      return handleApiError<Schedule>(
+        error,
+        {} as Schedule,
+        "[Schedule Service] Error getting hackathon operating schedule:"
+      );
+    }
+  }
+
   async deleteSchedule(id: string): Promise<{ message?: string }> {
     try {
       const response = await apiService.auth.delete(
