@@ -14,12 +14,18 @@ interface BoardHeaderProps {
 }
 
 export default function BoardHeader({
-  board,
+  board: initialBoard,
   isOwner,
   onOpenUserManagement,
   onEdit,
 }: BoardHeaderProps) {
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
+
+  // Get the board from kanban store instead of using the prop directly
+  const storeBoard = useKanbanStore((state) => state.board);
+
+  // Use the store's board if available, otherwise fall back to the prop
+  const board = storeBoard || initialBoard;
 
   useEffect(() => {
     // Update any local state when board details change
