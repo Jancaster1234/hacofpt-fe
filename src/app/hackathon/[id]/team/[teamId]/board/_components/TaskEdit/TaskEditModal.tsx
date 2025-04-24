@@ -105,8 +105,18 @@ export default function TaskEditModal({
       );
 
       if (updatedTaskData) {
-        // Update the task in the store
-        updateTask(updatedTaskData);
+        // Create a comprehensive task object with all updated data
+        const completeUpdatedTask = {
+          ...updatedTaskData,
+          // Include all the additional data we're tracking
+          taskLabels: updatedTask.taskLabels || [],
+          assignees: updatedTask.assignees || [],
+          comments: comments || [],
+          fileUrls: files || [],
+        };
+
+        // Update the task in the store with ALL the data
+        updateTask(completeUpdatedTask);
       }
 
       // Close the modal
@@ -152,24 +162,46 @@ export default function TaskEditModal({
       setComments((prevComments) =>
         prevComments.filter((c) => c.id !== comment.id)
       );
-      return;
+    } else {
+      // If it's a new or edited comment, add/update it in the state
+      setComments((prevComments) => {
+        // Check if this comment already exists (for editing)
+        const existingIndex = prevComments.findIndex(
+          (c) => c.id === comment.id
+        );
+
+        if (existingIndex >= 0) {
+          // Update existing comment
+          const updatedComments = [...prevComments];
+          updatedComments[existingIndex] = comment;
+          return updatedComments;
+        } else {
+          // Add new comment
+          return [...prevComments, comment];
+        }
+      });
     }
 
-    // If it's a new or edited comment, add/update it in the state
-    setComments((prevComments) => {
-      // Check if this comment already exists (for editing)
-      const existingIndex = prevComments.findIndex((c) => c.id === comment.id);
-
-      if (existingIndex >= 0) {
-        // Update existing comment
-        const updatedComments = [...prevComments];
-        updatedComments[existingIndex] = comment;
-        return updatedComments;
+    // Update the task in the store to reflect the comment change
+    const updatedTaskWithComments = {
+      ...updatedTask,
+      comments: comments.filter((c) => c.id !== comment.id), // Remove if deleted
+    };
+    if (!(comment as any)._isDeleted) {
+      // Add or update the comment
+      const existingIndex = updatedTaskWithComments.comments?.findIndex(
+        (c) => c.id === comment.id
+      );
+      if (existingIndex && existingIndex >= 0) {
+        updatedTaskWithComments.comments[existingIndex] = comment;
       } else {
-        // Add new comment
-        return [...prevComments, comment];
+        updatedTaskWithComments.comments = [
+          ...(updatedTaskWithComments.comments || []),
+          comment,
+        ];
       }
-    });
+    }
+    updateTask(updatedTaskWithComments);
   };
 
   const handleDeleteComment = (commentId: string) => {
