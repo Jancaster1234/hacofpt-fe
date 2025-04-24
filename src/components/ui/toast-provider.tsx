@@ -1,12 +1,13 @@
-// src/components/ui/toast-provider.tsx
 "use client";
 
 import { Toaster, toast } from "sonner";
 import { useToastStore } from "@/store/toast-store";
 import { useEffect } from "react";
+import { useTheme } from "next-themes";
 
 export function ToastProvider() {
   const { toasts, removeToast } = useToastStore();
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     toasts.forEach((t) => {
@@ -51,8 +52,8 @@ export function ToastProvider() {
       closeButton
       richColors
       expand={false}
-      theme="light"
-      className="overflow-hidden"
+      theme={(resolvedTheme as "light" | "dark") || "light"}
+      className="overflow-hidden max-w-[90vw] sm:max-w-sm"
     />
   );
 }
