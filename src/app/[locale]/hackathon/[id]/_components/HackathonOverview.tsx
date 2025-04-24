@@ -55,7 +55,9 @@ export default function HackathonOverview({
 
   // Check if the user has TEAM_MEMBER role
   const isTeamMember = authUser?.userRoles?.some(
-    (userRole) => userRole.role.name === "TEAM_MEMBER"
+    (userRole) =>
+      userRole.role.name === "TEAM_MEMBER" ||
+      userRole.role.name === "TEAM_LEADER"
   );
   const [isHackathonEnded, setIsHackathonEnded] = useState(false);
 
