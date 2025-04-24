@@ -71,7 +71,10 @@ interface KanbanState {
   setBoard: (board: Board) => void;
   updateBoardDetails: (
     name: string,
-    description: string
+    description: string,
+    teamId?: string,
+    hackathonId?: string,
+    ownerId?: string
   ) => Promise<Board | null>;
 
   // BoardList operations
@@ -371,7 +374,13 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   },
 
   // Board operations
-  updateBoardDetails: async (name, description) => {
+  updateBoardDetails: async (
+    name,
+    description,
+    teamId,
+    hackathonId,
+    ownerId
+  ) => {
     const state = get();
     if (!state.board) return null;
 
@@ -381,6 +390,9 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       const updatedBoard = await updateBoard(state.board.id, {
         name,
         description,
+        teamId,
+        hackathonId,
+        ownerId,
       });
       set({
         board: { ...state.board, ...updatedBoard },

@@ -496,7 +496,13 @@ export default function KanbanBoard({
           onSave={async () => {
             await useKanbanStore
               .getState()
-              .updateBoardDetails(boardName, boardDescription);
+              .updateBoardDetails(
+                boardName,
+                boardDescription,
+                board.teamId,
+                board.hackathonId,
+                board.ownerId
+              );
             setIsEditingBoard(false);
           }}
           onCancel={() => {

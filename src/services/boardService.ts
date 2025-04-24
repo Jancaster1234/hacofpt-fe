@@ -40,12 +40,21 @@ export async function createTask(params: CreateTaskParams): Promise<Task> {
 // Board API functions
 export const updateBoard = async (
   boardId: string,
-  data: { name: string; description: string }
+  data: {
+    name: string;
+    description: string;
+    teamId?: string;
+    hackathonId?: string;
+    ownerId?: string;
+  }
 ): Promise<Board> => {
   try {
     const response = await realBoardService.updateBoard(boardId, {
       name: data.name,
       description: data.description,
+      teamId: data.teamId,
+      hackathonId: data.hackathonId,
+      ownerId: data.ownerId,
     });
 
     if (!response || !response.data) {
