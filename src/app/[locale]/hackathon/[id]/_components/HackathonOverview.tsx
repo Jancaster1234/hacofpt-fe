@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import { useAuth } from "@/hooks/useAuth_v0"; // Added the new auth hook
+import { useAuth } from "@/hooks/useAuth_v0";
 import { IndividualRegistrationRequest } from "@/types/entities/individualRegistrationRequest";
 import { TeamRequest } from "@/types/entities/teamRequest";
 import { Team } from "@/types/entities/team";
@@ -14,6 +14,9 @@ import EnrollmentModal from "./EnrollmentModal";
 import MentorshipModal from "./MentorshipModal";
 import ApiResponseModal from "@/components/common/ApiResponseModal";
 import { useApiModal } from "@/hooks/useApiModal";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 // Import real services
 import { individualRegistrationRequestService } from "@/services/individualRegistrationRequest.service";
@@ -47,6 +50,8 @@ export default function HackathonOverview({
   const { user } = useAuthStore(); // Get current user
   const { user: authUser } = useAuth(); // Get user with roles from new auth hook
   const router = useRouter();
+  const t = useTranslations("hackathon");
+  const toast = useToast();
 
   // Check if the user has TEAM_MEMBER role
   const isTeamMember = authUser?.userRoles?.some(
@@ -72,6 +77,7 @@ export default function HackathonOverview({
     useApiModal();
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [individualRegistrations, setIndividualRegistrations] = useState<
     IndividualRegistrationRequest[]
   >([]);
@@ -91,9 +97,12 @@ export default function HackathonOverview({
   useEffect(() => {
     if (!user) return;
 
-    // Fetch all data
+    // Define fetchData inside useEffect but don't include external dependencies
     const fetchData = async () => {
       setIsLoading(true);
+      // Call toast inside the function, not in the effect body
+      toast.info(t("loadingData"));
+
       try {
         // Fetch individual registrations
         const indivRegsResponse =
@@ -118,6 +127,9 @@ export default function HackathonOverview({
         setIndividualRegistrations(indivRegsResponse.data);
         setTeamRequests(teamReqsResponse.data);
         setTeams(teamsResponse.data);
+
+        // Show success message with response message if available
+        toast.success(teamsResponse.message || t("dataLoadedSuccess"));
 
         if (teamsResponse.data.length === 0) {
           setIsLoading(false);
@@ -168,41 +180,43 @@ export default function HackathonOverview({
 
           setMentorshipSessionRequests(allSessionRequests);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to fetch hackathon data:", error);
-        showError(
-          "Data Loading Error",
-          "Failed to load hackathon participation data. Please try again later."
-        );
+        const errorMessage = error?.message || t("dataLoadError");
+        toast.error(errorMessage);
+        showError(t("dataLoadErrorTitle"), errorMessage);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [user, id, showError]);
+  }, [user, id]);
 
-  // Determine button title
-  let buttonTitle = "Enroll";
-  if (teams.length > 0) {
-    buttonTitle = "View Team Enrollment";
-  } else if (teamRequests.length > 0) {
-    buttonTitle = "View Team Request";
-  } else if (individualRegistrations.length > 0) {
-    buttonTitle = "View Individual Enrollment";
-  }
+  // Determine button title based on enrollment status
+  const getButtonTitle = () => {
+    if (teams.length > 0) {
+      return t("viewTeamEnrollment");
+    } else if (teamRequests.length > 0) {
+      return t("viewTeamRequest");
+    } else if (individualRegistrations.length > 0) {
+      return t("viewIndividualEnrollment");
+    }
+    return t("enroll");
+  };
 
   // Determine mentorship button title
-  let mentorshipButtonTitle = "Request Mentorship";
-  if (mentorTeams.length > 0) {
-    mentorshipButtonTitle = "View Mentorship";
-  } else if (mentorshipRequests.length > 0) {
-    mentorshipButtonTitle = "View Mentorship Request";
-  }
+  const getMentorshipButtonTitle = () => {
+    if (mentorTeams.length > 0) {
+      return t("viewMentorship");
+    } else if (mentorshipRequests.length > 0) {
+      return t("viewMentorshipRequest");
+    }
+    return t("requestMentorship");
+  };
 
   const handleGoToBoard = () => {
     if (teams.length > 0) {
-      // Assuming the board URL pattern (adjust if needed)
       router.push(`/hackathon/${id}/team/${teams[0].id}/board`);
     }
   };
@@ -211,6 +225,9 @@ export default function HackathonOverview({
     if (!user || teams.length === 0) return;
 
     try {
+      setIsUpdating(true);
+      toast.info(t("updatingData"));
+
       // Fetch updated mentor data
       const mentorTeamsPromises = teams.map((team) =>
         mentorTeamService.getMentorTeamsByHackathonAndTeam(id, team.id)
@@ -256,52 +273,61 @@ export default function HackathonOverview({
         setMentorshipSessionRequests(allSessionRequests);
       }
 
-      showSuccess(
-        "Data Updated",
-        "Mentorship data has been successfully updated."
-      );
-    } catch (error) {
+      // Use the message from the API response if available
+      const successMessage =
+        mentorTeamsResults[0]?.message || t("dataUpdateSuccess");
+      toast.success(successMessage);
+      showSuccess(t("dataUpdatedTitle"), successMessage);
+    } catch (error: any) {
       console.error("Failed to update mentorship data:", error);
-      showError(
-        "Update Error",
-        "Failed to update mentorship data. Please try again later."
-      );
+      const errorMessage = error?.message || t("dataUpdateError");
+      toast.error(errorMessage);
+      showError(t("updateErrorTitle"), errorMessage);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   return (
     <>
-      <div className="p-4 sm:p-6 bg-white border border-gray-200 rounded-lg shadow">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+      <div className="p-4 sm:p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow transition-colors duration-300">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
           {title}
         </h1>
-        <p className="text-gray-600 mt-1 text-sm sm:text-base">📅 {date}</p>
-        <p className="mt-4 text-gray-700 text-sm sm:text-base">{subtitle}</p>
-        <div className="mt-6 flex gap-4">
+        <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm sm:text-base">
+          📅 {date}
+        </p>
+        <p className="mt-4 text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+          {subtitle}
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3 sm:gap-4">
           {isLoading ? (
             <button
-              className="bg-gray-400 text-white font-bold py-2 px-6 rounded-full cursor-not-allowed"
+              className="bg-gray-400 dark:bg-gray-600 text-white font-bold py-2 px-4 sm:px-6 rounded-full cursor-not-allowed flex items-center justify-center min-w-[140px] transition-colors duration-300"
               disabled
             >
-              Loading...
+              <LoadingSpinner size="sm" className="mr-2" />
+              {t("loading")}
             </button>
           ) : isTeamMember ? (
             <button
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full transition"
+              className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 sm:px-6 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500"
               onClick={() => setIsModalOpen(true)}
+              aria-label={getButtonTitle()}
             >
-              {buttonTitle}
+              {getButtonTitle()}
             </button>
           ) : (
             <div>
               <button
-                className="bg-gray-400 text-white font-bold py-2 px-6 rounded-full cursor-not-allowed"
+                className="bg-gray-400 dark:bg-gray-600 text-white font-bold py-2 px-4 sm:px-6 rounded-full cursor-not-allowed transition-colors duration-300"
                 disabled
+                aria-disabled="true"
               >
-                {buttonTitle}
+                {getButtonTitle()}
               </button>
-              <p className="text-sm text-red-500 mt-1">
-                Only team members can enroll in hackathons
+              <p className="text-sm text-red-500 dark:text-red-400 mt-1">
+                {t("teamMemberOnly")}
               </p>
             </div>
           )}
@@ -309,32 +335,43 @@ export default function HackathonOverview({
           {!isLoading && teams.length > 0 && (
             <>
               <button
-                className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-full transition"
+                className="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white font-bold py-2 px-4 sm:px-6 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-300 dark:focus:ring-purple-500"
                 onClick={() => setIsMentorshipModalOpen(true)}
+                disabled={isUpdating}
+                aria-label={getMentorshipButtonTitle()}
               >
-                {mentorshipButtonTitle}
+                {isUpdating ? (
+                  <span className="flex items-center">
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    {t("updating")}
+                  </span>
+                ) : (
+                  getMentorshipButtonTitle()
+                )}
               </button>
               <button
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full transition"
+                className="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-bold py-2 px-4 sm:px-6 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-300 dark:focus:ring-green-500"
                 onClick={handleGoToBoard}
+                aria-label={t("goToBoard")}
               >
-                Go to board
+                {t("goToBoard")}
               </button>
               {isHackathonEnded && (
                 <button
-                  className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-full transition"
+                  className="bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 text-white font-bold py-2 px-4 sm:px-6 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-300 dark:focus:ring-orange-500"
                   onClick={handleGoToFeedback}
+                  aria-label={t("feedback")}
                 >
-                  Feedback
+                  {t("feedback")}
                 </button>
               )}
             </>
           )}
         </div>
-        <p className="mt-2 text-gray-500 text-sm">
+        <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm">
           {enrollmentCount === 1
-            ? "1 person has registered to participate"
-            : `${enrollmentCount} people have registered to participate`}
+            ? t("onePersonRegistered")
+            : t("multiplePersonsRegistered", { count: enrollmentCount })}
         </p>
       </div>
 
@@ -351,6 +388,9 @@ export default function HackathonOverview({
           onDataUpdate={() => {
             // Refetch data when enrollment changes
             if (user) {
+              toast.info(t("refreshingEnrollmentData"));
+              setIsUpdating(true);
+
               Promise.all([
                 individualRegistrationRequestService.getIndividualRegistrationRequestsByUserAndHackathon(
                   user.username,
@@ -366,13 +406,17 @@ export default function HackathonOverview({
                   setIndividualRegistrations(indivRegs.data);
                   setTeamRequests(teamReqs.data);
                   setTeams(teams.data);
+                  toast.success(teams.message || t("enrollmentDataRefreshed"));
                 })
-                .catch((error) => {
+                .catch((error: any) => {
                   console.error("Failed to update enrollment data:", error);
-                  showError(
-                    "Update Error",
-                    "Failed to refresh enrollment data."
-                  );
+                  const errorMessage =
+                    error?.message || t("enrollmentDataRefreshError");
+                  toast.error(errorMessage);
+                  showError(t("updateErrorTitle"), errorMessage);
+                })
+                .finally(() => {
+                  setIsUpdating(false);
                 });
             }
           }}
