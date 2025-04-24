@@ -169,6 +169,32 @@ class BoardUserService {
     }
   }
 
+  async undeleteBoardUser(
+    id: string
+  ): Promise<{ data: BoardUser; message?: string }> {
+    try {
+      const response = await apiService.auth.put<BoardUser>(
+        `/communication-service/api/v1/board-users/undelete/${id}`,
+        {}
+      );
+
+      if (!response || !response.data) {
+        throw new Error(response?.message || "Failed to undelete board user");
+      }
+
+      return {
+        data: response.data,
+        message: response.message || "Board user undeleted successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<BoardUser>(
+        error,
+        {} as BoardUser,
+        "[Board User Service] Error undeleting board user:"
+      );
+    }
+  }
+
   async deleteBoardUser(
     id: string
   ): Promise<{ data: BoardUser; message?: string }> {

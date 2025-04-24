@@ -78,6 +78,54 @@ class BoardService {
     }
   }
 
+  async getAdminBoard(): Promise<{ data: Board; message?: string }> {
+    try {
+      const response = await apiService.auth.get<Board[]>(
+        "/communication-service/api/v1/boards/admin"
+      );
+
+      if (!response || !response.data || response.data.length === 0) {
+        throw new Error("No admin boards found");
+      }
+
+      return {
+        data: response.data[0],
+        message: response.message || "Admin board retrieved successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<Board>(
+        error,
+        {} as Board,
+        "[Board Service] Error getting admin board:"
+      );
+    }
+  }
+
+  async getOperatingBoardByHackathonId(
+    hackathonId: string
+  ): Promise<{ data: Board; message?: string }> {
+    try {
+      const response = await apiService.auth.get<Board[]>(
+        `/communication-service/api/v1/boards/hackathon-operating?hackathonId=${hackathonId}`
+      );
+
+      if (!response || !response.data || response.data.length === 0) {
+        throw new Error("No operating board found for hackathon");
+      }
+
+      return {
+        data: response.data[0],
+        message: response.message || "Operating board retrieved successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<Board>(
+        error,
+        {} as Board,
+        "[Board Service] Error getting operating board by hackathon ID:"
+      );
+    }
+  }
+
   async createBoard(data: {
     name: string;
     description?: string;
