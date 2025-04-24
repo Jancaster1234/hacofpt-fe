@@ -36,14 +36,12 @@ export default function TaskLabels({
       const isSelected = selectedLabelIds.has(label.id);
 
       if (isSelected) {
-        // Find the taskLabel to delete
-        const { data: existingTaskLabels } =
-          await taskLabelService.getTaskLabelsByTaskId(taskId);
-        const taskLabelToDelete = existingTaskLabels.find(
+        // Find the taskLabel to delete from our existing props
+        const taskLabelToDelete = taskLabels.find(
           (tl) => tl.boardLabel?.id === label.id
         );
 
-        if (taskLabelToDelete) {
+        if (taskLabelToDelete && taskLabelToDelete.id) {
           await taskLabelService.deleteTaskLabel(taskLabelToDelete.id);
 
           // Update parent state by filtering out the deleted label

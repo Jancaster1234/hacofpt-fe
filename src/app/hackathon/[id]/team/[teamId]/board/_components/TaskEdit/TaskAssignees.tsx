@@ -37,14 +37,12 @@ export default function TaskAssignees({
       const isAssigned = assignedUserIds.has(user.id);
 
       if (isAssigned) {
-        // Find the taskAssignee to delete
-        const { data: existingTaskAssignees } =
-          await taskAssigneeService.getTaskAssigneesByTaskId(taskId);
-        const assigneeToDelete = existingTaskAssignees.find(
+        // Find the taskAssignee to delete from our existing props
+        const assigneeToDelete = taskAssignees.find(
           (ta) => ta.user?.id === user.id
         );
 
-        if (assigneeToDelete) {
+        if (assigneeToDelete && assigneeToDelete.id) {
           await taskAssigneeService.deleteTaskAssignee(assigneeToDelete.id);
 
           // Update parent state by filtering out the deleted assignee
