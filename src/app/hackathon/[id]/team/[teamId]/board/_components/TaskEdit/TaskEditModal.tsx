@@ -62,6 +62,22 @@ export default function TaskEditModal({
     return () => window.removeEventListener("keydown", handleEscape);
   }, [onClose]);
 
+  // Sync the store on any change to task data
+  useEffect(() => {
+    if (isOpen) {
+      // Create a comprehensive updated task object
+      const completeUpdatedTask = {
+        ...updatedTask,
+        comments: comments || [],
+        fileUrls: files || [],
+      };
+
+      // Update the store with the latest data without triggering API calls
+      // This ensures the UI is always in sync with the state
+      updateTask(completeUpdatedTask);
+    }
+  }, [updatedTask, comments, files]);
+
   const fetchComments = async () => {
     try {
       const { data } = await taskCommentService.getTaskCommentsByTaskId(
@@ -69,6 +85,13 @@ export default function TaskEditModal({
       );
       if (data) {
         setComments(data);
+
+        // Update the task in the store with the fetched comments
+        const updatedTaskWithComments = {
+          ...updatedTask,
+          comments: data,
+        };
+        updateTask(updatedTaskWithComments);
       }
     } catch (err) {
       console.error("Error fetching comments:", err);
@@ -80,6 +103,13 @@ export default function TaskEditModal({
       const { data } = await fileUrlService.getFileUrlsByTaskId(task.id);
       if (data) {
         setFiles(data);
+
+        // Update the task in the store with the fetched files
+        const updatedTaskWithFiles = {
+          ...updatedTask,
+          fileUrls: data,
+        };
+        updateTask(updatedTaskWithFiles);
       }
     } catch (err) {
       console.error("Error fetching files:", err);
@@ -159,67 +189,81 @@ export default function TaskEditModal({
     // Check if this is a deleted comment (using the special flag from TaskComments)
     if ((comment as any)._isDeleted) {
       // Remove the comment from the local state
-      setComments((prevComments) =>
-        prevComments.filter((c) => c.id !== comment.id)
-      );
+      const updatedComments = comments.filter((c) => c.id !== comment.id);
+      setComments(updatedComments);
+
+      // Update the task in the store to reflect the comment change
+      const updatedTaskWithComments = {
+        ...updatedTask,
+        comments: updatedComments,
+      };
+      updateTask(updatedTaskWithComments);
     } else {
       // If it's a new or edited comment, add/update it in the state
-      setComments((prevComments) => {
-        // Check if this comment already exists (for editing)
-        const existingIndex = prevComments.findIndex(
-          (c) => c.id === comment.id
-        );
+      const existingIndex = comments.findIndex((c) => c.id === comment.id);
+      let updatedComments;
 
-        if (existingIndex >= 0) {
-          // Update existing comment
-          const updatedComments = [...prevComments];
-          updatedComments[existingIndex] = comment;
-          return updatedComments;
-        } else {
-          // Add new comment
-          return [...prevComments, comment];
-        }
-      });
-    }
-
-    // Update the task in the store to reflect the comment change
-    const updatedTaskWithComments = {
-      ...updatedTask,
-      comments: comments.filter((c) => c.id !== comment.id), // Remove if deleted
-    };
-    if (!(comment as any)._isDeleted) {
-      // Add or update the comment
-      const existingIndex = updatedTaskWithComments.comments?.findIndex(
-        (c) => c.id === comment.id
-      );
-      if (existingIndex && existingIndex >= 0) {
-        updatedTaskWithComments.comments[existingIndex] = comment;
+      if (existingIndex >= 0) {
+        // Update existing comment
+        updatedComments = [...comments];
+        updatedComments[existingIndex] = comment;
       } else {
-        updatedTaskWithComments.comments = [
-          ...(updatedTaskWithComments.comments || []),
-          comment,
-        ];
+        // Add new comment
+        updatedComments = [...comments, comment];
       }
+
+      setComments(updatedComments);
+
+      // Update the task in the store with the new comments
+      const updatedTaskWithComments = {
+        ...updatedTask,
+        comments: updatedComments,
+      };
+      updateTask(updatedTaskWithComments);
     }
-    updateTask(updatedTaskWithComments);
   };
 
   const handleDeleteComment = (commentId: string) => {
-    setComments((prevComments) =>
-      prevComments.filter((c) => c.id !== commentId)
-    );
+    const updatedComments = comments.filter((c) => c.id !== commentId);
+    setComments(updatedComments);
+
+    // Update the task in the store
+    const updatedTaskWithComments = {
+      ...updatedTask,
+      comments: updatedComments,
+    };
+    updateTask(updatedTaskWithComments);
   };
 
   const handleAddFile = (file: FileUrl | FileUrl[]) => {
+    let updatedFiles;
+
     if (Array.isArray(file)) {
-      setFiles((prevFiles) => [...prevFiles, ...file]);
+      updatedFiles = [...files, ...file];
     } else {
-      setFiles((prevFiles) => [...prevFiles, file]);
+      updatedFiles = [...files, file];
     }
+
+    setFiles(updatedFiles);
+
+    // Update the task in the store
+    const updatedTaskWithFiles = {
+      ...updatedTask,
+      fileUrls: updatedFiles,
+    };
+    updateTask(updatedTaskWithFiles);
   };
 
   const handleRemoveFile = (fileId: string) => {
-    setFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
+    const updatedFiles = files.filter((file) => file.id !== fileId);
+    setFiles(updatedFiles);
+
+    // Update the task in the store
+    const updatedTaskWithFiles = {
+      ...updatedTask,
+      fileUrls: updatedFiles,
+    };
+    updateTask(updatedTaskWithFiles);
   };
 
   const handleError = (errorMessage: string) => {
@@ -228,27 +272,37 @@ export default function TaskEditModal({
 
   // Add handlers for labels and assignees
   const handleLabelsChange = (labels: BoardLabel[]) => {
+    // Update local state
     setUpdatedTask({
       ...updatedTask,
-      taskLabels: labels.map((label) => ({
-        id: "", // This will be generated on the server
-        taskId: task.id,
-        boardLabelId: label.id,
-        boardLabel: label,
-      })),
+      taskLabels: labels,
     });
+
+    // Update the task in the store
+    const updatedTaskWithLabels = {
+      ...updatedTask,
+      taskLabels: labels,
+      comments,
+      fileUrls: files,
+    };
+    updateTask(updatedTaskWithLabels);
   };
 
   const handleAssigneesChange = (assignees: User[]) => {
+    // Update local state
     setUpdatedTask({
       ...updatedTask,
-      assignees: assignees.map((user) => ({
-        id: "", // This will be generated on the server
-        taskId: task.id,
-        userId: user.id,
-        user: user,
-      })),
+      assignees: assignees,
     });
+
+    // Update the task in the store
+    const updatedTaskWithAssignees = {
+      ...updatedTask,
+      assignees: assignees,
+      comments,
+      fileUrls: files,
+    };
+    updateTask(updatedTaskWithAssignees);
   };
 
   return (
@@ -275,7 +329,16 @@ export default function TaskEditModal({
           {/* Task Title */}
           <TaskTitle
             title={updatedTask.title}
-            onChange={(title) => setUpdatedTask({ ...updatedTask, title })}
+            onChange={(title) => {
+              const updated = { ...updatedTask, title };
+              setUpdatedTask(updated);
+              // Update the task in the store to reflect title change
+              updateTask({
+                ...updated,
+                comments,
+                fileUrls: files,
+              });
+            }}
           />
 
           <div className="grid grid-cols-3 gap-4">
@@ -283,9 +346,16 @@ export default function TaskEditModal({
               {/* Task Description */}
               <TaskDescription
                 description={updatedTask.description || ""}
-                onChange={(description) =>
-                  setUpdatedTask({ ...updatedTask, description })
-                }
+                onChange={(description) => {
+                  const updated = { ...updatedTask, description };
+                  setUpdatedTask(updated);
+                  // Update the task in the store to reflect description change
+                  updateTask({
+                    ...updated,
+                    comments,
+                    fileUrls: files,
+                  });
+                }}
               />
 
               {/* Task Attachments */}
@@ -319,17 +389,22 @@ export default function TaskEditModal({
                   taskLabels={updatedTask.taskLabels || []}
                   availableLabels={boardLabels}
                   taskId={task.id}
-                  onChange={(taskLabels) =>
-                    setUpdatedTask({ ...updatedTask, taskLabels })
-                  }
+                  onChange={handleLabelsChange}
                 />
 
                 {/* Task Due Date */}
                 <TaskDueDate
                   dueDate={updatedTask.dueDate}
-                  onChange={(dueDate) =>
-                    setUpdatedTask({ ...updatedTask, dueDate })
-                  }
+                  onChange={(dueDate) => {
+                    const updated = { ...updatedTask, dueDate };
+                    setUpdatedTask(updated);
+                    // Update the task in the store to reflect due date change
+                    updateTask({
+                      ...updated,
+                      comments,
+                      fileUrls: files,
+                    });
+                  }}
                 />
 
                 {/* Task Assignees */}
@@ -337,9 +412,7 @@ export default function TaskEditModal({
                   taskAssignees={updatedTask.assignees || []}
                   availableMembers={teamMembers}
                   taskId={task.id}
-                  onChange={(assignees) =>
-                    setUpdatedTask({ ...updatedTask, assignees })
-                  }
+                  onChange={handleAssigneesChange}
                 />
               </div>
 
