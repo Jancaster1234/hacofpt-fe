@@ -1,7 +1,7 @@
 // src/app/hackathon/[id]/team/[teamId]/board/_components/TaskEdit/TaskEditModal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Task } from "@/types/entities/task";
 import TaskTitle from "./TaskTitle";
 import TaskDescription from "./TaskDescription";
@@ -28,7 +28,6 @@ interface TaskEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   boardLabels?: BoardLabel[];
-  teamMembers?: User[];
 }
 
 export default function TaskEditModal({
@@ -36,7 +35,6 @@ export default function TaskEditModal({
   isOpen,
   onClose,
   boardLabels = [],
-  teamMembers = [],
 }: TaskEditModalProps) {
   const [updatedTask, setUpdatedTask] = useState<Task>(task);
   const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +43,19 @@ export default function TaskEditModal({
   const [files, setFiles] = useState<FileUrl[]>(task.fileUrls || []);
   const updateTask = useKanbanStore((state) => state.updateTask);
   const removeTask = useKanbanStore((state) => state.removeTask);
+
+  // Get the board users from the store
+  const boardUsers = useKanbanStore((state) => state.board?.boardUsers);
+
+  // Then use useMemo to derive teamMembers
+  const teamMembers = useMemo(() => {
+    return (
+      boardUsers
+        ?.filter((bu) => !bu.isDeleted)
+        .map((bu) => bu.user)
+        .filter(Boolean) || []
+    );
+  }, [boardUsers]);
 
   // Fetch comments and files when the modal opens
   useEffect(() => {

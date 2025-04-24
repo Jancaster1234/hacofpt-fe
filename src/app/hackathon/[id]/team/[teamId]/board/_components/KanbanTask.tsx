@@ -190,7 +190,6 @@ export default function KanbanTask({ task }: KanbanTaskProps) {
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           boardLabels={boardLabels}
-          teamMembers={teamMembers}
         />
       )}
     </>
