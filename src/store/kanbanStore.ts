@@ -241,12 +241,34 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
         throw new Error("Board user not found");
       }
 
-      const response = await boardUserService.updateBoardUser(boardUserId, {
-        boardId: boardUser.boardId,
-        userId: boardUser.userId,
-        role,
-        isDeleted: boardUser.isDeleted,
-      });
+      // Check if this is restoring a deleted user
+      const isRestoring = boardUser.isDeleted;
+
+      // Choose the appropriate service method based on whether we're restoring a deleted user
+      let response;
+      if (isRestoring) {
+        // For restoring a deleted user:
+        response = await boardUserService.undeleteBoardUser(boardUserId);
+        // Then update their role if needed
+        if (response.data && response.data.role !== role) {
+          response = await boardUserService.updateBoardUser(boardUserId, {
+            boardId: response.data.board?.id,
+            userId: response.data.user?.id,
+            role: role,
+            isDeleted: response.data.isDeleted,
+            deletedById: response.data.deletedById,
+          });
+        }
+      } else {
+        // For just updating the role:
+        response = await boardUserService.updateBoardUser(boardUserId, {
+          boardId: boardUser.board?.id,
+          userId: boardUser.user?.id,
+          role: role,
+          isDeleted: boardUser.isDeleted,
+          deletedById: boardUser.deletedById,
+        });
+      }
 
       if (response.data) {
         // Update the board user in state

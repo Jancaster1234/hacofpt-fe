@@ -84,19 +84,22 @@ export default function KanbanBoard({
           await boardUserService.getBoardUsersByBoardId(board.id);
 
         // Filter out deleted board users before updating the board
-        const activeBoardUsers = boardUsers.filter((bu) => !bu.isDeleted);
+        // const activeBoardUsers = boardUsers.filter((bu) => !bu.isDeleted);
 
-        // Update boardUsers in the store
+        // Update boardUsers in the store with ALL users (including deleted ones)
         useKanbanStore.getState().setBoardUsers(boardUsers);
 
         // Load board labels (needed for task labels and BoardHeader)
         const { data: boardLabels } =
           await boardLabelService.getBoardLabelsByBoardId(board.id);
 
+        // When updating the enhanced board, use active board users for display
+        const activeBoardUsers = boardUsers.filter((bu) => !bu.isDeleted);
+
         // Update the enhanced board with users and labels
         const updatedBoard = {
           ...board,
-          boardUsers: activeBoardUsers, // Only include active (non-deleted) board users
+          boardUsers: boardUsers, // Only include active (non-deleted) board users
           boardLabels, // Add the labels to the board object
         };
 

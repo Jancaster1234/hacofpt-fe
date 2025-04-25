@@ -39,7 +39,7 @@ export default function BoardUserManagement({
     setError: setStoreError,
   } = useKanbanStore();
 
-  // Get boardUsers from the KanbanStore's board object
+  // Get ALL boardUsers from the KanbanStore's board object (including deleted ones)
   const boardUsers = useKanbanStore((state) => state.board?.boardUsers || []);
 
   useEffect(() => {
@@ -49,6 +49,7 @@ export default function BoardUserManagement({
   }, [isOpen, setStoreError]);
 
   // Filter team members who are not already active board users
+  // This correctly filters out team members who are already active in the board
   const availableTeamMembers =
     team?.teamMembers?.filter(
       (tm) =>
@@ -62,9 +63,8 @@ export default function BoardUserManagement({
     try {
       // Check if this user was previously deleted (soft-deleted)
       const existingBoardUser = boardUsers.find(
-        (bu) => bu.userId === selectedTeamMember && bu.isDeleted
+        (bu) => bu.user?.id === selectedTeamMember && bu.isDeleted
       );
-
       if (existingBoardUser) {
         // If the user was previously soft-deleted, update their role and isDeleted status
         await updateBoardUserRole(existingBoardUser.id, selectedRole);
