@@ -16,6 +16,20 @@ export function TestToastProvider() {
   }
 
   return (
-    <Toaster position="top-right" theme={resolvedTheme as "light" | "dark"} />
+    <Toaster
+      position="bottom-right" // Different position to avoid conflicts
+      closeButton
+      richColors
+      expand={false}
+      theme={(resolvedTheme as "light" | "dark") || "light"}
+      className="!z-[9999]" // Force highest z-index
+      toastOptions={{
+        style: {
+          background: "rgba(0, 0, 0, 0.9)",
+          color: "white",
+          border: "2px solid white",
+        },
+      }}
+    />
   );
 }

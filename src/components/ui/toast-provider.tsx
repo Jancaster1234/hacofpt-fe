@@ -9,7 +9,7 @@ import { useTheme } from "next-themes";
 export function ToastProvider() {
   const { toasts, removeToast } = useToastStore();
   const { resolvedTheme } = useTheme();
-  const processedToastsRef = useRef(new Set());
+  const processedToastsRef = useRef(new Set<string>());
 
   useEffect(() => {
     // Process only new toasts that haven't been displayed yet
@@ -48,6 +48,13 @@ export function ToastProvider() {
   }, [toasts, removeToast]);
 
   return (
-    <Toaster position="top-right" theme={resolvedTheme as "light" | "dark"} />
+    <Toaster
+      position="top-right"
+      closeButton
+      richColors
+      expand={false}
+      theme={(resolvedTheme as "light" | "dark") || "light"}
+      className="overflow-hidden max-w-[90vw] sm:max-w-sm !z-[9999]"
+    />
   );
 }
