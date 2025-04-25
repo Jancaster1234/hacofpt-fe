@@ -85,6 +85,10 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
       const threadToUpdate = threads.find((t) => t.id === threadId);
       if (!threadToUpdate) return;
 
+      const isAdmin = currentUser?.userRoles?.some(
+        (userRole) => userRole.role.name === "ADMIN"
+      );
+
       const { data } = await forumThreadService.updateForumThread(threadId, {
         title: threadToUpdate.title,
         forumCategoryId: categoryId,
@@ -96,6 +100,7 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
           updates.isPinned !== undefined
             ? updates.isPinned
             : threadToUpdate.isPinned,
+        isAdmin, // Pass the isAdmin flag to the service
       });
 
       // Update thread in state after successful update

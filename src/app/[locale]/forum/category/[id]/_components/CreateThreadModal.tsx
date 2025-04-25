@@ -44,6 +44,7 @@ export default function CreateThreadModal({
         forumCategoryId: categoryId,
         isLocked: isAdmin ? isLocked : false,
         isPinned: isAdmin ? isPinned : false,
+        isAdmin, // Pass the isAdmin flag to the service
       });
 
       if (data && data.id) {

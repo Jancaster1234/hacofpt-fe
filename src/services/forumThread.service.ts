@@ -15,8 +15,8 @@ class ForumThreadService {
     try {
       const { isAdmin, ...threadData } = data;
       const endpoint = isAdmin
-        ? "/api/v1/forum-threads/admin"
-        : "/api/v1/forum-threads/member";
+        ? "/communication-service/api/v1/forum-threads/admin"
+        : "/communication-service/api/v1/forum-threads/member";
 
       const response = await apiService.auth.post<ForumThread>(endpoint, {
         data: threadData,
@@ -53,8 +53,8 @@ class ForumThreadService {
     try {
       const { isAdmin, ...threadData } = data;
       const endpoint = isAdmin
-        ? `/api/v1/forum-threads/admin/${id}`
-        : `/api/v1/forum-threads/member/${id}`;
+        ? `/communication-service/api/v1/forum-threads/admin/${id}`
+        : `/communication-service/api/v1/forum-threads/member/${id}`;
 
       const response = await apiService.auth.put<ForumThread>(endpoint, {
         data: threadData,
@@ -85,7 +85,7 @@ class ForumThreadService {
   }): Promise<{ data: ForumThread; message?: string }> {
     try {
       const response = await apiService.auth.post<ForumThread>(
-        "/api/v1/forum-threads/admin",
+        "/communication-service/api/v1/forum-threads/admin",
         { data: data }
       );
 
@@ -114,7 +114,7 @@ class ForumThreadService {
   }): Promise<{ data: ForumThread; message?: string }> {
     try {
       const response = await apiService.auth.post<ForumThread>(
-        "/api/v1/forum-threads/member",
+        "/communication-service/api/v1/forum-threads/member",
         { data: data }
       );
 
@@ -148,7 +148,7 @@ class ForumThreadService {
   ): Promise<{ data: ForumThread; message?: string }> {
     try {
       const response = await apiService.auth.put<ForumThread>(
-        `/api/v1/forum-threads/admin/${id}`,
+        `/communication-service/api/v1/forum-threads/admin/${id}`,
         { data: data }
       );
 
@@ -180,7 +180,7 @@ class ForumThreadService {
   ): Promise<{ data: ForumThread; message?: string }> {
     try {
       const response = await apiService.auth.put<ForumThread>(
-        `/api/v1/forum-threads/member/${id}`,
+        `/communication-service/api/v1/forum-threads/member/${id}`,
         { data: data }
       );
 

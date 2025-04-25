@@ -100,7 +100,10 @@ export default function ThreadPostItem({
               initialLikes={post.threadPostLikes}
             />
 
-            <ReportButton threadPostId={post.id} />
+            <ReportButton
+              threadPostId={post.id}
+              postAuthor={post.createdByUserName}
+            />
           </div>
           {isPostOwner && !isEditing && (
             <div className="flex items-center space-x-2">

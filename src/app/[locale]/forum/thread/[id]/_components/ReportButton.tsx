@@ -11,15 +11,22 @@ import {
 
 interface ReportButtonProps {
   threadPostId: string;
+  postAuthor?: string; // Add this prop to identify the post author
 }
 
-export default function ReportButton({ threadPostId }: ReportButtonProps) {
+export default function ReportButton({
+  threadPostId,
+  postAuthor,
+}: ReportButtonProps) {
   const { user } = useAuth();
   const [showReportModal, setShowReportModal] = useState(false);
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userReport, setUserReport] = useState<ThreadPostReport | null>(null);
+
+  // Check if the current user is the author of the post
+  const isOwnPost = user?.username === postAuthor;
 
   useEffect(() => {
     const checkUserReport = async () => {
@@ -95,7 +102,13 @@ export default function ReportButton({ threadPostId }: ReportButtonProps) {
     );
   };
 
+  // Don't show report button if user is not logged in
   if (!user) {
+    return null;
+  }
+
+  // Don't show report button if this is the user's own post
+  if (isOwnPost) {
     return null;
   }
 
