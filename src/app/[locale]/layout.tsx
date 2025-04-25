@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth_v0";
 import { useEffect } from "react";
 import { ToastProvider } from "@/components/ui/toast-provider";
 import { Providers } from "./providers";
-
+import { TestToastProvider } from "@/components/ui/test-toast-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
@@ -52,8 +52,9 @@ export default function RootLayout({
         <Providers locale={locale}>
           <Header />
           {children}
-          <ToastProvider />
           <Footer />
+          <ToastProvider />
+
           <ScrollToTop />
         </Providers>
       </body>
