@@ -147,6 +147,37 @@ class ThreadPostReportService {
     }
   }
 
+  async reviewThreadPostReport(
+    id: string,
+    data: {
+      status: "REVIEWED";
+    }
+  ): Promise<{ data: ThreadPostReport; message?: string }> {
+    try {
+      const response = await apiService.auth.put<ThreadPostReport>(
+        `/api/v1/thread-post-reports/review/${id}`,
+        { data }
+      );
+
+      if (!response || !response.data) {
+        throw new Error(
+          response?.message || "Failed to review thread post report"
+        );
+      }
+
+      return {
+        data: response.data,
+        message: response.message || "Thread post report reviewed successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<ThreadPostReport>(
+        error,
+        {} as ThreadPostReport,
+        "[Thread Post Report Service] Error reviewing thread post report:"
+      );
+    }
+  }
+
   async deleteThreadPostReport(id: string): Promise<{ message?: string }> {
     try {
       const response = await apiService.auth.delete(

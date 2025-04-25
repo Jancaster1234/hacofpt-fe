@@ -33,6 +33,132 @@ class ForumThreadService {
     }
   }
 
+  async createAdminForumThread(data: {
+    title: string;
+    forumCategoryId: number;
+    isLocked: boolean;
+    isPinned: boolean;
+  }): Promise<{ data: ForumThread; message?: string }> {
+    try {
+      const response = await apiService.auth.post<ForumThread>(
+        "/api/v1/forum-threads/admin",
+        { data: data }
+      );
+
+      if (!response || !response.data) {
+        throw new Error(
+          response?.message || "Failed to create admin forum thread"
+        );
+      }
+
+      return {
+        data: response.data,
+        message: response.message || "Admin forum thread created successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<ForumThread>(
+        error,
+        {} as ForumThread,
+        "[Forum Thread Service] Error creating admin forum thread:"
+      );
+    }
+  }
+
+  async createMemberForumThread(data: {
+    title: string;
+    forumCategoryId: number;
+  }): Promise<{ data: ForumThread; message?: string }> {
+    try {
+      const response = await apiService.auth.post<ForumThread>(
+        "/api/v1/forum-threads/member",
+        { data: data }
+      );
+
+      if (!response || !response.data) {
+        throw new Error(
+          response?.message || "Failed to create member forum thread"
+        );
+      }
+
+      return {
+        data: response.data,
+        message: response.message || "Member forum thread created successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<ForumThread>(
+        error,
+        {} as ForumThread,
+        "[Forum Thread Service] Error creating member forum thread:"
+      );
+    }
+  }
+
+  async updateAdminForumThread(
+    id: string,
+    data: {
+      title: string;
+      forumCategoryId: number;
+      isLocked: boolean;
+      isPinned: boolean;
+    }
+  ): Promise<{ data: ForumThread; message?: string }> {
+    try {
+      const response = await apiService.auth.put<ForumThread>(
+        `/api/v1/forum-threads/admin/${id}`,
+        { data: data }
+      );
+
+      if (!response || !response.data) {
+        throw new Error(
+          response?.message || "Failed to update admin forum thread"
+        );
+      }
+
+      return {
+        data: response.data,
+        message: response.message || "Admin forum thread updated successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<ForumThread>(
+        error,
+        {} as ForumThread,
+        "[Forum Thread Service] Error updating admin forum thread:"
+      );
+    }
+  }
+
+  async updateMemberForumThread(
+    id: string,
+    data: {
+      title: string;
+      forumCategoryId: number;
+    }
+  ): Promise<{ data: ForumThread; message?: string }> {
+    try {
+      const response = await apiService.auth.put<ForumThread>(
+        `/api/v1/forum-threads/member/${id}`,
+        { data: data }
+      );
+
+      if (!response || !response.data) {
+        throw new Error(
+          response?.message || "Failed to update member forum thread"
+        );
+      }
+
+      return {
+        data: response.data,
+        message: response.message || "Member forum thread updated successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<ForumThread>(
+        error,
+        {} as ForumThread,
+        "[Forum Thread Service] Error updating member forum thread:"
+      );
+    }
+  }
+
   async getAllForumThreads(): Promise<{
     data: ForumThread[];
     message?: string;
