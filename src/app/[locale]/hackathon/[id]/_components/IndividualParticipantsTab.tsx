@@ -30,13 +30,11 @@ export function IndividualParticipantsTab({
 
         // Fetch both APPROVED and COMPLETED registrations in parallel
         const [approvedRes, completedRes] = await Promise.all([
-          individualRegistrationRequestService.getIndividualRegistrationsByHackathonIdAndStatus(
-            hackathonId,
-            "APPROVED"
+          individualRegistrationRequestService.getApprovedIndividualRegistrationsByHackathonId(
+            hackathonId
           ),
-          individualRegistrationRequestService.getIndividualRegistrationsByHackathonIdAndStatus(
-            hackathonId,
-            "COMPLETED"
+          individualRegistrationRequestService.getCompletedIndividualRegistrationsByHackathonId(
+            hackathonId
           ),
         ]);
 
