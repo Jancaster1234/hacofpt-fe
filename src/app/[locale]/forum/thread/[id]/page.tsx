@@ -21,11 +21,11 @@ export default function ThreadPage() {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      // Replace mock call with real service call
       const response = await threadPostService.getAllThreadPosts();
       // Filter posts to show only posts from this thread
+      // Note: We now include deleted posts but will display them differently
       const postsForThread = response.data.filter(
-        (post) => post.forumThreadId === threadId && !post.isDeleted
+        (post) => post.forumThreadId === threadId
       );
       setThreadPosts(postsForThread);
     } catch (error) {
@@ -47,7 +47,19 @@ export default function ThreadPage() {
   };
 
   const handlePostDeleted = (postId: string) => {
-    setThreadPosts((prev) => prev.filter((post) => post.id !== postId));
+    // Instead of removing the post, mark it as deleted in the UI
+    setThreadPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              isDeleted: true,
+              deletedById: user?.id,
+              updatedAt: new Date().toISOString(),
+            }
+          : post
+      )
+    );
   };
 
   const handlePostUpdated = (updatedPost: ThreadPost) => {

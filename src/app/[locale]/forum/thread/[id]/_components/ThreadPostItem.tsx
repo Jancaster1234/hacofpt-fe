@@ -1,9 +1,10 @@
 // src/app/[locale]/forum/thread/[id]/_components/ThreadPostItem.tsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { ThreadPost } from "@/types/entities/threadPost";
 import { threadPostService } from "@/services/threadPost.service";
+import { userService } from "@/services/user.service";
 import UserInfo from "./UserInfo";
 import LikeButton from "./LikeButton";
 import ReportButton from "./ReportButton";
@@ -26,8 +27,33 @@ export default function ThreadPostItem({
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deletedByUsername, setDeletedByUsername] = useState<string | null>(
+    null
+  );
+  const [isLoadingDeletedBy, setIsLoadingDeletedBy] = useState(false);
 
   const isPostOwner = user?.username === post.createdByUserName;
+
+  // Fetch user who deleted the post if applicable
+  useEffect(() => {
+    const fetchDeletedByUser = async () => {
+      if (post.isDeleted && post.deletedById) {
+        setIsLoadingDeletedBy(true);
+        try {
+          const { data } = await userService.getUserById(post.deletedById);
+          if (data && data.username) {
+            setDeletedByUsername(data.username);
+          }
+        } catch (err) {
+          console.error("Failed to fetch user who deleted the post:", err);
+        } finally {
+          setIsLoadingDeletedBy(false);
+        }
+      }
+    };
+
+    fetchDeletedByUser();
+  }, [post.isDeleted, post.deletedById]);
 
   const handleDelete = async () => {
     if (
@@ -47,6 +73,16 @@ export default function ThreadPostItem({
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return (
+      date.toLocaleDateString() +
+      " at " +
+      date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
   };
 
   return (
@@ -78,9 +114,18 @@ export default function ThreadPostItem({
         ) : (
           <div className="prose max-w-none">
             {post.isDeleted ? (
-              <p className="italic text-gray-400">
-                This post has been deleted.
-              </p>
+              <div className="italic text-gray-500 border-l-4 border-gray-300 pl-4 py-2">
+                <p className="mb-1">This post has been deleted.</p>
+                {isLoadingDeletedBy ? (
+                  <p className="text-sm">Loading deletion details...</p>
+                ) : (
+                  <p className="text-sm">
+                    {deletedByUsername
+                      ? `Deleted by ${deletedByUsername} on ${formatDate(post.updatedAt)}`
+                      : `Deleted by system (due to reports) on ${formatDate(post.updatedAt)}`}
+                  </p>
+                )}
+              </div>
             ) : (
               <p className="text-gray-800 whitespace-pre-wrap">
                 {post.content}
