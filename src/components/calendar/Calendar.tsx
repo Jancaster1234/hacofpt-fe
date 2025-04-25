@@ -26,6 +26,7 @@ import { scheduleService } from "@/services/schedule.service";
 import { scheduleEventService } from "@/services/scheduleEvent.service";
 import { teamService } from "@/services/team.service";
 import { ScheduleEventLabel } from "@/types/entities/scheduleEvent";
+import Image from "next/image";
 
 export interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -386,12 +387,24 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
           <div className="flex items-center mt-2 md:mt-0">
             <div className="flex -space-x-2 mr-2">
               {teamMembers.slice(0, 3).map((user) => (
-                <div
-                  key={user.id}
-                  className="h-8 w-8 rounded-full bg-gray-300 border-2 border-white flex items-center justify-center text-sm font-medium"
-                  name={`${user.firstName} ${user.lastName}`}
-                >
-                  {user.firstName?.charAt(0) || "U"}
+                <div key={user.id} className="relative h-8 w-8">
+                  {user.avatarUrl ? (
+                    <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-white">
+                      <Image
+                        src={user.avatarUrl}
+                        alt={`${user.firstName} ${user.lastName}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="h-8 w-8 rounded-full bg-gray-300 border-2 border-white flex items-center justify-center text-sm font-medium"
+                      title={`${user.firstName} ${user.lastName}`}
+                    >
+                      {user.firstName?.charAt(0) || "U"}
+                    </div>
+                  )}
                 </div>
               ))}
               {teamMembers.length > 3 && (

@@ -1,6 +1,7 @@
 // src/components/calendar/ScheduleMembers.tsx
 import React from "react";
 import { User } from "@/types/entities/user";
+import Image from "next/image";
 
 interface ScheduleMembersProps {
   isOpen: boolean;
@@ -53,9 +54,20 @@ const ScheduleMembers: React.FC<ScheduleMembersProps> = ({
               {members.map((member) => (
                 <li key={member.id} className="py-3">
                   <div className="flex items-center space-x-3">
-                    <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
-                      {member.firstName?.charAt(0) || "U"}
-                    </div>
+                    {member.avatarUrl ? (
+                      <div className="relative h-10 w-10 rounded-full overflow-hidden">
+                        <Image
+                          src={member.avatarUrl}
+                          alt={`${member.firstName}'s avatar`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
+                        {member.firstName?.charAt(0) || "U"}
+                      </div>
+                    )}
                     <div>
                       <p className="font-medium">
                         {member.firstName} {member.lastName}
