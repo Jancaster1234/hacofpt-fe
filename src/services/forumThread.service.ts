@@ -4,17 +4,23 @@ import { apiService } from "@/services/apiService_v0";
 import { handleApiError } from "@/utils/errorHandler";
 
 class ForumThreadService {
+  // Generic method to create a forum thread based on user role
   async createForumThread(data: {
     title: string;
-    forumCategoryId: string;
-    isLocked: boolean;
-    isPinned: boolean;
+    forumCategoryId: string | number;
+    isLocked?: boolean;
+    isPinned?: boolean;
+    isAdmin?: boolean;
   }): Promise<{ data: ForumThread; message?: string }> {
     try {
-      const response = await apiService.auth.post<ForumThread>(
-        "/communication-service/api/v1/forum-threads",
-        { data: data }
-      );
+      const { isAdmin, ...threadData } = data;
+      const endpoint = isAdmin
+        ? "/api/v1/forum-threads/admin"
+        : "/api/v1/forum-threads/member";
+
+      const response = await apiService.auth.post<ForumThread>(endpoint, {
+        data: threadData,
+      });
 
       if (!response || !response.data) {
         throw new Error(response?.message || "Failed to create forum thread");
@@ -29,6 +35,44 @@ class ForumThreadService {
         error,
         {} as ForumThread,
         "[Forum Thread Service] Error creating forum thread:"
+      );
+    }
+  }
+
+  // Generic method to update a forum thread based on user role
+  async updateForumThread(
+    id: string,
+    data: {
+      title?: string;
+      forumCategoryId?: string | number;
+      isLocked?: boolean;
+      isPinned?: boolean;
+      isAdmin?: boolean;
+    }
+  ): Promise<{ data: ForumThread; message?: string }> {
+    try {
+      const { isAdmin, ...threadData } = data;
+      const endpoint = isAdmin
+        ? `/api/v1/forum-threads/admin/${id}`
+        : `/api/v1/forum-threads/member/${id}`;
+
+      const response = await apiService.auth.put<ForumThread>(endpoint, {
+        data: threadData,
+      });
+
+      if (!response || !response.data) {
+        throw new Error(response?.message || "Failed to update forum thread");
+      }
+
+      return {
+        data: response.data,
+        message: response.message || "Forum thread updated successfully",
+      };
+    } catch (error: any) {
+      return handleApiError<ForumThread>(
+        error,
+        {} as ForumThread,
+        "[Forum Thread Service] Error updating forum thread:"
       );
     }
   }
@@ -231,38 +275,6 @@ class ForumThreadService {
         error,
         [],
         "[Forum Thread Service] Error getting forum threads by category ID:"
-      );
-    }
-  }
-
-  async updateForumThread(
-    id: string,
-    data: {
-      title: string;
-      forumCategoryId: string;
-      isLocked: boolean;
-      isPinned: boolean;
-    }
-  ): Promise<{ data: ForumThread; message?: string }> {
-    try {
-      const response = await apiService.auth.put<ForumThread>(
-        `/communication-service/api/v1/forum-threads/${id}`,
-        { data: data }
-      );
-
-      if (!response || !response.data) {
-        throw new Error(response?.message || "Failed to update forum thread");
-      }
-
-      return {
-        data: response.data,
-        message: response.message || "Forum thread updated successfully",
-      };
-    } catch (error: any) {
-      return handleApiError<ForumThread>(
-        error,
-        {} as ForumThread,
-        "[Forum Thread Service] Error updating forum thread:"
       );
     }
   }
