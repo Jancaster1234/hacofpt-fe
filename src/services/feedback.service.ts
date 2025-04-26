@@ -32,16 +32,16 @@ class FeedbackService {
     hackathonId: string
   ): Promise<{ data: Feedback; message?: string }> {
     try {
-      const response = await apiService.auth.get<Feedback[]>(
+      const response = await apiService.auth.get<Feedback>(
         `/analytics-service/api/v1/feedbacks/hackathon/${hackathonId}/mentor/${mentorId}`
       );
 
-      if (!response || !response.data || response.data.length === 0) {
+      if (!response || !response.data) {
         throw new Error("No feedbacks found for given mentor and hackathon");
       }
 
       return {
-        data: response.data[0], // first feedback object
+        data: response.data, // first feedback object
         message: response.message,
       };
     } catch (error: any) {

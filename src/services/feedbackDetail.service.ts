@@ -114,7 +114,7 @@ class FeedbackDetailService {
     feedbackId?: string;
     content: string;
     maxRating: number;
-    rate: number;
+    rate?: number;
     note?: string;
   }): Promise<{ data: FeedbackDetail; message?: string }> {
     try {
@@ -148,7 +148,7 @@ class FeedbackDetailService {
       feedbackId?: string;
       content: string;
       maxRating: number;
-      rate: number;
+      rate?: number;
       note?: string;
     }
   ): Promise<{ data: FeedbackDetail; message?: string }> {
@@ -200,7 +200,7 @@ class FeedbackDetailService {
     details: Array<{
       content: string;
       maxRating: number;
-      rate: number;
+      rate?: number;
       note?: string;
     }>
   ): Promise<{ data: FeedbackDetail[]; message?: string }> {
@@ -243,7 +243,7 @@ class FeedbackDetailService {
       id?: string;
       content: string;
       maxRating: number;
-      rate: number;
+      rate?: number;
       note?: string;
     }>
   ): Promise<{ data: FeedbackDetail[]; message?: string }> {
