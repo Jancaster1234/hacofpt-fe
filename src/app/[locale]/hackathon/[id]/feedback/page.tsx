@@ -49,9 +49,9 @@ export default function HackathonFeedback() {
 
       try {
         // Get hackathon details
-        const { data: hackathonData } =
-          await hackathonService.getHackathonById(hackathonId);
-        setHackathon(hackathonData);
+        const response = await hackathonService.getHackathonById(hackathonId);
+        const hackathon = response.data.length > 0 ? response.data[0] : null;
+        setHackathon(hackathon);
 
         // Get user's teams for this hackathon
         if (user.id) {
@@ -196,7 +196,7 @@ export default function HackathonFeedback() {
                 {tab.feedback && (
                   <FeedbackForm
                     feedback={tab.feedback}
-                    hackathonId={hackathonId}
+                    hackathon={hackathon}
                     user={user}
                     router={router}
                   />

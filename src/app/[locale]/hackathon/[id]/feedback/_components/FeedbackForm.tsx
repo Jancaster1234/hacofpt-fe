@@ -5,6 +5,7 @@ import { feedbackDetailService } from "@/services/feedbackDetail.service";
 import { Feedback } from "@/types/entities/feedback";
 import { FeedbackDetail } from "@/types/entities/feedbackDetail";
 import { User } from "@/types/entities/user";
+import { Hackathon } from "@/types/entities/hackathon";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
 
 type StarRatingProps = {
@@ -39,14 +40,14 @@ const StarRating: React.FC<StarRatingProps> = ({
 
 type FeedbackFormProps = {
   feedback: Feedback;
-  hackathonId: string;
+  hackathon: Hackathon;
   user: User | null;
   router: AppRouterInstance;
 };
 
 const FeedbackForm: React.FC<FeedbackFormProps> = ({
   feedback,
-  hackathonId,
+  hackathon,
   user,
   router,
 }) => {
@@ -71,8 +72,9 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
       try {
         // Get feedback details (questions)
         const { data: details } =
-          await feedbackDetailService.getFeedbackDetailsByFeedbackId(
-            feedback.id
+          await feedbackDetailService.getFeedbackDetailsByFeedbackIdAndCreator(
+            feedback.id,
+            hackathon.createdByUserName
           );
         setFeedbackDetails(details);
 
