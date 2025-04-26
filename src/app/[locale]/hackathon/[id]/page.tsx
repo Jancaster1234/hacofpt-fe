@@ -1,3 +1,4 @@
+// src/app/[locale]/hackathon/[id]/page.tsx
 "use client";
 
 import { useParams } from "next/navigation";

@@ -1,4 +1,4 @@
-// src/components/feedback/FeedbackForm.tsx
+// src/app/[locale]/hackathon/[id]/feedback/_components/FeedbackForm.tsx
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { feedbackDetailService } from "@/services/feedbackDetail.service";

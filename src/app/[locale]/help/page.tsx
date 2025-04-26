@@ -1,96 +1,113 @@
 // src/app/[locale]/help/page.tsx
-import { Metadata } from "next";
-import SingleBlog from "@/components/Blog/SingleBlog";
-import blogData from "@/components/Blog/blogData";
-import Breadcrumb from "@/components/common/Breadcrumb";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Help Page",
-  description: "This is the help page where users can get help.",
-};
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth_v0";
+import { blogPostService } from "@/services/blogPost.service";
+import { BlogPost } from "@/types/entities/blogPost";
 
 export default function HelpPage() {
-  return (
-    <>
-      <Breadcrumb
-        pageName="Blog Grid"
-        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. In varius eros eget sapien consectetur ultrices. Ut quis dapibus libero."
-      />
+  const { user } = useAuth();
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-      <section className="pb-[120px] pt-[120px]">
-        <div className="container mx-auto p-8">
-          <div className="-mx-4 flex flex-wrap justify-center">
-            {blogData.map((blog) => (
+  useEffect(() => {
+    const fetchPublishedBlogPosts = async () => {
+      setIsLoading(true);
+      try {
+        const response =
+          await blogPostService.getBlogPostsByStatus("PUBLISHED");
+        if (response.data) {
+          setBlogPosts(response.data);
+        } else {
+          setError("Failed to fetch blog posts");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching blog posts");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPublishedBlogPosts();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-5xl mx-auto">
+        <header className="mb-10">
+          <h1 className="text-3xl font-bold text-gray-900">Help Center</h1>
+          <p className="mt-2 text-gray-600">
+            Welcome, {user ? `${user.firstName} ${user.lastName}` : "Guest"}!
+            Explore our published resources below.
+          </p>
+        </header>
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-40">
+            <p className="text-gray-500">Loading blog posts...</p>
+          </div>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <p className="text-red-500">{error}</p>
+          </div>
+        ) : blogPosts.length === 0 ? (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <p className="text-yellow-700">
+              No published help articles available at the moment.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {blogPosts.map((post) => (
               <div
-                key={blog.id}
-                className="w-full px-4 md:w-2/3 lg:w-1/2 xl:w-1/3"
+                key={post.id}
+                className="bg-white shadow rounded-lg overflow-hidden"
               >
-                <SingleBlog blog={blog} />
+                {post.bannerImageUrl && (
+                  <div className="h-40 overflow-hidden">
+                    <img
+                      src={post.bannerImageUrl}
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          "/placeholder-image.jpg";
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="p-5">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                    {post.title}
+                  </h2>
+                  <div className="text-sm text-gray-500 mb-3">
+                    {post.publishedAt && (
+                      <span>
+                        Published:{" "}
+                        {new Date(post.publishedAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-gray-600 mb-4 line-clamp-3">
+                    {/* Display a preview of the content */}
+                    {post.content.substring(0, 150)}
+                    {post.content.length > 150 && "..."}
+                  </div>
+                  <a
+                    href={`/help/article/${post.slug}`}
+                    className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                  >
+                    Read More
+                  </a>
+                </div>
               </div>
             ))}
           </div>
-
-          <div className="-mx-4 flex flex-wrap" data-wow-delay=".15s">
-            <div className="w-full px-4">
-              <ul className="flex items-center justify-center pt-8">
-                <li className="mx-1">
-                  <a
-                    href="#0"
-                    className="flex h-9 min-w-[36px] items-center justify-center rounded-md bg-body-color bg-opacity-[15%] px-4 text-sm text-body-color transition hover:bg-[#4A6CF7] hover:bg-opacity-100 hover:text-white"
-                  >
-                    Prev
-                  </a>
-                </li>
-                <li className="mx-1">
-                  <a
-                    href="#0"
-                    className="flex h-9 min-w-[36px] items-center justify-center rounded-md bg-body-color bg-opacity-[15%] px-4 text-sm text-body-color transition hover:bg-[#4A6CF7] hover:bg-opacity-100 hover:text-white"
-                  >
-                    1
-                  </a>
-                </li>
-                <li className="mx-1">
-                  <a
-                    href="#0"
-                    className="flex h-9 min-w-[36px] items-center justify-center rounded-md bg-body-color bg-opacity-[15%] px-4 text-sm text-body-color transition hover:bg-[#4A6CF7] hover:bg-opacity-100 hover:text-white"
-                  >
-                    2
-                  </a>
-                </li>
-                <li className="mx-1">
-                  <a
-                    href="#0"
-                    className="flex h-9 min-w-[36px] items-center justify-center rounded-md bg-body-color bg-opacity-[15%] px-4 text-sm text-body-color transition hover:bg-[#4A6CF7] hover:bg-opacity-100 hover:text-white"
-                  >
-                    3
-                  </a>
-                </li>
-                <li className="mx-1">
-                  <span className="flex h-9 min-w-[36px] cursor-not-allowed items-center justify-center rounded-md bg-body-color bg-opacity-[15%] px-4 text-sm text-body-color">
-                    ...
-                  </span>
-                </li>
-                <li className="mx-1">
-                  <a
-                    href="#0"
-                    className="flex h-9 min-w-[36px] items-center justify-center rounded-md bg-body-color bg-opacity-[15%] px-4 text-sm text-body-color transition hover:bg-[#4A6CF7] hover:bg-opacity-100 hover:text-white"
-                  >
-                    12
-                  </a>
-                </li>
-                <li className="mx-1">
-                  <a
-                    href="#0"
-                    className="flex h-9 min-w-[36px] items-center justify-center rounded-md bg-body-color bg-opacity-[15%] px-4 text-sm text-body-color transition hover:bg-[#4A6CF7] hover:bg-opacity-100 hover:text-white"
-                  >
-                    Next
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
+        )}
+      </div>
+    </div>
   );
 }
