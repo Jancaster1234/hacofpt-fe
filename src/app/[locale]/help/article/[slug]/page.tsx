@@ -23,7 +23,7 @@ export default function BlogPostPage() {
 
       setIsLoading(true);
       try {
-        const response = await blogPostService.getBlogPostById("2");
+        const response = await blogPostService.getBlogPostBySlug(slug);
 
         if (response.data && response.data.id) {
           setBlogPost(response.data);
