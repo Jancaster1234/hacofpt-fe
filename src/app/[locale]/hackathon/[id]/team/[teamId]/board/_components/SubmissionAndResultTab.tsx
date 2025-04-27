@@ -1,7 +1,7 @@
 // src/app/[locale]/hackathon/[id]/team/[teamId]/board/_components/SubmissionAndResultTab.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import SubmissionTab from "./SubmissionTab";
 import ResultTab from "./ResultTab";
 import RewardListTab from "./RewardListTab";
@@ -45,61 +45,78 @@ export default function SubmissionAndResultTab({
   const roundStartTime = activeRound?.startTime || "";
   const roundEndTime = activeRound?.endTime || "";
 
-  useEffect(() => {
-    const loadSubmissions = async () => {
-      if (!activeRoundTab || !roundId || !teamId) return;
+  // Memoize the loadSubmissions function to prevent recreating it on each render
+  const loadSubmissions = useCallback(async () => {
+    if (!activeRoundTab || !roundId || !teamId) return;
 
-      setSubmissionsLoading(true);
+    setSubmissionsLoading(true);
 
-      try {
-        // Use only the real service - no fallback to mock data
-        const response = await submissionService.getSubmissionsByTeamAndRound(
-          teamId,
-          roundId
-        );
-
-        if (response.data && Array.isArray(response.data)) {
-          setSubmissions(response.data);
-        } else {
-          throw new Error(
-            response.message || t("errors.invalidResponseFormat")
-          );
-        }
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : t("errors.unknownError")
-        );
-        // Initialize with empty array instead of mock data
-        setSubmissions([]);
-      } finally {
-        setSubmissionsLoading(false);
-      }
-    };
-
-    loadSubmissions();
-  }, [activeRoundTab, roundId, teamId, showError, t, toast]);
-
-  // Handle new submission or resubmission completion
-  const handleSubmissionComplete = (newSubmission: Submission) => {
-    // Update the submissions list by replacing or adding the new submission
-    setSubmissions((prevSubmissions) => {
-      const submissionIndex = prevSubmissions.findIndex(
-        (sub) => sub.status === "SUBMITTED"
+    try {
+      const response = await submissionService.getSubmissionsByTeamAndRound(
+        teamId,
+        roundId
       );
 
-      if (submissionIndex >= 0) {
-        // Replace existing submitted submission
-        const updatedSubmissions = [...prevSubmissions];
-        updatedSubmissions[submissionIndex] = newSubmission;
-        toast.success(t("notifications.submissionUpdated"));
-        return updatedSubmissions;
+      if (response.data && Array.isArray(response.data)) {
+        setSubmissions(response.data);
       } else {
-        // Add new submission
-        toast.success(t("notifications.submissionCreated"));
-        return [...prevSubmissions, newSubmission];
+        const errorMessage =
+          response.message || t("errors.invalidResponseFormat");
+        // Only show error toast if the error is meaningful
+        if (response.message) {
+          toast.error(errorMessage);
+        }
+        throw new Error(errorMessage);
       }
-    });
-  };
+    } catch (error) {
+      console.error("Error loading submissions:", error);
+      // Don't put toast inside the dependency array
+      if (error instanceof Error && error.message) {
+        toast.error(error.message);
+      }
+      // Initialize with empty array instead of mock data
+      setSubmissions([]);
+    } finally {
+      setSubmissionsLoading(false);
+    }
+  }, [activeRoundTab, roundId, teamId, t]); // Removed toast from dependencies
+
+  useEffect(() => {
+    loadSubmissions();
+  }, [loadSubmissions]);
+
+  // Handle new submission or resubmission completion
+  const handleSubmissionComplete = useCallback(
+    (newSubmission: Submission) => {
+      // Update the submissions list by replacing or adding the new submission
+      setSubmissions((prevSubmissions) => {
+        const submissionIndex = prevSubmissions.findIndex(
+          (sub) => sub.status === "SUBMITTED"
+        );
+
+        if (submissionIndex >= 0) {
+          // Replace existing submitted submission
+          const updatedSubmissions = [...prevSubmissions];
+          updatedSubmissions[submissionIndex] = newSubmission;
+          // Show success toast outside of the state update to avoid re-renders
+          setTimeout(
+            () => toast.success(t("notifications.submissionUpdated")),
+            0
+          );
+          return updatedSubmissions;
+        } else {
+          // Add new submission
+          // Show success toast outside of the state update to avoid re-renders
+          setTimeout(
+            () => toast.success(t("notifications.submissionCreated")),
+            0
+          );
+          return [...prevSubmissions, newSubmission];
+        }
+      });
+    },
+    [t, toast]
+  );
 
   if (loading) {
     return (

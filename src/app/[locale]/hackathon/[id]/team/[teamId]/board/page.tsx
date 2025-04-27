@@ -1,7 +1,7 @@
 // src/app/[locale]/hackathon/[id]/team/[teamId]/board/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import KanbanBoard from "./_components/KanbanBoard";
 import Calendar from "@/components/calendar/Calendar";
@@ -44,79 +44,77 @@ export default function HackathonBoardPage() {
   // Use the API modal hook
   const { modalState, hideModal, showError } = useApiModal();
 
-  useEffect(() => {
+  // Memoize the fetchInitialData function
+  const fetchInitialData = useCallback(async () => {
     if (!hackathonId || !teamIdValue) return;
 
-    // Start with essential data only
-    const fetchInitialData = async () => {
-      setLoading(true);
+    setLoading(true);
 
-      try {
-        // Fetch team data
-        const teamResponse = await teamService.getTeamById(teamIdValue);
-        if (teamResponse.data) {
-          setTeam(teamResponse.data);
-        } else {
-          toast.error(teamResponse.message || t("errors.failedToLoadTeam"));
-        }
-
-        // Fetch boards using the new method
-        const boardsResponse =
-          await boardService.getBoardsByTeamIdAndHackathonId(
-            teamIdValue,
-            hackathonId
-          );
-        if (boardsResponse.data) {
-          setBoards(boardsResponse.data);
-        } else {
-          toast.error(boardsResponse.message || t("errors.failedToLoadBoards"));
-        }
-
-        setBoardLoading(false);
-      } catch (error) {
-        console.error("Error fetching initial data:", error);
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t("errors.failedToLoadInitialData")
-        );
-      } finally {
-        setLoading(false);
+    try {
+      // Fetch team data
+      const teamResponse = await teamService.getTeamById(teamIdValue);
+      if (teamResponse.data) {
+        setTeam(teamResponse.data);
+      } else if (teamResponse.message) {
+        // Only show error toast if there's a message
+        toast.error(teamResponse.message);
       }
-    };
 
+      // Fetch boards using the new method
+      const boardsResponse = await boardService.getBoardsByTeamIdAndHackathonId(
+        teamIdValue,
+        hackathonId
+      );
+      if (boardsResponse.data) {
+        setBoards(boardsResponse.data);
+      } else if (boardsResponse.message) {
+        // Only show error toast if there's a message
+        toast.error(boardsResponse.message);
+      }
+
+      setBoardLoading(false);
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+      // Handle error outside of dependency array
+      if (error instanceof Error && error.message) {
+        toast.error(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [hackathonId, teamIdValue]); // Remove toast from dependencies
+
+  useEffect(() => {
     fetchInitialData();
-  }, [hackathonId, teamIdValue, showError, toast, t]);
+  }, [fetchInitialData]);
+
+  // Memoize the fetchRounds function
+  const fetchRounds = useCallback(async () => {
+    if (!hackathonId) return;
+
+    try {
+      const response = await roundService.getRoundsByHackathonId(hackathonId);
+      if (response.data) {
+        setRounds(response.data);
+      } else if (response.message) {
+        // Only show error toast if there's a message
+        toast.error(response.message);
+      }
+    } catch (error) {
+      console.error("Error fetching rounds:", error);
+      // Handle error outside of dependency array
+      if (error instanceof Error && error.message) {
+        toast.error(error.message);
+      }
+    }
+  }, [hackathonId]); // Remove toast from dependencies
 
   // Fetch rounds data only when the "Submission and Result" tab is active
   useEffect(() => {
-    if (
-      activeTab === t("tabs.submissionAndResult") &&
-      rounds.length === 0 &&
-      hackathonId
-    ) {
-      const fetchRounds = async () => {
-        try {
-          const response =
-            await roundService.getRoundsByHackathonId(hackathonId);
-          if (response.data) {
-            setRounds(response.data);
-          } else {
-            toast.error(response.message || t("errors.failedToFetchRounds"));
-          }
-        } catch (error) {
-          console.error("Error fetching rounds:", error);
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : t("errors.failedToLoadRounds")
-          );
-        }
-      };
-
+    if (activeTab === t("tabs.submissionAndResult") && rounds.length === 0) {
       fetchRounds();
     }
-  }, [activeTab, rounds.length, hackathonId, showError, toast, t]);
+  }, [activeTab, rounds.length, fetchRounds, t]);
 
   // Mark calendar as initialized when the Schedule tab is selected for the first time
   useEffect(() => {
