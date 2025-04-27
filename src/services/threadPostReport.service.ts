@@ -155,7 +155,7 @@ class ThreadPostReportService {
   ): Promise<{ data: ThreadPostReport; message?: string }> {
     try {
       const response = await apiService.auth.put<ThreadPostReport>(
-        `/api/v1/thread-post-reports/review/${id}`,
+        `/communication-service/api/v1/thread-post-reports/review/${id}`,
         { data }
       );
 

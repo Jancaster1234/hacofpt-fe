@@ -35,7 +35,7 @@ class TeamRequestService {
   ): Promise<{ data: TeamRequest[]; message?: string }> {
     try {
       const response = await apiService.auth.get<TeamRequest[]>(
-        `/hackathon-service/api/v1/teams/requests?memberId=${memberId}`
+        `/hackathon-service/api/v1/teams/requests/filter-by-member?memberId=${memberId}`
       );
 
       if (!response || !response.data) {
