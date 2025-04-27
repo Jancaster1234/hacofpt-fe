@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/app/[locale]/chat/_components/ChatClient.tsx
 // app/chat/ChatClient.tsx
 "use client";
 import { useState, useEffect } from "react";

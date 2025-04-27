@@ -1,6 +1,3 @@
-// src/app/[locale]/hackathon/[id]/team/[teamId]/board/_components/SubmissionTab.tsx
-"use client";
-
 import { useState, useEffect, useRef } from "react";
 import { Submission } from "@/types/entities/submission";
 import { submissionService } from "@/services/submission.service";
@@ -70,15 +67,28 @@ export default function SubmissionTab({
         return;
       }
 
+      // Calculate days, hours, minutes, seconds
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
         (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
       );
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      setTimeLeft(
-        `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-      );
+      // Format the time display to include days if applicable
+      if (days > 0) {
+        setTimeLeft(
+          `${days}d ${hours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+        );
+      } else {
+        setTimeLeft(
+          `${hours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+        );
+      }
     }, 1000);
 
     return () => clearInterval(interval);
