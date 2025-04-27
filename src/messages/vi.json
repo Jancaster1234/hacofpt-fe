@@ -304,5 +304,51 @@
     "endTimeAfterStart": "Thời gian kết thúc phải sau thời gian bắt đầu",
     "locationRequired": "Địa điểm là bắt buộc",
     "descriptionRequired": "Mô tả là bắt buộc"
+  },
+  "mentorshipRequests": {
+    "cancelRequest": "Hủy yêu cầu",
+    "cancelRequestSuccess": "Đã hủy yêu cầu cố vấn thành công",
+    "cancelRequestError": "Không thể hủy yêu cầu cố vấn",
+    "evaluatedBy": "Đánh giá bởi",
+    "date": "Ngày",
+    "noRequests": "Không có yêu cầu cố vấn nào đang chờ xử lý",
+    "requestFromTab": "Yêu cầu cố vấn từ tab \"Yêu cầu cố vấn\"",
+    "status": {
+      "approved": "Đã chấp nhận",
+      "rejected": "Đã từ chối",
+      "pending": "Đang chờ",
+      "deleted": "Đã xóa",
+      "completed": "Đã hoàn thành"
+    }
+  },
+  "sessionRequests": {
+    "editRequest": "Chỉnh sửa yêu cầu phiên họp",
+    "confirmCancel": "Bạn có chắc chắn muốn hủy yêu cầu phiên họp này?",
+    "cancelSuccess": "Đã hủy yêu cầu phiên họp thành công",
+    "cancelError": "Không thể hủy yêu cầu phiên họp",
+    "updateSuccess": "Đã cập nhật yêu cầu phiên họp thành công",
+    "updateError": "Không thể cập nhật yêu cầu phiên họp",
+    "at": "lúc",
+    "evaluatedBy": "Đánh giá bởi",
+    "date": "Ngày",
+    "cancel": "Hủy",
+    "edit": "Chỉnh sửa",
+    "joinSession": "Tham gia phiên họp",
+    "noRequests": "Chưa có yêu cầu phiên họp nào",
+    "status": {
+      "approved": "Đã chấp nhận",
+      "rejected": "Đã từ chối",
+      "pending": "Đang chờ",
+      "deleted": "Đã xóa",
+      "completed": "Đã hoàn thành"
+    }
+  },
+  "requestMentor": {
+    "requestSuccess": "Đã gửi yêu cầu cố vấn thành công",
+    "requestError": "Không thể gửi yêu cầu cố vấn",
+    "teams": "nhóm",
+    "mentorAtCapacity": "Cố vấn đã đủ nhóm",
+    "requestMentorship": "Yêu cầu cố vấn",
+    "noMentorsAvailable": "Hiện không có cố vấn nào"
   }
 }

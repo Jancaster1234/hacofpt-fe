@@ -1,10 +1,17 @@
 // src/app/[locale]/hackathon/[id]/_components/RequestMentorTab.tsx
+import { useState } from "react";
+import Image from "next/image";
 import { User } from "@/types/entities/user";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 type RequestMentorTabProps = {
   mentors: User[];
   loading: boolean;
-  onRequestMentorship: (mentorId: string) => Promise<void>;
+  onRequestMentorship: (
+    mentorId: string
+  ) => Promise<{ success: boolean; message?: string }>;
 };
 
 export default function RequestMentorTab({
@@ -12,11 +19,38 @@ export default function RequestMentorTab({
   loading,
   onRequestMentorship,
 }: RequestMentorTabProps) {
+  const t = useTranslations("requestMentor");
+  const toast = useToast();
+  const [requestingMentorId, setRequestingMentorId] = useState<string | null>(
+    null
+  );
+
+  const handleRequestMentorship = async (mentorId: string) => {
+    try {
+      setRequestingMentorId(mentorId);
+      const { success, message } = await onRequestMentorship(mentorId);
+
+      if (success) {
+        toast.success(message || t("requestSuccess"));
+      } else {
+        toast.error(message || t("requestError"));
+      }
+    } catch (error) {
+      toast.error(t("requestError"));
+    } finally {
+      setRequestingMentorId(null);
+    }
+  };
+
   return (
-    <div>
+    <div className="transition-colors duration-300">
       {loading ? (
         <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <LoadingSpinner
+            size="md"
+            showText={true}
+            className="text-blue-500 dark:text-blue-400"
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -28,22 +62,25 @@ export default function RequestMentorTab({
             return (
               <div
                 key={mentor.id}
-                className={`border rounded-lg p-4 shadow-sm ${
+                className={`border rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-all duration-300 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 ${
                   full ? "opacity-60" : ""
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <img
-                    src={mentor.avatarUrl || "/placeholder-avatar.png"}
-                    alt={`${mentor.firstName} ${mentor.lastName}`}
-                    className="w-12 h-12 rounded-full object-cover bg-gray-200"
-                  />
+                  <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+                    <Image
+                      src={mentor.avatarUrl || "/placeholder-avatar.png"}
+                      alt={`${mentor.firstName} ${mentor.lastName}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                   <div>
-                    <h3 className="font-bold">
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100">
                       {mentor.firstName} {mentor.lastName}
                     </h3>
                     {mentor.university && (
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">
                         {mentor.university}
                       </p>
                     )}
@@ -51,7 +88,7 @@ export default function RequestMentorTab({
                 </div>
 
                 {mentor.bio && (
-                  <p className="text-gray-700 mt-3 text-sm line-clamp-3">
+                  <p className="text-gray-700 dark:text-gray-300 mt-3 text-sm line-clamp-3">
                     {mentor.bio}
                   </p>
                 )}
@@ -62,7 +99,7 @@ export default function RequestMentorTab({
                       {mentor.skills.map((skill, index) => (
                         <span
                           key={index}
-                          className="px-2 py-0.5 bg-gray-100 rounded text-xs"
+                          className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs text-gray-700 dark:text-gray-300 transition-colors duration-300"
                         >
                           {skill}
                         </span>
@@ -78,7 +115,8 @@ export default function RequestMentorTab({
                         href={mentor.linkedinUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
+                        className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-colors duration-200"
+                        aria-label={`${mentor.firstName}'s LinkedIn`}
                       >
                         LinkedIn
                       </a>
@@ -88,34 +126,60 @@ export default function RequestMentorTab({
                         href={mentor.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-700 hover:underline"
+                        className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:underline transition-colors duration-200"
+                        aria-label={`${mentor.firstName}'s GitHub`}
                       >
                         GitHub
                       </a>
                     )}
                   </div>
                   <div className="text-sm">
-                    <span className={full ? "text-red-500" : "text-green-600"}>
+                    <span
+                      className={
+                        full
+                          ? "text-red-500 dark:text-red-400"
+                          : "text-green-600 dark:text-green-400"
+                      }
+                    >
                       {currentTeamCount}/{maxTeamLimit}
                     </span>{" "}
-                    teams
+                    {t("teams")}
                   </div>
                 </div>
 
                 <button
-                  disabled={full}
-                  onClick={() => !full && onRequestMentorship(mentor.id)}
-                  className={`mt-3 w-full py-2 rounded text-sm font-medium ${
+                  disabled={full || requestingMentorId === mentor.id}
+                  onClick={() => !full && handleRequestMentorship(mentor.id)}
+                  className={`mt-3 w-full py-2 rounded text-sm font-medium transition-colors duration-200 ${
                     full
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-blue-500 hover:bg-blue-600 text-white"
-                  }`}
+                      ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  aria-label={
+                    full ? t("mentorAtCapacity") : t("requestMentorship")
+                  }
                 >
-                  {full ? "Mentor at capacity" : "Request Mentorship"}
+                  {requestingMentorId === mentor.id ? (
+                    <div className="flex justify-center items-center">
+                      <LoadingSpinner size="sm" className="text-white" />
+                    </div>
+                  ) : full ? (
+                    t("mentorAtCapacity")
+                  ) : (
+                    t("requestMentorship")
+                  )}
                 </button>
               </div>
             );
           })}
+
+          {mentors.length === 0 && !loading && (
+            <div className="col-span-1 sm:col-span-2 text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+              <p className="text-gray-500 dark:text-gray-400">
+                {t("noMentorsAvailable")}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -195,6 +195,35 @@ class ScheduleEventReminderService {
       );
     }
   }
+
+  // Get a schedule event reminder by scheduleEventId and userId
+  async getScheduleEventReminderByScheduleEventIdAndUserId(
+    scheduleEventId: string,
+    userId: string
+  ): Promise<{ data: ScheduleEventReminder; message?: string }> {
+    try {
+      const response = await apiService.auth.get<ScheduleEventReminder[]>(
+        `/communication-service/api/v1/schedule-event-reminders/by-user-and-schedule-event?userId=${userId}&scheduleEventId=${scheduleEventId}`
+      );
+
+      if (!response || !response.data || response.data.length === 0) {
+        throw new Error(
+          "No schedule event reminder found for given scheduleEventId and userId"
+        );
+      }
+
+      return {
+        data: response.data[0], // take the first object
+        message: response.message,
+      };
+    } catch (error: any) {
+      return handleApiError<ScheduleEventReminder>(
+        error,
+        {} as ScheduleEventReminder,
+        "[ScheduleEventReminder Service] Error fetching Schedule Event Reminder by scheduleEventId and userId:"
+      );
+    }
+  }
 }
 
 export const scheduleEventReminderService = new ScheduleEventReminderService();

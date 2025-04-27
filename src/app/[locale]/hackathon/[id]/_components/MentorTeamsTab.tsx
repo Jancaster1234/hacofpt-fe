@@ -1,3 +1,4 @@
+// src/app/[locale]/hackathon/[id]/_components/MentorTeamsTab.tsx
 import { useState } from "react";
 import Image from "next/image";
 import { MentorTeam } from "@/types/entities/mentorTeam";

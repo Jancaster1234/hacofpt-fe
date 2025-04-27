@@ -1,3 +1,4 @@
+// src/app/[locale]/hackathon/[id]/_components/SessionRequestForm.tsx
 import { useState, useEffect } from "react";
 import { useTranslations } from "@/hooks/useTranslations";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";

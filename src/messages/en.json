@@ -304,5 +304,51 @@
     "endTimeAfterStart": "End time must be after start time",
     "locationRequired": "Location is required",
     "descriptionRequired": "Description is required"
+  },
+  "mentorshipRequests": {
+    "cancelRequest": "Cancel request",
+    "cancelRequestSuccess": "Mentorship request cancelled successfully",
+    "cancelRequestError": "Failed to cancel mentorship request",
+    "evaluatedBy": "Evaluated by",
+    "date": "Date",
+    "noRequests": "No pending mentorship requests",
+    "requestFromTab": "Request a mentor from the \"Request a Mentor\" tab",
+    "status": {
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "pending": "Pending",
+      "deleted": "Deleted",
+      "completed": "Completed"
+    }
+  },
+  "sessionRequests": {
+    "editRequest": "Edit session request",
+    "confirmCancel": "Are you sure you want to cancel this session request?",
+    "cancelSuccess": "Session request cancelled successfully",
+    "cancelError": "Failed to cancel session request",
+    "updateSuccess": "Session request updated successfully",
+    "updateError": "Failed to update session request",
+    "at": "at",
+    "evaluatedBy": "Evaluated by",
+    "date": "Date",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "joinSession": "Join session",
+    "noRequests": "No session requests yet",
+    "status": {
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "pending": "Pending",
+      "deleted": "Deleted",
+      "completed": "Completed"
+    }
+  },
+  "requestMentor": {
+    "requestSuccess": "Mentorship request sent successfully",
+    "requestError": "Failed to send mentorship request",
+    "teams": "teams",
+    "mentorAtCapacity": "Mentor at capacity",
+    "requestMentorship": "Request mentorship",
+    "noMentorsAvailable": "No mentors available at the moment"
   }
 }
