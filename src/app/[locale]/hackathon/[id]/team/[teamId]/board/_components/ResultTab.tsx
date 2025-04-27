@@ -300,7 +300,9 @@ export default function ResultTab({
       {/* Summary of results */}
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
         <h3 className="text-lg font-semibold mb-2">Overall Results Summary</h3>
-        <p className="text-xl font-bold">Total Score: {totalScore}</p>
+        <p className="text-xl font-bold">
+          Total Score: {existingSubmission.finalScore}
+        </p>
         <p className="text-sm text-gray-600 mt-1">
           Based on evaluations from {judgeCount} judge
           {judgeCount !== 1 ? "s" : ""}.
