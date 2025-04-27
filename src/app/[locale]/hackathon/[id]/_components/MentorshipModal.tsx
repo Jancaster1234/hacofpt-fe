@@ -10,8 +10,12 @@ import MentorshipRequestsTab from "./MentorshipRequestsTab";
 import SessionRequestsTab from "./SessionRequestsTab";
 import RequestMentorTab from "./RequestMentorTab";
 import { useApiModal } from "@/hooks/useApiModal";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useTheme } from "next-themes";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
-// Import real services instead of mock API functions
+// Import real services
 import { mentorshipRequestService } from "@/services/mentorshipRequest.service";
 import { mentorshipSessionRequestService } from "@/services/mentorshipSessionRequest.service";
 import { userHackathonService } from "@/services/userHackathon.service";
@@ -23,8 +27,8 @@ type MentorshipModalProps = {
   mentorshipRequests: MentorshipRequest[];
   mentorshipSessionRequests: MentorshipSessionRequest[];
   hackathonId: string;
-  teamId: string; // Added teamId for creating requests
-  onDataUpdate: () => void; // Callback to refresh parent data
+  teamId: string;
+  onDataUpdate: () => void;
 };
 
 export default function MentorshipModal({
@@ -39,42 +43,64 @@ export default function MentorshipModal({
 }: MentorshipModalProps) {
   const [mentors, setMentors] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const { theme } = useTheme();
+  const t = useTranslations("mentorship");
+  const toast = useToast();
 
   // Use our API modal hook for error and success handling
   const { modalState, hideModal, showError, showSuccess, showInfo } =
     useApiModal();
 
+  // Fix for the useEffect to prevent infinite loop
   useEffect(() => {
+    let isMounted = true; // Add a mounted check
+
     if (isOpen) {
       setLoading(true);
+      // Don't show toast here as it can cause re-renders
 
-      // Replace mock mentor fetching with real service call
-      // Assuming mentors have a specific role in user-hackathon relationship
       userHackathonService
         .getUserHackathonsByRole(hackathonId, "MENTOR")
         .then((response) => {
+          if (!isMounted) return; // Prevent state updates if unmounted
+
           if (response.data) {
-            // Assuming userHackathon contains user data or we need to extract userIds
-            // and fetch user details separately
             const mentorUsers = response.data.map(
               (userHackathon) => userHackathon.user
             ) as User[];
             setMentors(mentorUsers);
-          } else {
-            showError("Error", "Failed to load mentors");
+            // Only show toast if there was an actual success message
+            if (response.message) {
+              toast.success(response.message);
+            }
+          } else if (response.message) {
+            toast.error(response.message);
           }
         })
         .catch((error) => {
+          if (!isMounted) return;
           console.error("Failed to fetch mentors:", error);
-          showError("Error", "Failed to load mentors. Please try again later.");
+          toast.error(t("mentorLoadError"));
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          if (isMounted) {
+            setLoading(false);
+          }
+        });
     }
-  }, [hackathonId, isOpen, showError]);
+
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
+  }, [hackathonId, isOpen]); // Remove toast and t from dependency array
 
   // Handler for creating a new mentorship request
   const handleCreateMentorshipRequest = async (mentorId: string) => {
     try {
+      setLoading(true);
+      toast.info(t("creatingRequest"));
+
       const response = await mentorshipRequestService.createMentorshipRequest({
         hackathonId,
         mentorId,
@@ -83,41 +109,39 @@ export default function MentorshipModal({
       });
 
       if (response.data && response.data.id) {
-        showSuccess("Success", "Mentorship request created successfully");
-        onDataUpdate(); // Refresh data after successful creation
+        toast.success(response.message || t("requestCreatedSuccess"));
+        onDataUpdate();
       } else {
-        showError(
-          "Error",
-          response.message || "Failed to create mentorship request"
-        );
+        toast.error(response.message || t("requestCreationError"));
       }
     } catch (error) {
       console.error("Failed to create mentorship request:", error);
-      showError(
-        "Error",
-        "Failed to create mentorship request. Please try again later."
-      );
+      toast.error(t("requestCreationError"));
+    } finally {
+      setLoading(false);
     }
   };
 
   // Handler for deleting a mentorship request
   const handleDeleteMentorshipRequest = async (requestId: string) => {
     try {
+      setLoading(true);
+      toast.info(t("deletingRequest"));
+
       const response =
         await mentorshipRequestService.deleteMentorshipRequest(requestId);
 
       if (response.message) {
-        showSuccess("Success", "Mentorship request deleted successfully");
-        onDataUpdate(); // Refresh data after successful deletion
+        toast.success(response.message || t("requestDeletedSuccess"));
+        onDataUpdate();
       } else {
-        showError("Error", "Failed to delete mentorship request");
+        toast.error(t("requestDeletionError"));
       }
     } catch (error) {
       console.error("Failed to delete mentorship request:", error);
-      showError(
-        "Error",
-        "Failed to delete mentorship request. Please try again later."
-      );
+      toast.error(t("requestDeletionError"));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,27 +154,26 @@ export default function MentorshipModal({
     description: string;
   }) => {
     try {
+      setLoading(true);
+      toast.info(t("creatingSessionRequest"));
+
       const response =
         await mentorshipSessionRequestService.createMentorshipSessionRequest({
           ...data,
-          status: "PENDING", // Using proper status case according to your service
+          status: "PENDING",
         });
 
       if (response.data && response.data.id) {
-        showSuccess("Success", "Session request created successfully");
-        onDataUpdate(); // Refresh data after successful creation
+        toast.success(response.message || t("sessionRequestCreatedSuccess"));
+        onDataUpdate();
       } else {
-        showError(
-          "Error",
-          response.message || "Failed to create session request"
-        );
+        toast.error(response.message || t("sessionRequestCreationError"));
       }
     } catch (error) {
       console.error("Failed to create session request:", error);
-      showError(
-        "Error",
-        "Failed to create session request. Please try again later."
-      );
+      toast.error(t("sessionRequestCreationError"));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -163,10 +186,13 @@ export default function MentorshipModal({
       location?: string;
       description?: string;
       status?: "PENDING" | "APPROVED" | "REJECTED" | "DELETED" | "COMPLETED";
-      mentorTeamId: string; // Required by the service
+      mentorTeamId: string;
     }
   ) => {
     try {
+      setLoading(true);
+      toast.info(t("updatingSessionRequest"));
+
       const response =
         await mentorshipSessionRequestService.updateMentorshipSessionRequest({
           id: sessionId,
@@ -174,50 +200,54 @@ export default function MentorshipModal({
         });
 
       if (response.data) {
-        showSuccess("Success", "Session request updated successfully");
-        onDataUpdate(); // Refresh data after successful update
+        toast.success(response.message || t("sessionRequestUpdatedSuccess"));
+        onDataUpdate();
       } else {
-        showError(
-          "Error",
-          response.message || "Failed to update session request"
-        );
+        toast.error(response.message || t("sessionRequestUpdateError"));
       }
     } catch (error) {
       console.error("Failed to update session request:", error);
-      showError(
-        "Error",
-        "Failed to update session request. Please try again later."
-      );
+      toast.error(t("sessionRequestUpdateError"));
+    } finally {
+      setLoading(false);
     }
   };
+
+  const tabLabels = [
+    t("tabMentorTeams"),
+    t("tabMentorshipRequests"),
+    t("tabSessionRequests"),
+    t("tabRequestMentor"),
+  ];
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div
-        className="fixed inset-0 bg-black bg-opacity-30"
+        className="fixed inset-0 bg-black bg-opacity-30 dark:bg-opacity-50 transition-opacity duration-300"
         aria-hidden="true"
       />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 max-h-[80vh] overflow-y-auto">
-          <Dialog.Title className="text-xl font-bold">
-            Mentorship Overview
+        <Dialog.Panel className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-lg shadow-lg p-4 sm:p-6 max-h-[90vh] sm:max-h-[80vh] overflow-y-auto transition-colors duration-300">
+          <Dialog.Title className="text-xl font-bold text-gray-900 dark:text-white">
+            {t("mentorshipOverview")}
           </Dialog.Title>
 
+          {loading && (
+            <div className="flex justify-center my-4">
+              <LoadingSpinner size="md" showText={true} />
+            </div>
+          )}
+
           <Tab.Group>
-            <Tab.List className="flex space-x-2 mt-4 border-b overflow-x-auto whitespace-nowrap scrollbar-hide">
-              {[
-                "Mentor Teams",
-                "Mentorship Requests",
-                "Session Requests",
-                "Request a Mentor",
-              ].map((label, index) => (
+            <Tab.List className="flex space-x-1 sm:space-x-2 mt-4 border-b border-gray-200 dark:border-gray-700 overflow-x-auto whitespace-nowrap scrollbar-hide">
+              {tabLabels.map((label, index) => (
                 <Tab
                   key={index}
                   className={({ selected }) =>
-                    `px-4 py-2 text-sm font-medium ${
+                    `px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-t transition-colors duration-200 ${
                       selected
-                        ? "border-b-2 border-blue-500 text-blue-600"
-                        : "text-gray-600"
+                        ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                     }`
                   }
                 >
@@ -265,10 +295,12 @@ export default function MentorshipModal({
 
           <div className="mt-6 text-right">
             <button
-              className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition"
+              className="px-4 py-2 bg-gray-500 hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-800 text-white rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
               onClick={onClose}
+              disabled={loading}
+              aria-label={t("close")}
             >
-              Close
+              {t("close")}
             </button>
           </div>
         </Dialog.Panel>

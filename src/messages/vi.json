@@ -4,7 +4,10 @@
     "languages": {
       "english": "Tiếng Anh",
       "vietnamese": "Tiếng Việt"
-    }
+    },
+    "loading": "Đang tải...",
+    "notAvailable": "Không có",
+    "close": "Đóng"
   },
   "navigation": {
     "home": "Trang chủ",
@@ -223,5 +226,52 @@
     "creationFailed": "Tạo yêu cầu đội thất bại",
     "maximumSizeReached": "Đã đạt số lượng thành viên tối đa: {maximumTeamMembers}",
     "locale": "vi"
+  },
+  "teams": {
+    "yourTeams": "Các đội của bạn",
+    "noTeams": "Bạn không tham gia đội nào trong hackathon này.",
+    "joinOrCreateTeam": "Tham gia một đội hoặc tạo yêu cầu thành lập đội để tham gia cùng người khác.",
+    "membersCount": "{count} thành viên",
+    "teamMembers": "Thành viên đội",
+    "leader": "Trưởng nhóm",
+    "teamDetails": "Chi tiết đội",
+    "created": "Ngày tạo",
+    "hackathon": "Hackathon",
+    "project": "Dự án",
+    "projectName": "Tên",
+    "description": "Mô tả",
+    "goToBoard": "Đến bảng",
+    "navigationError": "Đã xảy ra lỗi chuyển hướng. Vui lòng thử lại.",
+    "hackathonInfoError": "Không tìm thấy thông tin hackathon cho đội này.",
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động",
+      "pending": "Đang chờ",
+      "approved": "Đã duyệt",
+      "rejected": "Đã từ chối",
+      "completed": "Hoàn thành"
+    }
+  },
+  "mentorship": {
+    "mentorshipOverview": "Tổng quan về hướng dẫn",
+    "tabMentorTeams": "Đội mentor",
+    "tabMentorshipRequests": "Yêu cầu mentorship",
+    "tabSessionRequests": "Yêu cầu phiên hướng dẫn",
+    "tabRequestMentor": "Yêu cầu mentor",
+    "loadingMentors": "Đang tải danh sách mentor...",
+    "mentorLoadError": "Không thể tải danh sách mentor. Vui lòng thử lại sau.",
+    "creatingRequest": "Đang tạo yêu cầu mentorship...",
+    "requestCreatedSuccess": "Yêu cầu mentorship đã được tạo thành công",
+    "requestCreationError": "Không thể tạo yêu cầu mentorship. Vui lòng thử lại sau.",
+    "deletingRequest": "Đang xóa yêu cầu mentorship...",
+    "requestDeletedSuccess": "Yêu cầu mentorship đã được xóa thành công",
+    "requestDeletionError": "Không thể xóa yêu cầu mentorship. Vui lòng thử lại sau.",
+    "creatingSessionRequest": "Đang tạo yêu cầu phiên hướng dẫn...",
+    "sessionRequestCreatedSuccess": "Yêu cầu phiên hướng dẫn đã được tạo thành công",
+    "sessionRequestCreationError": "Không thể tạo yêu cầu phiên hướng dẫn. Vui lòng thử lại sau.",
+    "updatingSessionRequest": "Đang cập nhật yêu cầu phiên hướng dẫn...",
+    "sessionRequestUpdatedSuccess": "Yêu cầu phiên hướng dẫn đã được cập nhật thành công",
+    "sessionRequestUpdateError": "Không thể cập nhật yêu cầu phiên hướng dẫn. Vui lòng thử lại sau.",
+    "close": "Đóng"
   }
 }

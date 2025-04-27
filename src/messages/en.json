@@ -4,7 +4,10 @@
     "languages": {
       "english": "English",
       "vietnamese": "Vietnamese"
-    }
+    },
+    "loading": "Loading...",
+    "notAvailable": "N/A",
+    "close": "Close"
   },
   "navigation": {
     "home": "Home",
@@ -223,5 +226,52 @@
     "creationFailed": "Failed to create team request",
     "maximumSizeReached": "Maximum team size is {maximumTeamMembers}",
     "locale": "en"
+  },
+  "teams": {
+    "yourTeams": "Your teams",
+    "noTeams": "You are not part of any teams for this hackathon.",
+    "joinOrCreateTeam": "Join a team or create a team request to participate with others.",
+    "membersCount": "{count} team members",
+    "teamMembers": "Team members",
+    "leader": "Leader",
+    "teamDetails": "Team details",
+    "created": "Created",
+    "hackathon": "Hackathon",
+    "project": "Project",
+    "projectName": "Name",
+    "description": "Description",
+    "goToBoard": "Go to board",
+    "navigationError": "Navigation error occurred. Please try again.",
+    "hackathonInfoError": "Could not find hackathon information for this team.",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "completed": "Completed"
+    }
+  },
+  "mentorship": {
+    "mentorshipOverview": "Mentorship overview",
+    "tabMentorTeams": "Mentor teams",
+    "tabMentorshipRequests": "Mentorship requests",
+    "tabSessionRequests": "Session requests",
+    "tabRequestMentor": "Request a mentor",
+    "loadingMentors": "Loading mentors...",
+    "mentorLoadError": "Failed to load mentors. Please try again later.",
+    "creatingRequest": "Creating mentorship request...",
+    "requestCreatedSuccess": "Mentorship request created successfully",
+    "requestCreationError": "Failed to create mentorship request. Please try again later.",
+    "deletingRequest": "Deleting mentorship request...",
+    "requestDeletedSuccess": "Mentorship request deleted successfully",
+    "requestDeletionError": "Failed to delete mentorship request. Please try again later.",
+    "creatingSessionRequest": "Creating session request...",
+    "sessionRequestCreatedSuccess": "Session request created successfully",
+    "sessionRequestCreationError": "Failed to create session request. Please try again later.",
+    "updatingSessionRequest": "Updating session request...",
+    "sessionRequestUpdatedSuccess": "Session request updated successfully",
+    "sessionRequestUpdateError": "Failed to update session request. Please try again later.",
+    "close": "Close"
   }
 }
