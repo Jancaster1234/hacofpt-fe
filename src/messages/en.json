@@ -273,5 +273,36 @@
     "sessionRequestUpdatedSuccess": "Session request updated successfully",
     "sessionRequestUpdateError": "Failed to update session request. Please try again later.",
     "close": "Close"
+  },
+  "mentorTeams": {
+    "requestNewSession": "Request a new session",
+    "sessionRequests": "Session requests",
+    "noSessionRequests": "No session requests yet",
+    "requestSession": "Request session",
+    "noMentors": "No assigned mentors yet",
+    "requestMentorTip": "Request a mentor from the \"Request a Mentor\" tab",
+    "sessionRequestSuccess": "Session request created successfully",
+    "sessionRequestError": "Failed to create session request",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected",
+    "statusPending": "Pending",
+    "statusUnknown": "Unknown"
+  },
+  "sessionForm": {
+    "description": "Description",
+    "descriptionPlaceholder": "What would you like to discuss?",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "location": "Location",
+    "locationPlaceholder": "Where would you like to meet? (Room name, online link, etc.)",
+    "cancel": "Cancel",
+    "requestSession": "Request session",
+    "updateSession": "Update session",
+    "submitting": "Submitting...",
+    "startTimeRequired": "Start time is required",
+    "endTimeRequired": "End time is required",
+    "endTimeAfterStart": "End time must be after start time",
+    "locationRequired": "Location is required",
+    "descriptionRequired": "Description is required"
   }
 }

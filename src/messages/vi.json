@@ -273,5 +273,36 @@
     "sessionRequestUpdatedSuccess": "Yêu cầu phiên hướng dẫn đã được cập nhật thành công",
     "sessionRequestUpdateError": "Không thể cập nhật yêu cầu phiên hướng dẫn. Vui lòng thử lại sau.",
     "close": "Đóng"
+  },
+  "mentorTeams": {
+    "requestNewSession": "Yêu cầu một buổi mới",
+    "sessionRequests": "Các yêu cầu buổi gặp",
+    "noSessionRequests": "Chưa có yêu cầu buổi gặp nào",
+    "requestSession": "Yêu cầu buổi gặp",
+    "noMentors": "Chưa có mentor được chỉ định",
+    "requestMentorTip": "Yêu cầu mentor từ tab \"Yêu cầu mentor\"",
+    "sessionRequestSuccess": "Yêu cầu buổi gặp đã được tạo thành công",
+    "sessionRequestError": "Không thể tạo yêu cầu buổi gặp",
+    "statusApproved": "Đã duyệt",
+    "statusRejected": "Từ chối",
+    "statusPending": "Đang chờ",
+    "statusUnknown": "Không xác định"
+  },
+  "sessionForm": {
+    "description": "Mô tả",
+    "descriptionPlaceholder": "Bạn muốn thảo luận về điều gì?",
+    "startTime": "Thời gian bắt đầu",
+    "endTime": "Thời gian kết thúc",
+    "location": "Địa điểm",
+    "locationPlaceholder": "Bạn muốn gặp ở đâu? (Tên phòng, link trực tuyến, v.v.)",
+    "cancel": "Hủy",
+    "requestSession": "Yêu cầu buổi gặp",
+    "updateSession": "Cập nhật buổi gặp",
+    "submitting": "Đang gửi...",
+    "startTimeRequired": "Thời gian bắt đầu là bắt buộc",
+    "endTimeRequired": "Thời gian kết thúc là bắt buộc",
+    "endTimeAfterStart": "Thời gian kết thúc phải sau thời gian bắt đầu",
+    "locationRequired": "Địa điểm là bắt buộc",
+    "descriptionRequired": "Mô tả là bắt buộc"
   }
 }
