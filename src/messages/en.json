@@ -350,5 +350,33 @@
     "mentorAtCapacity": "Mentor at capacity",
     "requestMentorship": "Request mentorship",
     "noMentorsAvailable": "No mentors available at the moment"
+  },
+  "hackathonBoard": {
+    "tabs": {
+      "taskBoard": "Task Board",
+      "submissionAndResult": "Submission and Result",
+      "schedule": "Schedule"
+    },
+    "errors": {
+      "failedToLoadTeam": "Failed to load team data",
+      "failedToLoadBoards": "Failed to load boards",
+      "failedToLoadInitialData": "Failed to load initial data",
+      "failedToFetchRounds": "Failed to fetch rounds",
+      "failedToLoadRounds": "Failed to load rounds data"
+    }
+  },
+  "submissionAndResult": {
+    "rewardRecipientList": "Reward Recipient List",
+    "submission": "Submission",
+    "result": "Result",
+    "noRoundsAvailable": "No rounds available.",
+    "notifications": {
+      "submissionCreated": "Submission created successfully",
+      "submissionUpdated": "Submission updated successfully"
+    },
+    "errors": {
+      "invalidResponseFormat": "Invalid response format from API",
+      "unknownError": "Unknown error occurred"
+    }
   }
 }

@@ -350,5 +350,33 @@
     "mentorAtCapacity": "Cố vấn đã đủ nhóm",
     "requestMentorship": "Yêu cầu cố vấn",
     "noMentorsAvailable": "Hiện không có cố vấn nào"
+  },
+  "hackathonBoard": {
+    "tabs": {
+      "taskBoard": "Bảng nhiệm vụ",
+      "submissionAndResult": "Nộp bài và kết quả",
+      "schedule": "Lịch trình"
+    },
+    "errors": {
+      "failedToLoadTeam": "Không thể tải dữ liệu nhóm",
+      "failedToLoadBoards": "Không thể tải bảng",
+      "failedToLoadInitialData": "Không thể tải dữ liệu ban đầu",
+      "failedToFetchRounds": "Không thể tải vòng thi",
+      "failedToLoadRounds": "Không thể tải dữ liệu vòng thi"
+    }
+  },
+  "submissionAndResult": {
+    "rewardRecipientList": "Danh sách nhận giải thưởng",
+    "submission": "Nộp bài",
+    "result": "Kết quả",
+    "noRoundsAvailable": "Không có vòng thi nào.",
+    "notifications": {
+      "submissionCreated": "Đã nộp bài thành công",
+      "submissionUpdated": "Đã cập nhật bài nộp thành công"
+    },
+    "errors": {
+      "invalidResponseFormat": "Định dạng phản hồi từ API không hợp lệ",
+      "unknownError": "Đã xảy ra lỗi không xác định"
+    }
   }
 }

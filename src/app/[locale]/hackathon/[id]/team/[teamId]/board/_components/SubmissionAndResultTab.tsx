@@ -10,6 +10,9 @@ import { Submission } from "@/types/entities/submission";
 import { submissionService } from "@/services/submission.service";
 import ApiResponseModal from "@/components/common/ApiResponseModal";
 import { useApiModal } from "@/hooks/useApiModal";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface Props {
   rounds: Round[];
@@ -24,6 +27,8 @@ export default function SubmissionAndResultTab({
   hackathonId,
   teamId,
 }: Props) {
+  const t = useTranslations("submissionAndResult");
+  const toast = useToast();
   const roundTabs = rounds.map((round) => round.roundTitle);
   const [activeRoundTab, setActiveRoundTab] = useState(roundTabs[0] || "");
   const [activeSubTab, setActiveSubTab] = useState("Submission");
@@ -56,12 +61,13 @@ export default function SubmissionAndResultTab({
         if (response.data && Array.isArray(response.data)) {
           setSubmissions(response.data);
         } else {
-          throw new Error("Invalid response format from API");
+          throw new Error(
+            response.message || t("errors.invalidResponseFormat")
+          );
         }
       } catch (error) {
-        showError(
-          "Failed to load submissions",
-          error instanceof Error ? error.message : "Unknown error occurred"
+        toast.error(
+          error instanceof Error ? error.message : t("errors.unknownError")
         );
         // Initialize with empty array instead of mock data
         setSubmissions([]);
@@ -71,7 +77,7 @@ export default function SubmissionAndResultTab({
     };
 
     loadSubmissions();
-  }, [activeRoundTab, roundId, teamId, showError]);
+  }, [activeRoundTab, roundId, teamId, showError, t, toast]);
 
   // Handle new submission or resubmission completion
   const handleSubmissionComplete = (newSubmission: Submission) => {
@@ -85,95 +91,122 @@ export default function SubmissionAndResultTab({
         // Replace existing submitted submission
         const updatedSubmissions = [...prevSubmissions];
         updatedSubmissions[submissionIndex] = newSubmission;
+        toast.success(t("notifications.submissionUpdated"));
         return updatedSubmissions;
       } else {
         // Add new submission
+        toast.success(t("notifications.submissionCreated"));
         return [...prevSubmissions, newSubmission];
       }
     });
   };
 
-  if (loading) return <p>Loading rounds...</p>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64 transition-all">
+        <LoadingSpinner size="lg" showText />
+      </div>
+    );
+  }
+
   if (rounds.length === 0)
-    return <p className="text-gray-500">No rounds available.</p>;
+    return (
+      <div className="text-gray-500 dark:text-gray-400 text-center py-12 transition-colors">
+        {t("noRoundsAvailable")}
+      </div>
+    );
 
   return (
-    <div>
+    <div className="transition-colors duration-300">
       {/* Round Navigation */}
-      <div className="flex border-b border-gray-200 space-x-4 overflow-x-auto">
+      <div className="flex border-b border-gray-200 dark:border-gray-700 space-x-2 md:space-x-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 pb-1">
         {roundTabs.map((round) => (
           <button
             key={round}
-            className={`px-4 py-2 text-sm font-medium ${
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-t-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap ${
               activeRoundTab === round
-                ? "border-b-2 border-blue-500 text-blue-600 font-semibold"
-                : "text-gray-500"
+                ? "border-b-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-semibold bg-gray-50 dark:bg-gray-800"
+                : "text-gray-500 dark:text-gray-400"
             }`}
             onClick={() => setActiveRoundTab(round)}
+            aria-current={activeRoundTab === round ? "page" : undefined}
           >
             {round}
           </button>
         ))}
         <button
-          className={`px-4 py-2 text-sm font-medium ${
+          className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-t-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap ${
             activeRoundTab === "Reward Recipient List"
-              ? "border-b-2 border-blue-500 text-blue-600 font-semibold"
-              : "text-gray-500"
+              ? "border-b-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-semibold bg-gray-50 dark:bg-gray-800"
+              : "text-gray-500 dark:text-gray-400"
           }`}
           onClick={() => setActiveRoundTab("Reward Recipient List")}
+          aria-current={
+            activeRoundTab === "Reward Recipient List" ? "page" : undefined
+          }
         >
-          Reward Recipient List
+          {t("rewardRecipientList")}
         </button>
       </div>
 
       {/* Conditionally Show Submission & Result Tabs */}
-      {roundTabs.includes(activeRoundTab) ? (
-        <div className="flex space-x-4 mt-4">
+      {roundTabs.includes(activeRoundTab) && (
+        <div className="flex space-x-2 sm:space-x-4 mt-4">
           <button
-            className={`px-4 py-2 text-sm font-medium ${
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 ${
               activeSubTab === "Submission"
-                ? "bg-gray-300 text-black font-semibold"
-                : "text-gray-600"
+                ? "bg-gray-300 dark:bg-gray-700 text-black dark:text-white font-semibold shadow-sm"
+                : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             }`}
             onClick={() => setActiveSubTab("Submission")}
+            aria-current={activeSubTab === "Submission" ? "page" : undefined}
           >
-            Submission
+            {t("submission")}
           </button>
           <button
-            className={`px-4 py-2 text-sm font-medium ${
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 ${
               activeSubTab === "Result"
-                ? "bg-gray-300 text-black font-semibold"
-                : "text-gray-600"
+                ? "bg-gray-300 dark:bg-gray-700 text-black dark:text-white font-semibold shadow-sm"
+                : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             }`}
             onClick={() => setActiveSubTab("Result")}
+            aria-current={activeSubTab === "Result" ? "page" : undefined}
           >
-            Result
+            {t("result")}
           </button>
         </div>
-      ) : null}
+      )}
 
       {/* Display Content Based on Active Tab */}
-      <div className="mt-4 p-4 border rounded-lg bg-white shadow">
-        {activeRoundTab === "Reward Recipient List" ? (
-          <RewardListTab hackathonId={hackathonId} />
-        ) : activeSubTab === "Submission" ? (
-          <SubmissionTab
-            round={activeRoundTab}
-            roundId={roundId}
-            teamId={teamId}
-            submissions={submissions}
-            loading={submissionsLoading}
-            roundStartTime={roundStartTime}
-            roundEndTime={roundEndTime}
-            onSubmissionComplete={handleSubmissionComplete}
-          />
-        ) : (
-          <ResultTab
-            roundId={roundId}
-            roundTitle={activeRoundTab}
-            submissions={submissions}
-          />
+      <div className="mt-4 p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 shadow transition-all duration-300">
+        {submissionsLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 z-10 rounded-lg">
+            <LoadingSpinner size="md" />
+          </div>
         )}
+
+        <div className="relative">
+          {activeRoundTab === "Reward Recipient List" ? (
+            <RewardListTab hackathonId={hackathonId} />
+          ) : activeSubTab === "Submission" ? (
+            <SubmissionTab
+              round={activeRoundTab}
+              roundId={roundId}
+              teamId={teamId}
+              submissions={submissions}
+              loading={submissionsLoading}
+              roundStartTime={roundStartTime}
+              roundEndTime={roundEndTime}
+              onSubmissionComplete={handleSubmissionComplete}
+            />
+          ) : (
+            <ResultTab
+              roundId={roundId}
+              roundTitle={activeRoundTab}
+              submissions={submissions}
+            />
+          )}
+        </div>
       </div>
 
       {/* API Response Modal */}
