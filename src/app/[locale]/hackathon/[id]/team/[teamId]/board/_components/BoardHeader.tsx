@@ -74,9 +74,17 @@ export default function BoardHeader({
               <div
                 key={boardUser.id}
                 className="h-8 w-8 rounded-full bg-gray-300 border-2 border-white flex items-center justify-center text-sm font-medium"
-                title={boardUser.user?.name || "User"}
+                title={boardUser.user?.username || "User"}
               >
-                {boardUser.user?.name?.charAt(0) || "U"}
+                {boardUser.user?.avatarUrl ? (
+                  <img
+                    src={boardUser.user.avatarUrl}
+                    alt={boardUser.user.username || "User"}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  boardUser.user?.username?.charAt(0) || "U"
+                )}
               </div>
             ))}
           {(board.boardUsers?.filter((bu) => !bu.isDeleted).length || 0) >

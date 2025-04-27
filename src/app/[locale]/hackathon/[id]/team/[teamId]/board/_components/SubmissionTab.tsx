@@ -1,3 +1,4 @@
+// src/app/[locale]/hackathon/[id]/team/[teamId]/board/_components/SubmissionTab.tsx
 import { useState, useEffect, useRef } from "react";
 import { Submission } from "@/types/entities/submission";
 import { submissionService } from "@/services/submission.service";
@@ -45,21 +46,51 @@ export default function SubmissionTab({
     return now >= startTime && now <= endTime;
   };
 
+  // Reset component state when roundId changes
   useEffect(() => {
-    const now = Date.now();
-    const startTime = new Date(roundStartTime).getTime();
-    const endTime = new Date(roundEndTime).getTime();
+    setSelectedFiles([]);
+    setIsResubmitting(false);
+  }, [roundId]);
 
-    if (now < startTime) {
-      setRoundStatus(
-        `Round starts at: ${new Date(roundStartTime).toLocaleString()}`
-      );
-      setTimeLeft("");
-      return;
-    }
+  // Update round status and timer whenever round info changes
+  useEffect(() => {
+    const checkRoundStatus = () => {
+      const now = Date.now();
+      const startTime = new Date(roundStartTime).getTime();
+      const endTime = new Date(roundEndTime).getTime();
+
+      if (now < startTime) {
+        setRoundStatus(
+          `Round starts at: ${new Date(roundStartTime).toLocaleString()}`
+        );
+        setTimeLeft("");
+        return;
+      }
+
+      setRoundStatus(""); // Clear round status when round is active or ended
+    };
+
+    checkRoundStatus();
 
     const interval = setInterval(() => {
-      const distance = endTime - Date.now();
+      const now = Date.now();
+      const endTime = new Date(roundEndTime).getTime();
+      const startTime = new Date(roundStartTime).getTime();
+
+      // Re-check if round status changed
+      if (now < startTime) {
+        setRoundStatus(
+          `Round starts at: ${new Date(roundStartTime).toLocaleString()}`
+        );
+        setTimeLeft("");
+        clearInterval(interval);
+        return;
+      } else if (roundStatus) {
+        // Clear round status if it was set but round has now started
+        setRoundStatus("");
+      }
+
+      const distance = endTime - now;
 
       if (distance < 0) {
         setTimeLeft("Deadline Passed");
@@ -92,7 +123,7 @@ export default function SubmissionTab({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [roundStartTime, roundEndTime]);
+  }, [roundStartTime, roundEndTime, roundStatus]);
 
   const handleFileSelect = () => {
     // Set resubmitting state to true when starting the resubmit process
@@ -343,12 +374,16 @@ export default function SubmissionTab({
               </div>
 
               {/* Timer */}
-              <p className="mt-6 text-red-600 font-bold text-lg">
-                Time left: {timeLeft}
-              </p>
-              <p className="text-lg font-bold">
-                Submit due date: {new Date(roundEndTime).toLocaleString()}
-              </p>
+              {!roundStatus && (
+                <>
+                  <p className="mt-6 text-red-600 font-bold text-lg">
+                    Time left: {timeLeft}
+                  </p>
+                  <p className="text-lg font-bold">
+                    Submit due date: {new Date(roundEndTime).toLocaleString()}
+                  </p>
+                </>
+              )}
             </div>
           )}
         </>
