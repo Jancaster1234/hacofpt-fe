@@ -85,6 +85,12 @@ export default function ThreadPostItem({
     );
   };
 
+  // Determine if post was deleted due to moderation
+  const wasDeletedDueToModeration =
+    post.isDeleted &&
+    deletedByUsername &&
+    deletedByUsername !== post.createdByUserName;
+
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       {/* Post Header */}
@@ -115,15 +121,31 @@ export default function ThreadPostItem({
           <div className="prose max-w-none">
             {post.isDeleted ? (
               <div className="italic text-gray-500 border-l-4 border-gray-300 pl-4 py-2">
-                <p className="mb-1">This post has been deleted.</p>
-                {isLoadingDeletedBy ? (
-                  <p className="text-sm">Loading deletion details...</p>
+                {wasDeletedDueToModeration ? (
+                  <>
+                    <p className="mb-1 text-red-600 font-medium">
+                      This post has been removed due to a violation of community
+                      standards.
+                    </p>
+                    <p className="text-sm">
+                      {isLoadingDeletedBy
+                        ? "Loading moderation details..."
+                        : `Removed by moderator ${deletedByUsername} on ${formatDate(post.updatedAt)}`}
+                    </p>
+                  </>
                 ) : (
-                  <p className="text-sm">
-                    {deletedByUsername
-                      ? `Deleted by ${deletedByUsername} on ${formatDate(post.updatedAt)}`
-                      : `Deleted by system (due to reports) on ${formatDate(post.updatedAt)}`}
-                  </p>
+                  <>
+                    <p className="mb-1">This post has been deleted.</p>
+                    {isLoadingDeletedBy ? (
+                      <p className="text-sm">Loading deletion details...</p>
+                    ) : (
+                      <p className="text-sm">
+                        {deletedByUsername
+                          ? `Deleted by ${deletedByUsername} on ${formatDate(post.updatedAt)}`
+                          : `Deleted by system (due to reports) on ${formatDate(post.updatedAt)}`}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             ) : (
