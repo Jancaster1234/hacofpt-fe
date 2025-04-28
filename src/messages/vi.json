@@ -755,6 +755,37 @@
       "filesUploaded": "Tải lên tệp thành công",
       "reminderAdded": "Thêm nhắc nhở thành công",
       "reminderDeleted": "Xóa nhắc nhở thành công"
+    },
+    "event": {
+      "eventName": "Tên sự kiện",
+      "enterEventName": "Nhập tên sự kiện",
+      "description": "Mô tả",
+      "enterEventDescription": "Nhập mô tả sự kiện",
+      "location": "Địa điểm",
+      "enterEventLocation": "Nhập địa điểm sự kiện",
+      "eventColor": "Màu sự kiện",
+      "startDateTime": "Ngày & giờ bắt đầu",
+      "endDateTime": "Ngày & giờ kết thúc",
+      "colorLabels": {
+        "danger": "Nguy hiểm",
+        "success": "Thành công",
+        "primary": "Chính",
+        "warning": "Cảnh báo"
+      }
+    },
+    "reminder": {
+      "myReminder": "Nhắc nhở của tôi",
+      "selectReminderTime": "Chọn thời gian nhắc nhở",
+      "add": "Thêm",
+      "adding": "Đang thêm...",
+      "loadingReminder": "Đang tải nhắc nhở...",
+      "noReminderSet": "Chưa có nhắc nhở nào được đặt.",
+      "reminderAt": "Nhắc nhở lúc {datetime}",
+      "removeReminder": "Xóa nhắc nhở",
+      "reminderAddedSuccess": "Đã thêm nhắc nhở thành công",
+      "reminderAddedError": "Không thể thêm nhắc nhở",
+      "reminderRemovedSuccess": "Đã xóa nhắc nhở thành công",
+      "reminderRemovedError": "Không thể xóa nhắc nhở"
     }
   },
   "scheduleMembers": {
@@ -766,5 +797,27 @@
     "member": "Thành viên",
     "viewer": "Người xem",
     "organizer": "Người tổ chức"
+  },
+  "eventAttendees": {
+    "attendeesTitle": "Người tham dự",
+    "addAttendee": "Thêm người tham dự",
+    "addAttendeeAriaLabel": "Thêm người tham dự mới",
+    "loadingAttendees": "Đang tải danh sách người tham dự...",
+    "selectTeamMember": "Chọn thành viên",
+    "allMembersAdded": "Tất cả thành viên đã được thêm vào danh sách.",
+    "you": "Bạn",
+    "changeStatus": "Thay đổi trạng thái",
+    "statusInvited": "Đã mời",
+    "statusConfirmed": "Đã xác nhận",
+    "statusDeclined": "Từ chối",
+    "removeAttendee": "Xóa người tham dự",
+    "noAttendees": "Chưa có người tham dự nào.",
+    "attendeeAddedSuccess": "Thêm người tham dự thành công",
+    "attendeeAddedError": "Không thể thêm người tham dự",
+    "attendeeRemovedSuccess": "Đã xóa người tham dự",
+    "attendeeRemovedError": "Không thể xóa người tham dự",
+    "statusUpdateSuccess": "Cập nhật trạng thái thành công",
+    "statusUpdateError": "Không thể cập nhật trạng thái",
+    "addMember": "Thêm thành viên"
   }
 }
