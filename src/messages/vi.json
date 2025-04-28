@@ -535,5 +535,22 @@
     "labelsUpdateError": "Lỗi cập nhật nhãn",
     "assigneesUpdated": "Cập nhật người được giao thành công",
     "assigneesUpdateError": "Lỗi cập nhật người được giao"
+  },
+  "task": {
+    "members": "Thành viên",
+    "labels": "Nhãn",
+    "close": "Đóng",
+    "inList": "trong danh sách",
+    "doing": "Đang làm",
+    "clickToEditTitle": "Nhấp để chỉnh sửa tiêu đề",
+    "editTaskTitle": "Chỉnh sửa tiêu đề công việc",
+    "assigneeAdded": "Phân công thành viên thành công",
+    "assigneeRemoved": "Đã xóa thành viên thành công",
+    "failedToUpdateAssignee": "Không thể cập nhật người được giao",
+    "failedToRemoveAssignee": "Không thể xóa người được giao",
+    "removeAssignee": "Xóa người được giao",
+    "labelAdded": "Đã thêm nhãn thành công",
+    "labelRemoved": "Đã xóa nhãn thành công",
+    "failedToUpdateLabel": "Không thể cập nhật nhãn"
   }
 }

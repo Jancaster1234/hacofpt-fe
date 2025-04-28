@@ -535,5 +535,22 @@
     "labelsUpdateError": "Error updating labels",
     "assigneesUpdated": "Assignees updated successfully",
     "assigneesUpdateError": "Error updating assignees"
+  },
+  "task": {
+    "members": "Members",
+    "labels": "Labels",
+    "close": "Close",
+    "inList": "in list",
+    "doing": "Doing",
+    "clickToEditTitle": "Click to edit title",
+    "editTaskTitle": "Edit task title",
+    "assigneeAdded": "Member assigned successfully",
+    "assigneeRemoved": "Member removed successfully",
+    "failedToUpdateAssignee": "Failed to update assignee",
+    "failedToRemoveAssignee": "Failed to remove assignee",
+    "removeAssignee": "Remove assignee",
+    "labelAdded": "Label added successfully",
+    "labelRemoved": "Label removed successfully",
+    "failedToUpdateLabel": "Failed to update label"
   }
 }
