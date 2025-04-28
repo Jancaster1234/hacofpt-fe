@@ -16,7 +16,14 @@ type CreateTaskParams = {
   dueDate?: string;
 };
 
-export async function createTask(params: CreateTaskParams): Promise<Task> {
+type ApiResponse<T> = {
+  data: T;
+  message?: string;
+};
+
+export async function createTask(
+  params: CreateTaskParams
+): Promise<ApiResponse<Task>> {
   try {
     const response = await taskService.createTask({
       title: params.title,
@@ -30,7 +37,10 @@ export async function createTask(params: CreateTaskParams): Promise<Task> {
       throw new Error("Failed to create task");
     }
 
-    return response.data;
+    return {
+      data: response.data,
+      message: response.message,
+    };
   } catch (error) {
     console.error("API error creating task:", error);
     throw error;
@@ -47,7 +57,7 @@ export const updateBoard = async (
     hackathonId?: string;
     ownerId?: string;
   }
-): Promise<Board> => {
+): Promise<ApiResponse<Board>> => {
   try {
     const response = await realBoardService.updateBoard(boardId, {
       name: data.name,
@@ -61,7 +71,10 @@ export const updateBoard = async (
       throw new Error("Failed to update board");
     }
 
-    return response.data;
+    return {
+      data: response.data,
+      message: response.message,
+    };
   } catch (error) {
     console.error("API error updating board:", error);
     throw error;
@@ -73,7 +86,7 @@ export const createBoardList = async (data: {
   name: string;
   boardId: string;
   position?: number;
-}): Promise<BoardList> => {
+}): Promise<ApiResponse<BoardList>> => {
   try {
     const response = await boardListService.createBoardList({
       name: data.name,
@@ -85,7 +98,10 @@ export const createBoardList = async (data: {
       throw new Error("Failed to create board list");
     }
 
-    return response.data;
+    return {
+      data: response.data,
+      message: response.message,
+    };
   } catch (error) {
     console.error("API error creating board list:", error);
     throw error;
@@ -95,7 +111,7 @@ export const createBoardList = async (data: {
 export const updateBoardList = async (
   boardListId: string,
   data: { name: string; position?: number; boardId: string }
-): Promise<BoardList> => {
+): Promise<ApiResponse<BoardList>> => {
   try {
     const response = await boardListService.updateBoardList(boardListId, {
       name: data.name,
@@ -107,7 +123,10 @@ export const updateBoardList = async (
       throw new Error("Failed to update board list");
     }
 
-    return response.data;
+    return {
+      data: response.data,
+      message: response.message,
+    };
   } catch (error) {
     console.error("API error updating board list:", error);
     throw error;
@@ -116,26 +135,43 @@ export const updateBoardList = async (
 
 export const deleteBoardList = async (
   boardListId: string
-): Promise<boolean> => {
+): Promise<ApiResponse<boolean>> => {
   try {
-    await boardListService.deleteBoardList(boardListId);
-    return true;
+    const response = await boardListService.deleteBoardList(boardListId);
+    return {
+      data: true,
+      message: response?.message || "Board list deleted successfully",
+    };
   } catch (error) {
     console.error("API error deleting board list:", error);
-    return false;
+    return {
+      data: false,
+      message:
+        error instanceof Error ? error.message : "Failed to delete board list",
+    };
   }
 };
 
 // Bulk update position for drag and drop
 export const updateBoardListPositions = async (
   updates: { id: string; position: number }[]
-): Promise<boolean> => {
+): Promise<ApiResponse<boolean>> => {
   try {
-    await boardListService.bulkUpdateBoardListPositions(updates);
-    return true;
+    const response =
+      await boardListService.bulkUpdateBoardListPositions(updates);
+    return {
+      data: true,
+      message: response?.message || "Board list positions updated successfully",
+    };
   } catch (error) {
     console.error("API error bulk updating board list positions:", error);
-    return false;
+    return {
+      data: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to update board list positions",
+    };
   }
 };
 
@@ -144,7 +180,7 @@ export const createBoardLabel = async (data: {
   name: string;
   color: string;
   boardId: string;
-}): Promise<BoardLabel> => {
+}): Promise<ApiResponse<BoardLabel>> => {
   try {
     const response = await boardLabelService.createBoardLabel({
       name: data.name,
@@ -156,7 +192,10 @@ export const createBoardLabel = async (data: {
       throw new Error("Failed to create board label");
     }
 
-    return response.data;
+    return {
+      data: response.data,
+      message: response.message,
+    };
   } catch (error) {
     console.error("API error creating board label:", error);
     throw error;
@@ -166,7 +205,7 @@ export const createBoardLabel = async (data: {
 export const updateBoardLabel = async (
   boardLabelId: string,
   data: { name: string; color: string; boardId: string }
-): Promise<BoardLabel> => {
+): Promise<ApiResponse<BoardLabel>> => {
   try {
     const response = await boardLabelService.updateBoardLabel(boardLabelId, {
       name: data.name,
@@ -178,7 +217,10 @@ export const updateBoardLabel = async (
       throw new Error("Failed to update board label");
     }
 
-    return response.data;
+    return {
+      data: response.data,
+      message: response.message,
+    };
   } catch (error) {
     console.error("API error updating board label:", error);
     throw error;
@@ -187,19 +229,26 @@ export const updateBoardLabel = async (
 
 export const deleteBoardLabel = async (
   boardLabelId: string
-): Promise<boolean> => {
+): Promise<ApiResponse<boolean>> => {
   try {
-    await boardLabelService.deleteBoardLabel(boardLabelId);
-    return true;
+    const response = await boardLabelService.deleteBoardLabel(boardLabelId);
+    return {
+      data: true,
+      message: response?.message || "Board label deleted successfully",
+    };
   } catch (error) {
     console.error("API error deleting board label:", error);
-    return false;
+    return {
+      data: false,
+      message:
+        error instanceof Error ? error.message : "Failed to delete board label",
+    };
   }
 };
 
 export const updateTaskPositions = async (
   updates: { id: string; boardListId: string; position: number }[]
-): Promise<boolean> => {
+): Promise<ApiResponse<boolean>> => {
   try {
     const response = await taskService.bulkUpdateTaskPositions(updates);
 
@@ -207,9 +256,18 @@ export const updateTaskPositions = async (
       throw new Error("Failed to update task positions");
     }
 
-    return true;
+    return {
+      data: true,
+      message: response.message || "Task positions updated successfully",
+    };
   } catch (error) {
     console.error("API error updating task positions:", error);
-    return false;
+    return {
+      data: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to update task positions",
+    };
   }
 };
