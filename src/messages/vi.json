@@ -552,5 +552,67 @@
     "labelAdded": "Đã thêm nhãn thành công",
     "labelRemoved": "Đã xóa nhãn thành công",
     "failedToUpdateLabel": "Không thể cập nhật nhãn"
+  },
+  "taskEdit": {
+    "common": {
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "close": "Đóng"
+    },
+    "attachments": {
+      "title": "Tệp đính kèm",
+      "file": "Tệp",
+      "noAttachments": "Chưa có tệp đính kèm",
+      "download": "Tải xuống",
+      "remove": "Xóa",
+      "removing": "Đang xóa...",
+      "addButton": "Thêm tệp đính kèm",
+      "uploading": "Đang tải tệp lên...",
+      "uploadSuccess": "Tải tệp lên thành công",
+      "uploadFailed": "Tải tệp lên thất bại",
+      "removeSuccess": "Xóa tệp thành công",
+      "removeFailed": "Xóa tệp thất bại"
+    }
+  },
+  "taskComments": {
+    "comments": "Bình luận",
+    "writeComment": "Viết bình luận...",
+    "addComment": "Thêm bình luận",
+    "addingComment": "Đang thêm...",
+    "commentAdded": "Đã thêm bình luận thành công",
+    "failedToAddComment": "Không thể thêm bình luận. Vui lòng thử lại.",
+    "commentUpdated": "Đã cập nhật bình luận thành công",
+    "failedToUpdateComment": "Không thể cập nhật bình luận. Vui lòng thử lại.",
+    "commentDeleted": "Đã xóa bình luận thành công",
+    "failedToDeleteComment": "Không thể xóa bình luận. Vui lòng thử lại.",
+    "deleteCommentConfirmation": "Bạn có chắc chắn muốn xóa bình luận này không?",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "save": "Lưu",
+    "saving": "Đang lưu...",
+    "cancel": "Hủy",
+    "noComments": "Chưa có bình luận nào",
+    "user": "Người dùng",
+    "commentTextarea": "Ô nhập bình luận",
+    "editCommentTextarea": "Ô sửa bình luận"
+  },
+  "taskDueDate": {
+    "dueDate": "Ngày hạn",
+    "date": "Ngày",
+    "time": "Giờ",
+    "remove": "Xóa",
+    "close": "Đóng",
+    "at": "lúc",
+    "overdue": "Quá hạn",
+    "selectDate": "Chọn ngày",
+    "selectTime": "Chọn giờ"
+  },
+  "taskDescription": {
+    "description": "Mô tả",
+    "addDetailedDescription": "Thêm mô tả chi tiết hơn...",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "clickToEdit": "Nhấp để chỉnh sửa mô tả",
+    "descriptionTextarea": "Ô nhập mô tả"
   }
 }

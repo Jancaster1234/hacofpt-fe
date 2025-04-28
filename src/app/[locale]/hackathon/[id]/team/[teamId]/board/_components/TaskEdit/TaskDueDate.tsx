@@ -3,6 +3,7 @@
 
 import { format, isPast, parseISO } from "date-fns";
 import { useState } from "react";
+import { useTranslations } from "@/hooks/useTranslations";
 
 interface TaskDueDateProps {
   dueDate?: string;
@@ -11,6 +12,7 @@ interface TaskDueDateProps {
 
 export default function TaskDueDate({ dueDate, onChange }: TaskDueDateProps) {
   const [isSelecting, setIsSelecting] = useState(false);
+  const t = useTranslations("taskDueDate");
 
   // Format displayed date and time separately
   const formattedDate = dueDate ? format(parseISO(dueDate), "MMM d, yyyy") : "";
@@ -61,48 +63,70 @@ export default function TaskDueDate({ dueDate, onChange }: TaskDueDateProps) {
   return (
     <div className="mt-2">
       <button
-        className="w-full text-left text-sm py-1 px-2 text-gray-700 hover:bg-gray-200 rounded flex items-center"
+        className="w-full text-left text-sm py-1 px-2 text-gray-700 dark:text-gray-200 
+                 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex items-center 
+                 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         onClick={() => setIsSelecting(!isSelecting)}
+        aria-expanded={isSelecting}
+        aria-label={t("dueDate")}
       >
         <span className="mr-2">🗓️</span>
-        <span>Due Date</span>
+        <span>{t("dueDate")}</span>
       </button>
 
       {isSelecting && (
-        <div className="mt-2 p-2 bg-white border border-gray-300 rounded-md shadow-sm">
+        <div
+          className="mt-2 p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+                      rounded-md shadow-sm transition-colors duration-200"
+        >
           <div className="mb-2">
-            <label className="block text-xs text-gray-700 mb-1">Date</label>
+            <label className="block text-xs text-gray-700 dark:text-gray-300 mb-1">
+              {t("date")}
+            </label>
             <input
               type="date"
               value={dateValue}
               onChange={(e) => handleDateTimeChange("date", e.target.value)}
-              className="w-full p-1 border border-gray-300 rounded text-sm"
+              className="w-full p-1 border border-gray-300 dark:border-gray-600 rounded text-sm 
+                       bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 
+                       focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              aria-label={t("selectDate")}
             />
           </div>
 
           <div className="mb-2">
-            <label className="block text-xs text-gray-700 mb-1">Time</label>
+            <label className="block text-xs text-gray-700 dark:text-gray-300 mb-1">
+              {t("time")}
+            </label>
             <input
               type="time"
               value={timeValue}
               onChange={(e) => handleDateTimeChange("time", e.target.value)}
-              className="w-full p-1 border border-gray-300 rounded text-sm"
+              className="w-full p-1 border border-gray-300 dark:border-gray-600 rounded text-sm 
+                       bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 
+                       focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200
+                       disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:cursor-not-allowed"
               disabled={!dateValue} // Disable time if no date is selected
+              aria-label={t("selectTime")}
             />
           </div>
 
           <div className="mt-2 flex justify-between">
             <button
               onClick={() => onChange(undefined)}
-              className="text-xs text-gray-600 hover:text-gray-800"
+              className="text-xs text-gray-600 dark:text-gray-300 
+                       hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
+              aria-label={t("remove")}
             >
-              Remove
+              {t("remove")}
             </button>
             <button
               onClick={() => setIsSelecting(false)}
-              className="text-xs text-blue-600 hover:text-blue-800"
+              className="text-xs text-blue-600 dark:text-blue-400 
+                       hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200"
+              aria-label={t("close")}
             >
-              Close
+              {t("close")}
             </button>
           </div>
         </div>
@@ -110,8 +134,19 @@ export default function TaskDueDate({ dueDate, onChange }: TaskDueDateProps) {
 
       {dueDate && !isSelecting && (
         <div className="mt-1 ml-7 text-xs">
-          <span className={isPastDue ? "text-red-500" : "text-gray-600"}>
-            {formattedDate} at {formattedTime}
+          <span
+            className={`${
+              isPastDue
+                ? "text-red-500 dark:text-red-400"
+                : "text-gray-600 dark:text-gray-400"
+            } transition-colors duration-200`}
+          >
+            {formattedDate} {t("at")} {formattedTime}
+            {isPastDue && (
+              <span className="ml-1 text-red-500 dark:text-red-400">
+                ({t("overdue")})
+              </span>
+            )}
           </span>
         </div>
       )}
