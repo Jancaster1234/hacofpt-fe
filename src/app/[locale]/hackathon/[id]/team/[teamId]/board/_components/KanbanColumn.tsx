@@ -12,6 +12,9 @@ import { CSS } from "@dnd-kit/utilities";
 import KanbanTask from "./KanbanTask";
 import { Column } from "@/store/kanbanStore";
 import { useKanbanStore } from "@/store/kanbanStore";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface KanbanColumnProps {
   column: Column;
@@ -24,12 +27,18 @@ export default function KanbanColumn({
   isActive,
   isLoading = false,
 }: KanbanColumnProps) {
+  const t = useTranslations("kanban");
+  const toast = useToast();
+
   const [isEditing, setIsEditing] = useState(false);
   const [columnName, setColumnName] = useState(column.title);
   const [showMenu, setShowMenu] = useState(false);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [isUpdatingColumn, setIsUpdatingColumn] = useState(false);
+  const [isDeletingColumn, setIsDeletingColumn] = useState(false);
+  const [isCreatingTask, setIsCreatingTask] = useState(false);
 
   const { setNodeRef: droppableRef } = useDroppable({
     id: `column-${column.id}`,
@@ -37,7 +46,7 @@ export default function KanbanColumn({
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: `column-${column.id}`, // Add a prefix to distinguish it as a column
+      id: `column-${column.id}`,
       data: { type: "column", column },
     });
 
@@ -47,34 +56,66 @@ export default function KanbanColumn({
   };
 
   const handleSaveEdit = async () => {
-    if (columnName.trim() !== "") {
-      await useKanbanStore.getState().updateList(column.id, columnName);
+    if (columnName.trim() === "") return;
+
+    setIsUpdatingColumn(true);
+    try {
+      const result = await useKanbanStore
+        .getState()
+        .updateList(column.id, columnName);
+      if (result && result.message) {
+        toast.success(result.message);
+      }
       setIsEditing(false);
+    } catch (error: any) {
+      toast.error(error.message || t("updateColumnError"));
+    } finally {
+      setIsUpdatingColumn(false);
     }
   };
 
   const handleDeleteColumn = async () => {
-    if (
-      confirm(`Are you sure you want to delete the "${column.title}" list?`)
-    ) {
-      await useKanbanStore.getState().deleteList(column.id);
+    if (!confirm(`${t("deleteColumnConfirm")} "${column.title}"?`)) {
+      return;
     }
-    setShowMenu(false);
+
+    setIsDeletingColumn(true);
+    try {
+      const result = await useKanbanStore.getState().deleteList(column.id);
+      if (result && result.message) {
+        toast.success(result.message);
+      }
+    } catch (error: any) {
+      toast.error(error.message || t("deleteColumnError"));
+    } finally {
+      setIsDeletingColumn(false);
+      setShowMenu(false);
+    }
   };
 
-  // Add a function to handle task creation:
   const handleCreateTask = async () => {
     if (newTaskTitle.trim() === "") return;
 
-    await useKanbanStore.getState().createTask(column.id, {
-      title: newTaskTitle,
-      description: newTaskDescription || undefined,
-    });
+    setIsCreatingTask(true);
+    try {
+      const result = await useKanbanStore.getState().createTask(column.id, {
+        title: newTaskTitle,
+        description: newTaskDescription || undefined,
+      });
 
-    // Reset form
-    setNewTaskTitle("");
-    setNewTaskDescription("");
-    setIsAddingTask(false);
+      if (result && result.message) {
+        toast.success(result.message);
+      }
+
+      // Reset form
+      setNewTaskTitle("");
+      setNewTaskDescription("");
+      setIsAddingTask(false);
+    } catch (error: any) {
+      toast.error(error.message || t("createTaskError"));
+    } finally {
+      setIsCreatingTask(false);
+    }
   };
 
   return (
@@ -82,20 +123,21 @@ export default function KanbanColumn({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className={`bg-gray-100 p-4 rounded-xl shadow-lg w-full min-h-[400px] ${
+      className={`bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 rounded-xl shadow-lg w-full min-w-[280px] md:min-w-[300px] min-h-[300px] sm:min-h-[400px] transition-colors duration-300 ${
         isActive ? "opacity-50" : ""
       }`}
     >
       {/* Column Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-3 sm:mb-4">
         {isEditing ? (
           <div className="flex w-full space-x-2">
             <input
               type="text"
               value={columnName}
               onChange={(e) => setColumnName(e.target.value)}
-              className="flex-1 px-2 py-1 border border-gray-300 rounded"
+              className="flex-1 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               autoFocus
+              aria-label={t("editColumnName")}
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSaveEdit();
                 if (e.key === "Escape") {
@@ -106,30 +148,33 @@ export default function KanbanColumn({
             />
             <button
               onClick={handleSaveEdit}
-              className="px-2 py-1 bg-blue-500 text-white rounded"
+              disabled={isUpdatingColumn}
+              className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors duration-200 disabled:opacity-50"
+              aria-label={t("saveColumnName")}
             >
-              Save
+              {isUpdatingColumn ? <LoadingSpinner size="sm" /> : t("save")}
             </button>
             <button
               onClick={() => {
                 setColumnName(column.title);
                 setIsEditing(false);
               }}
-              className="px-2 py-1 bg-gray-300 rounded"
+              className="px-2 py-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 rounded transition-colors duration-200"
+              aria-label={t("cancelEditing")}
             >
-              Cancel
+              {t("cancel")}
             </button>
           </div>
         ) : (
           <div className="flex items-center">
             <h2
-              className="text-lg font-bold cursor-pointer"
+              className="text-base sm:text-lg font-bold cursor-pointer text-gray-900 dark:text-gray-100"
               onClick={() => setIsEditing(true)}
               {...listeners}
             >
               {column.title}
             </h2>
-            <span className="ml-2 text-sm text-gray-500">
+            <span className="ml-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               {column.tasks.length}
             </span>
           </div>
@@ -137,29 +182,38 @@ export default function KanbanColumn({
 
         <div className="relative">
           <button
-            className="text-gray-400 hover:text-gray-600 p-1"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 transition-colors duration-200"
             onClick={() => setShowMenu(!showMenu)}
+            aria-label={t("columnMenu")}
           >
             •••
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10">
+            <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-600">
               <div className="py-1">
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
                   onClick={() => {
                     setIsEditing(true);
                     setShowMenu(false);
                   }}
                 >
-                  Edit List
+                  {t("editList")}
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
                   onClick={handleDeleteColumn}
+                  disabled={isDeletingColumn}
                 >
-                  Delete List
+                  {isDeletingColumn ? (
+                    <div className="flex items-center">
+                      <LoadingSpinner size="sm" className="mr-2" />
+                      {t("deleting")}
+                    </div>
+                  ) : (
+                    t("deleteList")
+                  )}
                 </button>
               </div>
             </div>
@@ -170,7 +224,7 @@ export default function KanbanColumn({
       {/* Droppable area for tasks */}
       <div
         ref={droppableRef}
-        className="space-y-3 min-h-[300px] flex flex-col"
+        className="space-y-2 sm:space-y-3 min-h-[200px] sm:min-h-[300px] flex flex-col"
         style={{ flexGrow: 1 }}
       >
         {isLoading ? (
@@ -179,7 +233,7 @@ export default function KanbanColumn({
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-20 bg-gray-200 rounded animate-pulse"
+                className="h-16 sm:h-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
               ></div>
             ))}
           </>
@@ -195,8 +249,8 @@ export default function KanbanColumn({
               ))}
             </SortableContext>
             {column.tasks.length === 0 && (
-              <div className="h-full flex-grow flex items-center justify-center text-gray-400 text-sm italic">
-                Drop cards here
+              <div className="h-full flex-grow flex items-center justify-center text-gray-400 dark:text-gray-500 text-xs sm:text-sm italic">
+                {t("dropCardsHere")}
               </div>
             )}
           </>
@@ -205,45 +259,51 @@ export default function KanbanColumn({
 
       {/* Add Card Button */}
       {isAddingTask ? (
-        <div className="mt-4 p-2 bg-white rounded-lg shadow">
+        <div className="mt-3 sm:mt-4 p-2 bg-white dark:bg-gray-700 rounded-lg shadow transition-colors duration-300">
           <input
             type="text"
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
-            placeholder="Task title"
-            className="w-full mb-2 p-2 border border-gray-300 rounded"
+            placeholder={t("taskTitle")}
+            className="w-full mb-2 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             autoFocus
+            aria-label={t("taskTitle")}
           />
           <textarea
             value={newTaskDescription}
             onChange={(e) => setNewTaskDescription(e.target.value)}
-            placeholder="Description (optional)"
-            className="w-full mb-2 p-2 border border-gray-300 rounded"
+            placeholder={t("taskDescriptionOptional")}
+            className="w-full mb-2 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             rows={2}
+            aria-label={t("taskDescription")}
           />
           <div className="flex justify-end space-x-2">
             <button
               onClick={() => setIsAddingTask(false)}
-              className="px-3 py-1 text-sm bg-gray-200 rounded"
+              className="px-3 py-1 text-xs sm:text-sm bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded transition-colors duration-200"
+              aria-label={t("cancel")}
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               onClick={handleCreateTask}
-              className="px-3 py-1 text-sm bg-blue-500 text-white rounded"
+              disabled={isCreatingTask || !newTaskTitle.trim()}
+              className="px-3 py-1 text-xs sm:text-sm bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors duration-200 disabled:opacity-50"
+              aria-label={t("addTask")}
             >
-              Add
+              {isCreatingTask ? <LoadingSpinner size="sm" /> : t("add")}
             </button>
           </div>
         </div>
       ) : (
         <button
           onClick={() => setIsAddingTask(true)}
-          className="w-full text-gray-500 mt-4 flex items-center space-x-2 p-2 hover:bg-gray-200 rounded"
+          className="w-full text-gray-500 dark:text-gray-400 mt-3 sm:mt-4 flex items-center justify-center space-x-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors duration-200"
           disabled={isLoading}
+          aria-label={t("addCard")}
         >
           <span className="text-xl">+</span>
-          <span>Add a card</span>
+          <span>{t("addCard")}</span>
         </button>
       )}
     </div>
