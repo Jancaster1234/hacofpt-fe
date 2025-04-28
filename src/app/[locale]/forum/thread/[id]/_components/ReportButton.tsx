@@ -4,6 +4,9 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { threadPostReportService } from "@/services/threadPostReport.service";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "@/hooks/useTranslations";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
   ThreadPostReport,
   ThreadPostReportStatus,
@@ -24,6 +27,9 @@ export default function ReportButton({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userReport, setUserReport] = useState<ThreadPostReport | null>(null);
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
+  const t = useTranslations("report");
 
   // Check if the current user is the author of the post
   const isOwnPost = user?.username === postAuthor;
@@ -32,6 +38,7 @@ export default function ReportButton({
     const checkUserReport = async () => {
       if (!user) return;
 
+      setLoading(true);
       try {
         const response =
           await threadPostReportService.getReportsByThreadPostId(threadPostId);
@@ -41,6 +48,9 @@ export default function ReportButton({
         setUserReport(foundReport || null);
       } catch (error) {
         console.error("Failed to check user reports:", error);
+        // No toast here as this is background data initialization
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -50,7 +60,7 @@ export default function ReportButton({
   const handleSubmitReport = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reason.trim()) {
-      setError("Please provide a reason for the report");
+      setError(t("errors.reasonRequired"));
       return;
     }
 
@@ -68,9 +78,12 @@ export default function ReportButton({
         setUserReport(response.data);
         setShowReportModal(false);
         setReason("");
+        toast.success(response.message || t("success.reportSubmitted"));
       }
     } catch (err: any) {
-      setError(err.message || "Failed to submit report. Please try again.");
+      const errorMessage = err.message || t("errors.failedToSubmit");
+      toast.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -79,15 +92,19 @@ export default function ReportButton({
   const getReportStatusBadge = (status: ThreadPostReportStatus) => {
     const statusConfig = {
       PENDING: {
-        bg: "bg-yellow-100",
-        text: "text-yellow-800",
-        label: "Pending Review",
+        bg: "bg-yellow-100 dark:bg-yellow-900/50",
+        text: "text-yellow-800 dark:text-yellow-400",
+        label: t("status.pending"),
       },
-      REVIEWED: { bg: "bg-blue-100", text: "text-blue-800", label: "Reviewed" },
+      REVIEWED: {
+        bg: "bg-blue-100 dark:bg-blue-900/50",
+        text: "text-blue-800 dark:text-blue-400",
+        label: t("status.reviewed"),
+      },
       DISMISSED: {
-        bg: "bg-gray-100",
-        text: "text-gray-800",
-        label: "Dismissed",
+        bg: "bg-gray-100 dark:bg-gray-800",
+        text: "text-gray-800 dark:text-gray-400",
+        label: t("status.dismissed"),
       },
     };
 
@@ -95,7 +112,7 @@ export default function ReportButton({
 
     return (
       <span
-        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text} transition-colors duration-300`}
       >
         {config.label}
       </span>
@@ -114,93 +131,118 @@ export default function ReportButton({
 
   return (
     <>
-      {userReport ? (
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-600">Reported</span>
+      {loading ? (
+        <div className="flex items-center h-6">
+          <LoadingSpinner
+            size="sm"
+            className="text-gray-500 dark:text-gray-400"
+            showText={false}
+          />
+        </div>
+      ) : userReport ? (
+        <div className="flex items-center space-x-2 transition-colors duration-300">
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            {t("labels.reported")}
+          </span>
           {getReportStatusBadge(userReport.status)}
         </div>
       ) : (
         <button
           onClick={() => setShowReportModal(true)}
-          className="text-gray-600 hover:text-red-600 flex items-center space-x-1"
-          title="Report this post"
+          className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 
+                   flex items-center space-x-1 transition-colors duration-300"
+          title={t("buttons.reportTooltip")}
+          aria-label={t("aria.reportPost")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
+            width="14"
+            height="14"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            className="sm:w-4 sm:h-4"
           >
             <path d="M4 4v16h16"></path>
             <path d="M4 20l16-16"></path>
           </svg>
-          <span className="text-sm">Report</span>
+          <span className="text-xs sm:text-sm">{t("buttons.report")}</span>
         </button>
       )}
 
       {/* Report Modal */}
       {showReportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Report Post</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300">
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 w-full max-w-md 
+                         shadow-xl transition-colors duration-300 border border-gray-200 dark:border-gray-700"
+          >
+            <h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+              {t("modal.title")}
+            </h3>
             <form onSubmit={handleSubmitReport}>
               <div className="mb-4">
-                <label className="block text-gray-700 mb-2" htmlFor="reason">
-                  Reason for reporting
+                <label
+                  className="block text-gray-700 dark:text-gray-300 mb-2 text-sm"
+                  htmlFor="reason"
+                >
+                  {t("modal.reasonLabel")}
                 </label>
                 <textarea
                   id="reason"
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md 
+                           focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400
+                           bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                           transition-colors duration-300"
                   rows={4}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="Please explain why this post should be reported..."
+                  placeholder={t("modal.reasonPlaceholder")}
                   required
+                  aria-label={t("aria.reportReason")}
                 ></textarea>
-                {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+                {error && (
+                  <p
+                    className="text-red-600 dark:text-red-400 text-sm mt-1"
+                    role="alert"
+                  >
+                    {error}
+                  </p>
+                )}
               </div>
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => setShowReportModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 text-gray-700 dark:text-gray-300 
+                           bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 
+                           dark:hover:bg-gray-600 transition-colors duration-300 text-xs sm:text-sm"
                   disabled={submitting}
+                  aria-label={t("aria.cancel")}
                 >
-                  Cancel
+                  {t("buttons.cancel")}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors flex items-center"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 text-white bg-red-600 dark:bg-red-700 
+                         rounded-md hover:bg-red-700 dark:hover:bg-red-600 
+                         transition-colors duration-300 flex items-center justify-center
+                         min-w-[80px] text-xs sm:text-sm"
                   disabled={submitting}
+                  aria-label={t("aria.submitReport")}
                 >
-                  {submitting && (
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
+                  {submitting ? (
+                    <LoadingSpinner
+                      size="sm"
+                      className="text-white"
+                      showText={false}
+                    />
+                  ) : (
+                    t("buttons.submitReport")
                   )}
-                  Submit Report
                 </button>
               </div>
             </form>

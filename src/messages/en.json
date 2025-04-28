@@ -923,7 +923,34 @@
       "judge": "Judge",
       "mentor": "Mentor",
       "admin": "Admin",
-      "organizer": "Organizer"
+      "organizer": "Organizer",
+      "team_leader": "Team leader"
+    },
+    "errors": {
+      "emptyContent": "Post content cannot be empty",
+      "failedToSave": "Failed to save post. Please try again."
+    },
+    "success": {
+      "postCreated": "Post created successfully",
+      "postUpdated": "Post updated successfully"
+    },
+    "auth": {
+      "signInToParticipate": "Please sign in to participate in this discussion."
+    },
+    "placeholders": {
+      "shareThoughts": "Share your thoughts..."
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "post": "Post",
+      "update": "Update"
+    },
+    "aria": {
+      "postContent": "Post content",
+      "cancel": "Cancel editing",
+      "post": "Submit post",
+      "update": "Update post"
+    }
   },
   "feedback": {
     "star": "star",
@@ -939,5 +966,39 @@
     "feedbackSubmittedSuccess": "Feedback submitted successfully!",
     "failedToSubmitFeedback": "Failed to submit feedback. Please try again.",
     "failedToLoadQuestions": "Failed to load feedback questions. Please try again later."
+  },
+  "report": {
+    "errors": {
+      "reasonRequired": "Please provide a reason for the report",
+      "failedToSubmit": "Failed to submit report. Please try again."
+    },
+    "success": {
+      "reportSubmitted": "Report submitted successfully"
+    },
+    "status": {
+      "pending": "Pending review",
+      "reviewed": "Reviewed",
+      "dismissed": "Dismissed"
+    },
+    "labels": {
+      "reported": "Reported"
+    },
+    "buttons": {
+      "report": "Report",
+      "reportTooltip": "Report this post",
+      "cancel": "Cancel",
+      "submitReport": "Submit report"
+    },
+    "modal": {
+      "title": "Report post",
+      "reasonLabel": "Reason for reporting",
+      "reasonPlaceholder": "Please explain why this post should be reported..."
+    },
+    "aria": {
+      "reportPost": "Report this post",
+      "reportReason": "Reason for report",
+      "cancel": "Cancel report",
+      "submitReport": "Submit report"
+    }
   }
 }

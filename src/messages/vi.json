@@ -924,6 +924,32 @@
       "mentor": "Cố vấn",
       "admin": "Quản trị viên",
       "organizer": "Người tổ chức"
+    },
+    "errors": {
+      "emptyContent": "Nội dung bài viết không được để trống",
+      "failedToSave": "Không thể lưu bài viết. Vui lòng thử lại."
+    },
+    "success": {
+      "postCreated": "Đã tạo bài viết thành công",
+      "postUpdated": "Đã cập nhật bài viết thành công"
+    },
+    "auth": {
+      "signInToParticipate": "Vui lòng đăng nhập để tham gia thảo luận này."
+    },
+    "placeholders": {
+      "shareThoughts": "Chia sẻ suy nghĩ của bạn..."
+    },
+    "actions": {
+      "cancel": "Hủy",
+      "post": "Đăng",
+      "update": "Cập nhật"
+    },
+    "aria": {
+      "postContent": "Nội dung bài viết",
+      "cancel": "Hủy chỉnh sửa",
+      "post": "Đăng bài viết",
+      "update": "Cập nhật bài viết"
+    }
   },
   "feedback": {
     "star": "sao",
@@ -939,5 +965,39 @@
     "feedbackSubmittedSuccess": "Phản hồi đã được gửi thành công!",
     "failedToSubmitFeedback": "Không thể gửi phản hồi. Vui lòng thử lại.",
     "failedToLoadQuestions": "Không thể tải câu hỏi phản hồi. Vui lòng thử lại sau."
+  },
+  "report": {
+    "errors": {
+      "reasonRequired": "Vui lòng cung cấp lý do báo cáo",
+      "failedToSubmit": "Không thể gửi báo cáo. Vui lòng thử lại."
+    },
+    "success": {
+      "reportSubmitted": "Đã gửi báo cáo thành công"
+    },
+    "status": {
+      "pending": "Đang chờ xem xét",
+      "reviewed": "Đã xem xét",
+      "dismissed": "Đã bỏ qua"
+    },
+    "labels": {
+      "reported": "Đã báo cáo"
+    },
+    "buttons": {
+      "report": "Báo cáo",
+      "reportTooltip": "Báo cáo bài viết này",
+      "cancel": "Hủy",
+      "submitReport": "Gửi báo cáo"
+    },
+    "modal": {
+      "title": "Báo cáo bài viết",
+      "reasonLabel": "Lý do báo cáo",
+      "reasonPlaceholder": "Vui lòng giải thích lý do bài viết này nên được báo cáo..."
+    },
+    "aria": {
+      "reportPost": "Báo cáo bài viết này",
+      "reportReason": "Lý do báo cáo",
+      "cancel": "Hủy báo cáo",
+      "submitReport": "Gửi báo cáo"
+    }
   }
 }
