@@ -5,6 +5,10 @@ import { useState, useEffect } from "react";
 import { Board } from "@/types/entities/board";
 import { BoardLabel } from "@/types/entities/boardLabel";
 import { useKanbanStore } from "@/store/kanbanStore";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import Image from "next/image";
 
 interface BoardHeaderProps {
   board: Board;
@@ -20,6 +24,7 @@ export default function BoardHeader({
   onEdit,
 }: BoardHeaderProps) {
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
+  const t = useTranslations("boardHeader");
 
   // Get the board from kanban store instead of using the prop directly
   const storeBoard = useKanbanStore((state) => state.board);
@@ -33,15 +38,18 @@ export default function BoardHeader({
   }, [board.name, board.description]);
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 transition-colors duration-300">
       <div className="flex-1">
         <div className="flex items-center space-x-2">
-          <h1 className="text-2xl font-bold">{board.name}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+            {board.name}
+          </h1>
           {isOwner && (
             <button
               onClick={onEdit}
-              className="text-gray-500 hover:text-gray-700"
-              title="Edit Board"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
+              title={t("editBoard")}
+              aria-label={t("editBoard")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -61,35 +69,39 @@ export default function BoardHeader({
           )}
         </div>
 
-        <p className="text-gray-600 mt-1">{board.description}</p>
+        <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base">
+          {board.description}
+        </p>
       </div>
 
-      <div className="flex items-center mt-4 md:mt-0">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center mt-4 md:mt-0 w-full md:w-auto">
         {/* Avatars */}
-        <div className="flex -space-x-2 mr-4">
+        <div className="flex -space-x-2 mr-2 sm:mr-4 mb-2 sm:mb-0">
           {board.boardUsers
             ?.filter((bu) => !bu.isDeleted)
             .slice(0, 3)
             .map((boardUser) => (
               <div
                 key={boardUser.id}
-                className="h-8 w-8 rounded-full bg-gray-300 border-2 border-white flex items-center justify-center text-sm font-medium"
-                title={boardUser.user?.username || "User"}
+                className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800 flex items-center justify-center text-sm font-medium transition-all duration-200"
+                title={boardUser.user?.username || t("user")}
               >
                 {boardUser.user?.avatarUrl ? (
-                  <img
+                  <Image
                     src={boardUser.user.avatarUrl}
-                    alt={boardUser.user.username || "User"}
-                    className="h-full w-full object-cover"
+                    alt={boardUser.user.username || t("user")}
+                    width={32}
+                    height={32}
+                    className="h-full w-full rounded-full object-cover"
                   />
                 ) : (
-                  boardUser.user?.username?.charAt(0) || "U"
+                  boardUser.user?.username?.charAt(0) || t("userInitial")
                 )}
               </div>
             ))}
           {(board.boardUsers?.filter((bu) => !bu.isDeleted).length || 0) >
             3 && (
-            <div className="h-8 w-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium">
+            <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-200 transition-colors duration-200">
               +
               {(board.boardUsers?.filter((bu) => !bu.isDeleted).length || 0) -
                 3}
@@ -98,11 +110,12 @@ export default function BoardHeader({
         </div>
 
         {/* Buttons */}
-        <div className="flex space-x-2">
+        <div className="flex flex-col xs:flex-row space-y-2 xs:space-y-0 xs:space-x-2 w-full sm:w-auto">
           {/* Label Management Button */}
           <button
             onClick={() => setIsLabelModalOpen(true)}
-            className="flex items-center px-3 py-2 bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-md text-sm font-medium"
+            className="flex items-center justify-center px-3 py-2 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 rounded-md text-xs sm:text-sm font-medium transition-colors duration-200"
+            aria-label={t("manageLabels")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -118,13 +131,14 @@ export default function BoardHeader({
                 d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
               />
             </svg>
-            Manage Labels
+            {t("manageLabels")}
           </button>
 
           {/* Manage Users Button */}
           <button
             onClick={onOpenUserManagement}
-            className="flex items-center px-3 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md text-sm font-medium"
+            className="flex items-center justify-center px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-md text-xs sm:text-sm font-medium transition-colors duration-200"
+            aria-label={t("manageUsers")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +154,7 @@ export default function BoardHeader({
                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
               />
             </svg>
-            Manage Users
+            {t("manageUsers")}
           </button>
         </div>
       </div>
@@ -177,16 +191,18 @@ function BoardLabelManagement({
   const [editingLabel, setEditingLabel] = useState<BoardLabel | null>(null);
   const { createLabel, updateLabel, deleteLabel } = useKanbanStore();
   const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
+  const t = useTranslations("boardLabels");
 
   // Color options for labels
   const colorOptions = [
-    { name: "Blue", value: "#3b82f6" },
-    { name: "Green", value: "#10b981" },
-    { name: "Red", value: "#ef4444" },
-    { name: "Yellow", value: "#f59e0b" },
-    { name: "Purple", value: "#8b5cf6" },
-    { name: "Pink", value: "#ec4899" },
-    { name: "Gray", value: "#6b7280" },
+    { name: t("blue"), value: "#3b82f6" },
+    { name: t("green"), value: "#10b981" },
+    { name: t("red"), value: "#ef4444" },
+    { name: t("yellow"), value: "#f59e0b" },
+    { name: t("purple"), value: "#8b5cf6" },
+    { name: t("pink"), value: "#ec4899" },
+    { name: t("gray"), value: "#6b7280" },
   ];
 
   const handleAddLabel = async () => {
@@ -199,9 +215,11 @@ function BoardLabelManagement({
       if (newLabel) {
         setLabels([...labels, newLabel]);
         setNewLabelName("");
+        toast.success(t("labelAddedSuccess"));
       }
     } catch (error) {
       console.error("Error adding label:", error);
+      toast.error(t("labelAddedError"));
     } finally {
       setIsLoading(false);
     }
@@ -228,25 +246,29 @@ function BoardLabelManagement({
         setEditingLabel(null);
         setNewLabelName("");
         setNewLabelColor(colorOptions[0].value);
+        toast.success(t("labelUpdatedSuccess"));
       }
     } catch (error) {
       console.error("Error updating label:", error);
+      toast.error(t("labelUpdatedError"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDeleteLabel = async (labelId: string) => {
-    if (!confirm("Are you sure you want to delete this label?")) return;
+    if (!confirm(t("confirmDeleteLabel"))) return;
     setIsLoading(true);
 
     try {
       const success = await deleteLabel(labelId);
       if (success) {
         setLabels(labels.filter((label) => label.id !== labelId));
+        toast.success(t("labelDeletedSuccess"));
       }
     } catch (error) {
       console.error("Error deleting label:", error);
+      toast.error(t("labelDeletedError"));
     } finally {
       setIsLoading(false);
     }
@@ -267,13 +289,16 @@ function BoardLabelManagement({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 w-full max-w-md shadow-xl transition-all duration-300">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Manage Board Labels</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
+            {t("manageBoardLabels")}
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
+            aria-label={t("close")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -293,28 +318,28 @@ function BoardLabelManagement({
         </div>
 
         {/* Label Form */}
-        <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+        <div className="mb-6 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
           <div className="mb-3">
             <label
               htmlFor="labelName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
             >
-              {editingLabel ? "Update Label" : "Add New Label"}
+              {editingLabel ? t("updateLabel") : t("addNewLabel")}
             </label>
             <input
               id="labelName"
               type="text"
               value={newLabelName}
               onChange={(e) => setNewLabelName(e.target.value)}
-              placeholder="Label name"
-              className="w-full p-2 border border-gray-300 rounded-md mb-2"
+              placeholder={t("labelNamePlaceholder")}
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-md mb-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
               disabled={isLoading}
             />
           </div>
 
           <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Color
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              {t("color")}
             </label>
             <div className="flex flex-wrap gap-2">
               {colorOptions.map((color) => (
@@ -324,12 +349,13 @@ function BoardLabelManagement({
                   onClick={() => setNewLabelColor(color.value)}
                   className={`h-8 w-8 rounded-full border-2 ${
                     newLabelColor === color.value
-                      ? "border-black"
+                      ? "border-black dark:border-white"
                       : "border-transparent"
-                  }`}
+                  } transition-all duration-200`}
                   style={{ backgroundColor: color.value }}
                   title={color.name}
                   disabled={isLoading}
+                  aria-label={color.name}
                 >
                   <span className="sr-only">{color.name}</span>
                 </button>
@@ -337,62 +363,75 @@ function BoardLabelManagement({
             </div>
           </div>
 
-          <div className="flex space-x-2">
+          <div className="flex flex-col xs:flex-row space-y-2 xs:space-y-0 xs:space-x-2">
             {editingLabel ? (
               <>
                 <button
                   onClick={handleUpdateLabel}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md flex-1 disabled:bg-blue-300"
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex-1 disabled:bg-blue-300 dark:disabled:bg-blue-800 transition-colors duration-200 flex justify-center items-center"
                   disabled={!isOwner || isLoading || !newLabelName.trim()}
                 >
-                  {isLoading ? "Updating..." : "Update Label"}
+                  {isLoading ? (
+                    <LoadingSpinner size="sm" className="mr-2" />
+                  ) : null}
+                  {isLoading ? t("updating") : t("updateLabel")}
                 </button>
                 <button
                   onClick={cancelEdit}
-                  className="px-4 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md disabled:bg-gray-100 dark:disabled:bg-gray-800 transition-colors duration-200"
                   disabled={isLoading}
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
               </>
             ) : (
               <button
                 onClick={handleAddLabel}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md w-full disabled:bg-blue-300"
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md w-full disabled:bg-blue-300 dark:disabled:bg-blue-800 transition-colors duration-200 flex justify-center items-center"
                 disabled={!isOwner || !newLabelName.trim() || isLoading}
               >
-                {isLoading ? "Adding..." : "Add Label"}
+                {isLoading ? (
+                  <LoadingSpinner size="sm" className="mr-2" />
+                ) : null}
+                {isLoading ? t("adding") : t("addLabel")}
               </button>
             )}
           </div>
         </div>
 
         {/* Labels List */}
-        <div className="max-h-64 overflow-y-auto">
-          <h3 className="font-medium text-gray-700 mb-2">Current Labels</h3>
+        <div className="max-h-60 sm:max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+          <h3 className="font-medium text-gray-700 dark:text-gray-200 mb-2">
+            {t("currentLabels")}
+          </h3>
           {labels.length === 0 ? (
-            <p className="text-gray-500 text-sm italic">No labels available</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm italic">
+              {t("noLabelsAvailable")}
+            </p>
           ) : (
             <ul className="space-y-2">
               {labels.map((label) => (
                 <li
                   key={label.id}
-                  className="p-2 bg-white border border-gray-200 rounded-md flex justify-between items-center"
+                  className="p-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md flex justify-between items-center transition-colors duration-200"
                 >
                   <div className="flex items-center">
                     <div
                       className="h-4 w-4 rounded-full mr-2"
                       style={{ backgroundColor: label.color }}
+                      aria-hidden="true"
                     ></div>
-                    <span>{label.name}</span>
+                    <span className="text-gray-900 dark:text-gray-100">
+                      {label.name}
+                    </span>
                   </div>
                   {isOwner && (
                     <div className="flex space-x-1">
                       <button
                         onClick={() => startEditLabel(label)}
-                        className="text-gray-500 hover:text-blue-500"
+                        className="text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200"
                         disabled={isLoading}
-                        aria-label="Edit label"
+                        aria-label={t("editLabel")}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -411,9 +450,9 @@ function BoardLabelManagement({
                       </button>
                       <button
                         onClick={() => handleDeleteLabel(label.id)}
-                        className="text-gray-500 hover:text-red-500"
+                        className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors duration-200"
                         disabled={isLoading}
-                        aria-label="Delete label"
+                        aria-label={t("deleteLabel")}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

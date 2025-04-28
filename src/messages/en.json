@@ -614,5 +614,42 @@
     "cancel": "Cancel",
     "clickToEdit": "Click to edit description",
     "descriptionTextarea": "Description text area"
+  },
+  "boardHeader": {
+    "editBoard": "Edit board",
+    "user": "User",
+    "userInitial": "U",
+    "manageLabels": "Manage labels",
+    "manageUsers": "Manage users"
+  },
+  "boardLabels": {
+    "manageBoardLabels": "Manage board labels",
+    "close": "Close",
+    "updateLabel": "Update label",
+    "addNewLabel": "Add new label",
+    "labelNamePlaceholder": "Label name",
+    "color": "Color",
+    "updating": "Updating...",
+    "adding": "Adding...",
+    "cancel": "Cancel",
+    "addLabel": "Add label",
+    "currentLabels": "Current labels",
+    "noLabelsAvailable": "No labels available",
+    "editLabel": "Edit label",
+    "deleteLabel": "Delete label",
+    "confirmDeleteLabel": "Are you sure you want to delete this label?",
+    "labelAddedSuccess": "Label added successfully",
+    "labelAddedError": "Failed to add label",
+    "labelUpdatedSuccess": "Label updated successfully",
+    "labelUpdatedError": "Failed to update label",
+    "labelDeletedSuccess": "Label deleted successfully",
+    "labelDeletedError": "Failed to delete label",
+    "blue": "Blue",
+    "green": "Green",
+    "red": "Red",
+    "yellow": "Yellow",
+    "purple": "Purple",
+    "pink": "Pink",
+    "gray": "Gray"
   }
 }

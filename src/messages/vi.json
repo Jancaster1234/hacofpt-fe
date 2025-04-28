@@ -614,5 +614,42 @@
     "cancel": "Hủy",
     "clickToEdit": "Nhấp để chỉnh sửa mô tả",
     "descriptionTextarea": "Ô nhập mô tả"
+  },
+  "boardHeader": {
+    "editBoard": "Chỉnh sửa bảng",
+    "user": "Người dùng",
+    "userInitial": "N",
+    "manageLabels": "Quản lý nhãn",
+    "manageUsers": "Quản lý người dùng"
+  },
+  "boardLabels": {
+    "manageBoardLabels": "Quản lý nhãn bảng",
+    "close": "Đóng",
+    "updateLabel": "Cập nhật nhãn",
+    "addNewLabel": "Thêm nhãn mới",
+    "labelNamePlaceholder": "Tên nhãn",
+    "color": "Màu sắc",
+    "updating": "Đang cập nhật...",
+    "adding": "Đang thêm...",
+    "cancel": "Hủy",
+    "addLabel": "Thêm nhãn",
+    "currentLabels": "Nhãn hiện tại",
+    "noLabelsAvailable": "Không có nhãn nào",
+    "editLabel": "Chỉnh sửa nhãn",
+    "deleteLabel": "Xóa nhãn",
+    "confirmDeleteLabel": "Bạn có chắc chắn muốn xóa nhãn này?",
+    "labelAddedSuccess": "Thêm nhãn thành công",
+    "labelAddedError": "Không thể thêm nhãn",
+    "labelUpdatedSuccess": "Cập nhật nhãn thành công",
+    "labelUpdatedError": "Không thể cập nhật nhãn",
+    "labelDeletedSuccess": "Xóa nhãn thành công",
+    "labelDeletedError": "Không thể xóa nhãn",
+    "blue": "Xanh da trời",
+    "green": "Xanh lá cây",
+    "red": "Đỏ",
+    "yellow": "Vàng",
+    "purple": "Tím",
+    "pink": "Hồng",
+    "gray": "Xám"
   }
 }
