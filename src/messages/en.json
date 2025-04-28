@@ -378,5 +378,34 @@
       "invalidResponseFormat": "Invalid response format from API",
       "unknownError": "Unknown error occurred"
     }
+  },
+  "submission": {
+    "timeLeft": "Time left",
+    "submitDueDate": "Submit due date",
+    "roundStartsAt": "Round starts at: {date}",
+    "deadlinePassed": "Deadline passed",
+    "submissionPeriodEnded": "Submission period has ended",
+    "teamSubmitted": "Your team has submitted successfully",
+    "yourSubmission": "Your submission",
+    "submittedFiles": "Submitted files",
+    "download": "Download",
+    "resubmit": "Resubmit",
+    "resubmitWork": "Resubmit your work for {round}",
+    "submitWork": "Submit your work for {round}",
+    "selectFiles": "Select files",
+    "selectedFiles": "Selected files",
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "daysShort": "d",
+    "submissionError": "Submission error",
+    "selectFilesError": "Please select at least one file to submit",
+    "submissionInProgress": "Submitting your files...",
+    "submissionUpdated": "Your submission has been updated",
+    "submissionSuccessful": "Your work has been submitted successfully",
+    "submissionSuccess": "Submission successful",
+    "submissionFailed": "Failed to submit. Please try again",
+    "unknownSubmissionError": "An unknown error occurred while submitting your work"
   }
 }
