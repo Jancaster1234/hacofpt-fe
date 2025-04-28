@@ -407,5 +407,23 @@
     "cancel": "Cancel",
     "resubmit": "Resubmit",
     "submit": "Submit"
+  },
+  "hackathonResults": {
+    "title": "Hackathon results",
+    "placement": "Placement",
+    "team": "Team",
+    "teamLead": "Team lead",
+    "members": "Members",
+    "score": "Score",
+    "award": "Award",
+    "noResultsAvailable": "No results available for this hackathon yet.",
+    "resultsAfterJudging": "Results will be published after judging is completed.",
+    "unknownTeam": "Unknown team",
+    "notAvailable": "Not available",
+    "noAdditionalMembers": "No additional members",
+    "noAward": "No award",
+    "fetchSuccess": "Hackathon results loaded successfully",
+    "fetchError": "Failed to load hackathon results. Please try again later.",
+    "noResults": "No results found for this hackathon"
   }
 }

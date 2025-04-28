@@ -407,5 +407,23 @@
     "cancel": "Hủy",
     "resubmit": "Nộp lại",
     "submit": "Nộp bài"
+  },
+  "hackathonResults": {
+    "title": "Kết quả hackathon",
+    "placement": "Xếp hạng",
+    "team": "Đội",
+    "teamLead": "Trưởng nhóm",
+    "members": "Thành viên",
+    "score": "Điểm số",
+    "award": "Giải thưởng",
+    "noResultsAvailable": "Chưa có kết quả cho hackathon này.",
+    "resultsAfterJudging": "Kết quả sẽ được công bố sau khi quá trình chấm điểm hoàn tất.",
+    "unknownTeam": "Đội không xác định",
+    "notAvailable": "Không có sẵn",
+    "noAdditionalMembers": "Không có thành viên khác",
+    "noAward": "Không có giải thưởng",
+    "fetchSuccess": "Đã tải kết quả hackathon thành công",
+    "fetchError": "Không thể tải kết quả hackathon. Vui lòng thử lại sau.",
+    "noResults": "Không tìm thấy kết quả cho hackathon này"
   }
 }
