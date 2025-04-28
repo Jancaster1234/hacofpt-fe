@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+// src/app/[locale]/chat/_components/ChatList.tsx
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth_v0';
 import { ChatListItem } from '@/types/chat';

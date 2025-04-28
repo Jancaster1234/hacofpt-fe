@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/types/chat.ts
 export interface ConversationUser {
     id: string;
     conversationId: string;
