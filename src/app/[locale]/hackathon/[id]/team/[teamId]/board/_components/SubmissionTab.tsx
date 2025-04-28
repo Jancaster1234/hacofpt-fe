@@ -66,89 +66,79 @@ export default function SubmissionTab({
     };
   }, []);
 
-  // Update round status and timer whenever round info changes
+  // Update timer
   useEffect(() => {
-    const checkRoundStatus = () => {
-      const now = Date.now();
-      const startTime = new Date(roundStartTime).getTime();
-      const endTime = new Date(roundEndTime).getTime();
+    console.log("Timer effect running with dates:", {
+      start: new Date(roundStartTime),
+      end: new Date(roundEndTime),
+    });
 
-      if (now < startTime) {
-        setRoundStatus(
-          t("roundStartsAt", {
-            date: new Date(roundStartTime).toLocaleString(),
-          })
-        );
-        setTimeLeft("");
-        return;
+    // Check if round is active
+    const now = Date.now();
+    const startTime = new Date(roundStartTime).getTime();
+    const endTime = new Date(roundEndTime).getTime();
+
+    // Set initial status
+    if (now < startTime) {
+      setRoundStatus(
+        t("roundStartsAt", { date: new Date(startTime).toLocaleString() })
+      );
+      setTimeLeft("");
+      return;
+    } else {
+      // Clear status - round has started
+      setRoundStatus("");
+    }
+
+    // Function to update the timer display
+    const updateTimer = () => {
+      const currentTime = Date.now();
+      const remainingTime = endTime - currentTime;
+
+      if (remainingTime <= 0) {
+        setTimeLeft(t("deadlinePassed"));
+        return false;
       }
 
-      setRoundStatus(""); // Clear round status when round is active or ended
+      // Calculate time components
+      const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const minutes = Math.floor(
+        (remainingTime % (1000 * 60 * 60)) / (1000 * 60)
+      );
+      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+      // Format time display
+      let formattedTime;
+      if (days > 0) {
+        formattedTime = `${days}${t("daysShort")} ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      } else {
+        formattedTime = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      }
+
+      setTimeLeft(formattedTime);
+      return true;
     };
 
-    checkRoundStatus();
+    // Initial update
+    const shouldContinue = updateTimer();
+    if (!shouldContinue) return;
 
-    const interval = setInterval(() => {
-      if (!isMounted.current) {
-        clearInterval(interval);
-        return;
-      }
-
-      const now = Date.now();
-      const endTime = new Date(roundEndTime).getTime();
-      const startTime = new Date(roundStartTime).getTime();
-
-      // Re-check if round status changed
-      if (now < startTime) {
-        setRoundStatus(
-          t("roundStartsAt", {
-            date: new Date(roundStartTime).toLocaleString(),
-          })
-        );
-        setTimeLeft("");
-        clearInterval(interval);
-        return;
-      } else if (roundStatus) {
-        // Clear round status if it was set but round has now started
-        setRoundStatus("");
-      }
-
-      const distance = endTime - now;
-
-      if (distance < 0) {
-        setTimeLeft(t("deadlinePassed"));
-        clearInterval(interval);
-        return;
-      }
-
-      // Calculate days, hours, minutes, seconds
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-      );
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      // Format the time display to include days if applicable
-      if (days > 0) {
-        setTimeLeft(
-          `${days}${t("daysShort")} ${hours.toString().padStart(2, "0")}:${minutes
-            .toString()
-            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-        );
-      } else {
-        setTimeLeft(
-          `${hours.toString().padStart(2, "0")}:${minutes
-            .toString()
-            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-        );
+    // Set up interval
+    const timerInterval = setInterval(() => {
+      const shouldContinue = updateTimer();
+      if (!shouldContinue) {
+        clearInterval(timerInterval);
       }
     }, 1000);
 
+    // Cleanup
     return () => {
-      clearInterval(interval);
+      clearInterval(timerInterval);
     };
-  }, [roundStartTime, roundEndTime, roundStatus, t]);
+  }, [roundStartTime, roundEndTime, t]); // Include all dependencies
 
   const handleFileSelect = useCallback(() => {
     // Set resubmitting state to true when starting the resubmit process
