@@ -901,7 +901,29 @@
     "loadingDeletionDetails": "Loading deletion details...",
     "removedByModerator": "Removed by moderator {moderator} on {date}",
     "deletedByUser": "Deleted by {user} on {date}",
-    "deletedBySystem": "Deleted by system (due to reports) on {date}"
+    "deletedBySystem": "Deleted by system (due to reports) on {date}",
+    "threadPage": {
+      "title": "Discussion thread",
+      "newDiscussion": "Start a new discussion",
+      "loadingDiscussions": "Loading discussions...",
+      "noDiscussions": "No discussions available in this thread yet. Be the first to post!"
+    },
+    "categoryForm": {
+      "editCategory": "Edit category",
+      "addCategory": "Add new category",
+      "sectionName": "Section name",
+      "categoryName": "Category name",
+      "description": "Description",
+      "saveError": "Failed to save forum category",
+      "createSuccess": "Category created successfully",
+      "updateSuccess": "Category updated successfully"
+    },
+    "roles": {
+      "team_member": "Team member",
+      "judge": "Judge",
+      "mentor": "Mentor",
+      "admin": "Admin",
+      "organizer": "Organizer"
   },
   "feedback": {
     "star": "star",

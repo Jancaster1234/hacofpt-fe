@@ -901,7 +901,29 @@
     "loadingDeletionDetails": "Đang tải thông tin xóa...",
     "removedByModerator": "Đã bị xóa bởi người kiểm duyệt {moderator} vào {date}",
     "deletedByUser": "Đã bị xóa bởi {user} vào {date}",
-    "deletedBySystem": "Đã bị xóa bởi hệ thống (do bị báo cáo) vào {date}"
+    "deletedBySystem": "Đã bị xóa bởi hệ thống (do bị báo cáo) vào {date}",
+    "threadPage": {
+      "title": "Chủ đề thảo luận",
+      "newDiscussion": "Bắt đầu một cuộc thảo luận mới",
+      "loadingDiscussions": "Đang tải các cuộc thảo luận...",
+      "noDiscussions": "Chưa có thảo luận nào trong chủ đề này. Hãy là người đầu tiên đăng bài!"
+    },
+    "categoryForm": {
+      "editCategory": "Chỉnh sửa danh mục",
+      "addCategory": "Thêm danh mục mới",
+      "sectionName": "Tên phần",
+      "categoryName": "Tên danh mục",
+      "description": "Mô tả",
+      "saveError": "Không thể lưu danh mục diễn đàn",
+      "createSuccess": "Tạo danh mục thành công",
+      "updateSuccess": "Cập nhật danh mục thành công"
+    },
+    "roles": {
+      "team_member": "Thành viên nhóm",
+      "judge": "Giám khảo",
+      "mentor": "Cố vấn",
+      "admin": "Quản trị viên",
+      "organizer": "Người tổ chức"
   },
   "feedback": {
     "star": "sao",

@@ -8,11 +8,16 @@ import { useAuth } from "@/hooks/useAuth_v0";
 import PostForm from "./_components/PostForm";
 import ThreadPostItem from "./_components/ThreadPostItem";
 import { threadPostService } from "@/services/threadPost.service";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "@/hooks/useTranslations";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function ThreadPage() {
   const params = useParams();
   const threadId = params?.id as string;
   const { user } = useAuth();
+  const toast = useToast();
+  const t = useTranslations("forum");
 
   const [threadPosts, setThreadPosts] = useState<ThreadPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,11 +47,14 @@ export default function ThreadPage() {
   }, [threadId]);
 
   // Handle post actions
-  const handlePostSaved = () => {
+  const handlePostSaved = (message?: string) => {
     fetchPosts();
+    if (message) {
+      toast.success(message);
+    }
   };
 
-  const handlePostDeleted = (postId: string) => {
+  const handlePostDeleted = (postId: string, message?: string) => {
     // Instead of removing the post, mark it as deleted in the UI
     setThreadPosts((prev) =>
       prev.map((post) =>
@@ -60,37 +68,47 @@ export default function ThreadPage() {
           : post
       )
     );
+
+    if (message) {
+      toast.success(message);
+    }
   };
 
-  const handlePostUpdated = (updatedPost: ThreadPost) => {
+  const handlePostUpdated = (updatedPost: ThreadPost, message?: string) => {
     setThreadPosts((prev) =>
       prev.map((post) => (post.id === updatedPost.id ? updatedPost : post))
     );
+
+    if (message) {
+      toast.success(message);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 md:p-6 transition-colors duration-300">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-          Discussion Thread
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 md:mb-8 text-center transition-colors">
+          {t("threadPage.title")}
         </h1>
 
         {/* New Post Form */}
         {user && (
-          <div className="bg-white p-6 shadow-md rounded-lg mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Start a New Discussion
+          <div className="bg-white dark:bg-gray-800 p-4 md:p-6 shadow-md rounded-lg mb-6 md:mb-8 transition-colors">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
+              {t("threadPage.newDiscussion")}
             </h2>
             <PostForm forumThreadId={threadId} onPostSaved={handlePostSaved} />
           </div>
         )}
 
         {/* Discussion Posts */}
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {loading ? (
             <div className="text-center py-8">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
-              <p className="mt-2 text-gray-600">Loading discussions...</p>
+              <LoadingSpinner size="md" showText={true} />
+              <p className="mt-2 text-gray-600 dark:text-gray-400 transition-colors">
+                {t("threadPage.loadingDiscussions")}
+              </p>
             </div>
           ) : threadPosts.length > 0 ? (
             threadPosts.map((post) => (
@@ -103,10 +121,9 @@ export default function ThreadPage() {
               />
             ))
           ) : (
-            <div className="bg-white p-8 shadow-md rounded-lg text-center">
-              <p className="text-gray-500">
-                No discussions available in this thread yet. Be the first to
-                post!
+            <div className="bg-white dark:bg-gray-800 p-6 md:p-8 shadow-md rounded-lg text-center transition-colors">
+              <p className="text-gray-500 dark:text-gray-400 transition-colors">
+                {t("threadPage.noDiscussions")}
               </p>
             </div>
           )}
