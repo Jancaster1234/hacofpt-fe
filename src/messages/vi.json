@@ -682,5 +682,29 @@
     "removingUser": "Đang xóa người dùng...",
     "userRemoved": "Đã xóa người dùng thành công",
     "errorRemovingUser": "Không thể xóa người dùng"
+  },
+  "calendar": {
+    "teamSchedule": "Lịch nhóm",
+    "viewMembers": "Xem thành viên",
+    "loadingSchedule": "Đang tải dữ liệu lịch...",
+    "schedules": "Lịch trình",
+    "team": "Nhóm",
+    "schedule": "Lịch trình",
+    "addEvent": "Thêm sự kiện",
+    "location": "Địa điểm",
+    "success": {
+      "eventAdded": "Thêm sự kiện thành công",
+      "eventUpdated": "Cập nhật sự kiện thành công",
+      "eventDeleted": "Xóa sự kiện thành công"
+    },
+    "errors": {
+      "failedToFetchMembers": "Không thể tải thành viên nhóm",
+      "failedToFetchSchedules": "Không thể tải lịch trình",
+      "failedToFetchEvents": "Không thể tải sự kiện",
+      "noActiveSchedule": "Chưa chọn lịch trình",
+      "failedToAddEvent": "Không thể thêm sự kiện. Vui lòng thử lại.",
+      "failedToUpdateEvent": "Không thể cập nhật sự kiện. Vui lòng thử lại.",
+      "failedToDeleteEvent": "Không thể xóa sự kiện. Vui lòng thử lại."
+    }
   }
 }

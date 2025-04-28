@@ -682,5 +682,29 @@
     "removingUser": "Removing user...",
     "userRemoved": "User removed successfully",
     "errorRemovingUser": "Failed to remove user"
+  },
+  "calendar": {
+    "teamSchedule": "Team schedule",
+    "viewMembers": "View members",
+    "loadingSchedule": "Loading schedule data...",
+    "schedules": "Schedules",
+    "team": "Team",
+    "schedule": "Schedule",
+    "addEvent": "Add Event",
+    "location": "Location",
+    "success": {
+      "eventAdded": "Event added successfully",
+      "eventUpdated": "Event updated successfully",
+      "eventDeleted": "Event deleted successfully"
+    },
+    "errors": {
+      "failedToFetchMembers": "Failed to fetch team members",
+      "failedToFetchSchedules": "Failed to fetch schedules",
+      "failedToFetchEvents": "Failed to fetch events",
+      "noActiveSchedule": "No active schedule selected",
+      "failedToAddEvent": "Failed to add event. Please try again.",
+      "failedToUpdateEvent": "Failed to update event. Please try again.",
+      "failedToDeleteEvent": "Failed to delete event. Please try again."
+    }
   }
 }

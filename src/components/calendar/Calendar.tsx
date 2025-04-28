@@ -27,6 +27,9 @@ import { scheduleEventService } from "@/services/scheduleEvent.service";
 import { teamService } from "@/services/team.service";
 import { ScheduleEventLabel } from "@/types/entities/scheduleEvent";
 import Image from "next/image";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -43,6 +46,11 @@ interface CalendarProps {
 }
 
 const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
+  // Add translation hook
+  const t = useTranslations("calendar");
+  // Add toast hook
+  const toast = useToast();
+
   const params = useParams();
   const currentTeamId =
     teamId || (Array.isArray(params.teamId) ? params.teamId[0] : params.teamId);
@@ -83,7 +91,8 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
       try {
         setLoading(true);
         // Use the real service call instead of mock
-        const { data: team } = await teamService.getTeamById(currentTeamId);
+        const { data: team, message } =
+          await teamService.getTeamById(currentTeamId);
 
         if (team && team.teamMembers) {
           // Extract users from team members
@@ -93,8 +102,9 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
 
           setTeamMembers(users);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to fetch team members", error);
+        toast.error(error.message || t("errors.failedToFetchMembers"));
       } finally {
         setLoading(false);
       }
@@ -102,6 +112,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
 
     loadTeamMembers();
   }, [currentTeamId, currentHackathonId]);
+  // Note: toast is deliberately omitted from dependency array to prevent infinite loops
 
   // Load basic schedule data when component mounts
   useEffect(() => {
@@ -111,7 +122,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
       setLoading(true);
       try {
         // Use the real service call instead of mock
-        const { data: fetchedSchedules } =
+        const { data: fetchedSchedules, message } =
           await scheduleService.getSchedulesByTeamIdAndHackathonId(
             currentTeamId,
             currentHackathonId
@@ -130,8 +141,9 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
         if (schedulesArray.length > 0 && !activeScheduleId) {
           setActiveScheduleId(schedulesArray[0].id);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to fetch basic schedule data", error);
+        toast.error(error.message || t("errors.failedToFetchSchedules"));
       } finally {
         setLoading(false);
       }
@@ -139,6 +151,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
 
     loadBasicScheduleData();
   }, [currentTeamId, currentHackathonId, activeScheduleId]);
+  // Note: toast is deliberately omitted from dependency array to prevent infinite loops
 
   // Load schedule events only when calendar view changes or schedules are loaded
   const loadScheduleEvents = async () => {
@@ -151,7 +164,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
       // For each schedule, fetch its events
       for (const schedule of schedules) {
         // Use the real service call instead of mock
-        const { data: scheduleEvents } =
+        const { data: scheduleEvents, message } =
           await scheduleEventService.getScheduleEventsByScheduleId(schedule.id);
 
         // Transform schedule events into calendar events
@@ -173,8 +186,9 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
       }
 
       setEvents(allEvents);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch schedule events", error);
+      toast.error(error.message || t("errors.failedToFetchEvents"));
     } finally {
       setLoading(false);
     }
@@ -186,6 +200,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
       loadScheduleEvents();
     }
   }, [schedules]);
+  // Note: toast is deliberately omitted from dependency array to prevent infinite loops
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     setSelectedEvent(null);
@@ -238,6 +253,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
       setLoading(false);
     }
   };
+
   // Update the handleUpdateEvent function in Calendar.tsx
   const handleUpdateEvent = async (eventData: {
     name: string;
@@ -294,16 +310,21 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
       setLoading(true);
 
       // Call the API to delete the event
-      await scheduleEventService.deleteScheduleEvent(eventId);
+      const { message } =
+        await scheduleEventService.deleteScheduleEvent(eventId);
 
       // Update local state
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== eventId)
       );
 
+      // Show success toast
+      toast.success(message || t("success.eventDeleted"));
+
       closeEditModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to delete event:", error);
+      toast.error(error.message || t("errors.failedToDeleteEvent"));
     } finally {
       setLoading(false);
     }
@@ -342,7 +363,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
 
     return (
       <div
-        className="event-tooltip flex p-1.5 rounded-md max-w-full"
+        className="event-tooltip flex p-1.5 rounded-md max-w-full transition-colors duration-300"
         style={{
           backgroundColor,
           color: ["warning"].includes(eventLabel) ? "#212529" : "#ffffff",
@@ -357,7 +378,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
           )}
           {extendedProps.location && (
             <div className="text-xs italic truncate">
-              Location: {extendedProps.location}
+              {t("location")}: {extendedProps.location}
             </div>
           )}
           <div className="text-xs truncate">
@@ -378,18 +399,18 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
   );
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div className="p-4">
+    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 dark:text-white transition-colors duration-300">
+      <div className="p-3 sm:p-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-          <h2 className="text-2xl font-bold">Team Schedule</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">{t("teamSchedule")}</h2>
 
           {/* Members display */}
           <div className="flex items-center mt-2 md:mt-0">
             <div className="flex -space-x-2 mr-2">
               {teamMembers.slice(0, 3).map((user) => (
-                <div key={user.id} className="relative h-8 w-8">
+                <div key={user.id} className="relative h-7 w-7 sm:h-8 sm:w-8">
                   {user.avatarUrl ? (
-                    <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-white">
+                    <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full overflow-hidden border-2 border-white dark:border-gray-800 transition-colors duration-300">
                       <Image
                         src={user.avatarUrl}
                         alt={`${user.firstName} ${user.lastName}`}
@@ -399,7 +420,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
                     </div>
                   ) : (
                     <div
-                      className="h-8 w-8 rounded-full bg-gray-300 border-2 border-white flex items-center justify-center text-sm font-medium"
+                      className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gray-300 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center text-sm font-medium transition-colors duration-300"
                       title={`${user.firstName} ${user.lastName}`}
                     >
                       {user.firstName?.charAt(0) || "U"}
@@ -409,7 +430,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
               ))}
               {teamMembers.length > 3 && (
                 <div
-                  className="h-8 w-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium cursor-pointer"
+                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gray-200 dark:bg-gray-600 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs font-medium cursor-pointer transition-colors duration-300"
                   onClick={openMembersModal}
                 >
                   +{teamMembers.length - 3}
@@ -418,38 +439,47 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
             </div>
             <button
               onClick={openMembersModal}
-              className="text-sm text-gray-600 hover:text-gray-800"
+              className="text-xs sm:text-sm text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white transition-colors duration-300"
             >
-              View Members
+              {t("viewMembers")}
             </button>
           </div>
         </div>
 
         {loading && (
-          <div className="text-center py-4">Loading schedule data...</div>
+          <div className="text-center py-4">
+            <LoadingSpinner size="md" showText={true} />
+            <p className="mt-2 text-gray-600 dark:text-gray-300">
+              {t("loadingSchedule")}
+            </p>
+          </div>
         )}
 
         {!loading && schedules.length > 0 && (
           <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2">Schedules</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <h3 className="text-base sm:text-lg font-semibold mb-2">
+              {t("schedules")}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {schedules.map((schedule) => (
                 <div
                   key={schedule.id}
-                  className={`bg-gray-100 p-3 rounded-lg cursor-pointer border-2 ${
+                  className={`bg-gray-100 dark:bg-gray-800 p-2 sm:p-3 rounded-lg cursor-pointer border-2 transition-all duration-300 hover:shadow-md ${
                     activeScheduleId === schedule.id
-                      ? "border-brand-500"
+                      ? "border-brand-500 dark:border-brand-400"
                       : "border-transparent"
                   }`}
                   onClick={() => handleScheduleSelect(schedule.id)}
                 >
-                  <h4 className="font-medium">{schedule.name}</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-medium text-sm sm:text-base">
+                    {schedule.name}
+                  </h4>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                     {schedule.description}
                   </p>
                   {schedule.team && (
-                    <p className="text-xs text-gray-500">
-                      Team: {schedule.team.name}
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {t("team")}: {schedule.team.name}
                     </p>
                   )}
                 </div>
@@ -458,7 +488,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
           </div>
         )}
       </div>
-      <div className="custom-calendar">
+      <div className="custom-calendar px-2 sm:px-4 pb-4">
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -479,7 +509,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
           }}
           customButtons={{
             addEventButton: {
-              text: "Add Event +",
+              text: `${t("addEvent")} +`,
               click: openAddModal,
             },
           }}
@@ -487,7 +517,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
           eventMaxStack={3}
           height="auto"
           // Add these options to apply default styling to events
-          eventClassNames="overflow-hidden"
+          eventClassNames="overflow-hidden transition-colors duration-300"
           eventTimeFormat={{
             hour: "2-digit",
             minute: "2-digit",
@@ -515,7 +545,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
         isOpen={isMembersModalOpen}
         onClose={closeMembersModal}
         members={teamMembers}
-        scheduleName={activeSchedule?.name || "Schedule"}
+        scheduleName={activeSchedule?.name || t("schedule")}
       />
     </div>
   );
