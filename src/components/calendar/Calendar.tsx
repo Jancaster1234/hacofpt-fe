@@ -410,7 +410,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
               {teamMembers.slice(0, 3).map((user) => (
                 <div key={user.id} className="relative h-7 w-7 sm:h-8 sm:w-8">
                   {user.avatarUrl ? (
-                    <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full overflow-hidden border-2 border-white dark:border-gray-800 transition-colors duration-300">
+                    <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full overflow-hidden border-2 border-white dark:border-gray-800 transition-colors duration-300 relative">
                       <Image
                         src={user.avatarUrl}
                         alt={`${user.firstName} ${user.lastName}`}
