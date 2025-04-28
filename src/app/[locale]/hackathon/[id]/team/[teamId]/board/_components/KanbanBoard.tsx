@@ -1,7 +1,7 @@
 // src/app/[locale]/hackathon/[id]/team/[teamId]/board/_components/KanbanBoard.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   DndContext,
   closestCorners,
@@ -29,6 +29,9 @@ import { fileUrlService } from "@/services/fileUrl.service";
 import { taskLabelService } from "@/services/taskLabel.service";
 import { taskCommentService } from "@/services/taskComment.service";
 import { taskAssigneeService } from "@/services/taskAssignee.service";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface KanbanBoardProps {
   board: Board | null;
@@ -42,6 +45,8 @@ export default function KanbanBoard({
   isLoading,
 }: KanbanBoardProps) {
   const { user } = useAuth();
+  const toast = useToast();
+  const t = useTranslations("kanban");
   const [isInviteModalOpen, setInviteModalOpen] = useState(false);
   const [isEditingBoard, setIsEditingBoard] = useState(false);
   const [boardName, setBoardName] = useState("");
@@ -49,6 +54,7 @@ export default function KanbanBoard({
   const [activeId, setActiveId] = useState<string | null>(null);
   const { setBoard, setColumns, moveTask, moveList } = useKanbanStore();
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [currentLoadingList, setCurrentLoadingList] = useState<string | null>(
     null
   );
@@ -80,11 +86,8 @@ export default function KanbanBoard({
         });
 
         // Load board users first (for header display)
-        const { data: boardUsers } =
+        const { data: boardUsers, message } =
           await boardUserService.getBoardUsersByBoardId(board.id);
-
-        // Filter out deleted board users before updating the board
-        // const activeBoardUsers = boardUsers.filter((bu) => !bu.isDeleted);
 
         // Update boardUsers in the store with ALL users (including deleted ones)
         useKanbanStore.getState().setBoardUsers(boardUsers);
@@ -337,7 +340,7 @@ export default function KanbanBoard({
   };
 
   // Update the handleDragEnd function to be consistent with handleDragOver
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
 
@@ -366,7 +369,17 @@ export default function KanbanBoard({
       const targetIndex = columns.findIndex((col) => col.id === overId);
 
       if (currentIndex !== targetIndex) {
-        moveList(activeId, targetIndex);
+        try {
+          setIsSaving(true);
+          const result = await moveList(activeId, targetIndex);
+          if (result?.message) {
+            toast.success(result.message);
+          }
+        } catch (error: any) {
+          toast.error(error.message || t("errors.listMoveFailed"));
+        } finally {
+          setIsSaving(false);
+        }
       }
       return;
     }
@@ -389,40 +402,104 @@ export default function KanbanBoard({
         )?.id;
 
       if (sourceColumnId && sourceColumnId !== overId) {
-        moveTask(activeId, sourceColumnId, overId);
+        try {
+          setIsSaving(true);
+          const result = await moveTask(activeId, sourceColumnId, overId);
+          if (result?.message) {
+            toast.success(result.message);
+          }
+        } catch (error: any) {
+          toast.error(error.message || t("errors.taskMoveFailed"));
+        } finally {
+          setIsSaving(false);
+        }
       }
     }
     // The reordering within the same column is handled in handleDragOver
   };
 
+  // Add a new list with proper API handling
+  const handleAddNewList = useCallback(async () => {
+    try {
+      setIsSaving(true);
+      const nextPosition = useKanbanStore.getState().columns.length;
+      const result = await useKanbanStore
+        .getState()
+        .createList(t("newList"), nextPosition);
+
+      if (result?.message) {
+        toast.success(result.message);
+      }
+    } catch (error: any) {
+      toast.error(error.message || t("errors.createListFailed"));
+    } finally {
+      setIsSaving(false);
+    }
+  }, [toast, t]);
+
+  // Save board details with proper API handling
+  const handleSaveBoardDetails = useCallback(async () => {
+    if (!board) return;
+
+    try {
+      setIsSaving(true);
+      const updatedBoard = await useKanbanStore
+        .getState()
+        .updateBoardDetails(
+          boardName,
+          boardDescription,
+          board.teamId,
+          board.hackathonId,
+          board.ownerId
+        );
+
+      if (updatedBoard) {
+        // Update both board states
+        setBoard(updatedBoard);
+        setEnhancedBoard({
+          ...updatedBoard,
+          boardUsers: enhancedBoard?.boardUsers || [],
+          boardLabels: enhancedBoard?.boardLabels || [],
+        });
+        toast.success(t("success.boardUpdated"));
+      }
+      setIsEditingBoard(false);
+    } catch (error: any) {
+      toast.error(error.message || t("errors.updateBoardFailed"));
+      console.error("Error updating board details:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [board, boardName, boardDescription, enhancedBoard, setBoard, toast, t]);
+
   // Show loading skeleton if board data is still loading
   if (!board || isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 transition-colors duration-300 dark:bg-gray-900">
         {/* Skeleton Header */}
         <div className="flex justify-between items-center">
           <div className="flex-1">
-            <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
-            <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-8 w-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2"></div>
+            <div className="h-4 w-96 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-10 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
           </div>
         </div>
 
         {/* Skeleton Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-gray-100 p-4 rounded-xl shadow-lg w-full min-h-[400px]"
+              className="bg-gray-100 dark:bg-gray-800 p-3 md:p-4 rounded-xl shadow-lg w-full min-h-[300px] md:min-h-[400px] transition-all duration-300"
             >
-              <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-4"></div>
+              <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4"></div>
               <div className="space-y-3">
                 {[1, 2, 3].map((j) => (
                   <div
                     key={j}
-                    className="h-20 bg-gray-200 rounded animate-pulse"
+                    className="h-16 md:h-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
                   ></div>
                 ))}
               </div>
@@ -439,7 +516,7 @@ export default function KanbanBoard({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 transition-colors duration-300 dark:bg-gray-900">
       {/* Header - now passing the enhanced board with labels */}
       <BoardHeader
         board={enhancedBoard || board}
@@ -459,7 +536,7 @@ export default function KanbanBoard({
           items={sortedColumns.map((col) => `column-${col.id}`)}
           strategy={horizontalListSortingStrategy}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 overflow-x-auto">
             {sortedColumns.map((column) => (
               <KanbanColumn
                 key={column.id}
@@ -475,14 +552,17 @@ export default function KanbanBoard({
       {/* Add New List Button */}
       <div className="mt-4">
         <button
-          onClick={() => {
-            const nextPosition = sortedColumns.length;
-            useKanbanStore.getState().createList("New List", nextPosition);
-          }}
-          className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center"
+          onClick={handleAddNewList}
+          disabled={isSaving}
+          className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium py-2 px-4 rounded-lg flex items-center transition-colors duration-300 disabled:opacity-50"
+          aria-label={t("addNewList")}
         >
-          <span className="mr-2">+</span>
-          <span>Add New List</span>
+          {isSaving ? (
+            <LoadingSpinner size="sm" className="mr-2" />
+          ) : (
+            <span className="mr-2">+</span>
+          )}
+          <span>{t("addNewList")}</span>
         </button>
       </div>
 
@@ -502,33 +582,7 @@ export default function KanbanBoard({
         <BoardEditModal
           boardName={boardName}
           boardDescription={boardDescription}
-          onSave={async () => {
-            try {
-              const updatedBoard = await useKanbanStore
-                .getState()
-                .updateBoardDetails(
-                  boardName,
-                  boardDescription,
-                  board.teamId,
-                  board.hackathonId,
-                  board.ownerId
-                );
-
-              if (updatedBoard) {
-                // Update both board states
-                setBoard(updatedBoard);
-                setEnhancedBoard({
-                  ...updatedBoard,
-                  boardUsers: enhancedBoard?.boardUsers || [],
-                  boardLabels: enhancedBoard?.boardLabels || [],
-                });
-              }
-              setIsEditingBoard(false);
-            } catch (error) {
-              console.error("Error updating board details:", error);
-              // Optionally add error handling UI feedback here
-            }
-          }}
+          onSave={handleSaveBoardDetails}
           onCancel={() => {
             setBoardName(board.name);
             setBoardDescription(board.description || "");
@@ -536,6 +590,7 @@ export default function KanbanBoard({
           }}
           onChangeName={setBoardName}
           onChangeDescription={setBoardDescription}
+          isLoading={isSaving}
         />
       )}
     </div>
@@ -549,6 +604,7 @@ interface BoardEditModalProps {
   onCancel: () => void;
   onChangeName: (name: string) => void;
   onChangeDescription: (description: string) => void;
+  isLoading?: boolean;
 }
 
 function BoardEditModal({
@@ -558,48 +614,61 @@ function BoardEditModal({
   onCancel,
   onChangeName,
   onChangeDescription,
+  isLoading = false,
 }: BoardEditModalProps) {
+  const t = useTranslations("kanban");
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-lg">
-        <h2 className="text-xl font-bold mb-4">Edit Board</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 w-full max-w-lg mx-4 transition-all duration-300">
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+          {t("editBoard")}
+        </h2>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Board Name
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {t("boardName")}
           </label>
           <input
             type="text"
             value={boardName}
             onChange={(e) => onChangeName(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+            disabled={isLoading}
+            aria-label={t("boardName")}
+            required
           />
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Description
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {t("description")}
           </label>
           <textarea
             value={boardDescription}
             onChange={(e) => onChangeDescription(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
             rows={4}
+            disabled={isLoading}
+            aria-label={t("description")}
           />
         </div>
 
-        <div className="flex justify-end space-x-2">
+        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
           <button
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700"
+            disabled={isLoading}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             onClick={onSave}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+            disabled={isLoading}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-300 flex items-center justify-center"
           >
-            Save Changes
+            {isLoading ? <LoadingSpinner size="sm" className="mr-2" /> : null}
+            {t("saveChanges")}
           </button>
         </div>
       </div>

@@ -456,5 +456,28 @@
     "overallResultsSummary": "Tổng kết kết quả",
     "totalScore": "Tổng điểm",
     "basedOnEvaluations": "Dựa trên đánh giá từ"
+  },
+  "kanban": {
+    "newList": "Danh sách mới",
+    "addNewList": "Thêm danh sách mới",
+    "editBoard": "Chỉnh sửa bảng",
+    "boardName": "Tên bảng",
+    "description": "Mô tả",
+    "cancel": "Hủy",
+    "saveChanges": "Lưu thay đổi",
+    "loadingBoard": "Đang tải bảng...",
+    "success": {
+      "boardUpdated": "Cập nhật bảng thành công",
+      "listCreated": "Tạo danh sách thành công",
+      "taskMoved": "Di chuyển công việc thành công",
+      "listMoved": "Di chuyển danh sách thành công"
+    },
+    "errors": {
+      "updateBoardFailed": "Không thể cập nhật bảng",
+      "createListFailed": "Không thể tạo danh sách",
+      "taskMoveFailed": "Không thể di chuyển công việc",
+      "listMoveFailed": "Không thể di chuyển danh sách",
+      "loadingFailed": "Không thể tải dữ liệu bảng"
+    }
   }
 }

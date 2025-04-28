@@ -456,5 +456,28 @@
     "overallResultsSummary": "Overall results summary",
     "totalScore": "Total score",
     "basedOnEvaluations": "Based on evaluations from"
+  },
+  "kanban": {
+    "newList": "New list",
+    "addNewList": "Add new list",
+    "editBoard": "Edit board",
+    "boardName": "Board name",
+    "description": "Description",
+    "cancel": "Cancel",
+    "saveChanges": "Save changes",
+    "loadingBoard": "Loading board...",
+    "success": {
+      "boardUpdated": "Board updated successfully",
+      "listCreated": "List created successfully",
+      "taskMoved": "Task moved successfully",
+      "listMoved": "List moved successfully"
+    },
+    "errors": {
+      "updateBoardFailed": "Failed to update board",
+      "createListFailed": "Failed to create list",
+      "taskMoveFailed": "Failed to move task",
+      "listMoveFailed": "Failed to move list",
+      "loadingFailed": "Failed to load board data"
+    }
   }
 }
