@@ -71,14 +71,8 @@ export default function ForumPage() {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    try {
-      toast.info(t("deletingCategory"));
-      const response = await forumCategoryService.deleteForumCategory(id);
-      toast.success(response.message || t("categoryDeletedSuccess"));
-      setCategories((prev) => prev.filter((cat) => cat.id !== id));
-    } catch (error: any) {
-      toast.error(error.message || t("failedToDeleteCategory"));
-    }
+    // Just remove the category from the state to update the UI
+    setCategories((prev) => prev.filter((cat) => cat.id !== id));
   };
 
   const handleFormSuccess = () => {
