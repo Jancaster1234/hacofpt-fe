@@ -993,6 +993,15 @@
         "user": "User"
       }
     },
+    "common": {
+      "edit": "Edit",
+      "submit": "Submit",
+      "tryAgain": "Try again",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "create": "Create",
+      "update": "Update"
+    },
     "forum": "Forum",
     "categoryNotFound": "Category not found",
     "failedToLoadCategory": "Failed to load category. Please try again.",

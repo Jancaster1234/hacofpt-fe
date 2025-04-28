@@ -992,6 +992,13 @@
         "user": "Người dùng"
       }
     },
+    "common": {
+      "tryAgain": "Thử lại",
+      "create": "Tạo mới",
+      "update": "Cập nhật",
+      "cancel": "Hủy",
+      "saving": "Đang lưu..."
+    },
     "forum": "Diễn đàn",
     "categoryNotFound": "Không tìm thấy danh mục",
     "failedToLoadCategory": "Không thể tải danh mục. Vui lòng thử lại.",
