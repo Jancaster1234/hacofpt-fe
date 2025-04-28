@@ -651,5 +651,36 @@
     "purple": "Tím",
     "pink": "Hồng",
     "gray": "Xám"
+  },
+  "boardUserManagement": {
+    "manageUsers": "Quản lý người dùng bảng",
+    "boardUsers": "Người dùng bảng",
+    "viewOnlyMode": "Bạn đang ở chế độ chỉ xem. Chỉ chủ sở hữu bảng mới có thể quản lý người dùng.",
+    "currentUsers": "Người dùng hiện tại",
+    "noUsers": "Không tìm thấy người dùng",
+    "owner": "Chủ sở hữu",
+    "roles": {
+      "admin": "Quản trị viên",
+      "member": "Thành viên"
+    },
+    "remove": "Xóa",
+    "addTeamMember": "Thêm thành viên nhóm",
+    "selectTeamMember": "Chọn thành viên nhóm",
+    "selectRole": "Chọn vai trò",
+    "add": "Thêm",
+    "adding": "Đang thêm...",
+    "close": "Đóng",
+    "removeUser": "Xóa người dùng",
+    "// Toast messages": "",
+    "addingUser": "Đang thêm người dùng...",
+    "userAdded": "Đã thêm người dùng thành công",
+    "userReinstated": "Đã khôi phục quyền truy cập cho người dùng",
+    "errorAddingUser": "Không thể thêm người dùng",
+    "updatingRole": "Đang cập nhật vai trò...",
+    "roleUpdated": "Đã cập nhật vai trò thành công",
+    "errorUpdatingRole": "Không thể cập nhật vai trò",
+    "removingUser": "Đang xóa người dùng...",
+    "userRemoved": "Đã xóa người dùng thành công",
+    "errorRemovingUser": "Không thể xóa người dùng"
   }
 }

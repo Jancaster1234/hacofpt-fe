@@ -651,5 +651,36 @@
     "purple": "Purple",
     "pink": "Pink",
     "gray": "Gray"
+  },
+  "boardUserManagement": {
+    "manageUsers": "Manage board users",
+    "boardUsers": "Board users",
+    "viewOnlyMode": "You are in view-only mode. Only the board owner can manage users.",
+    "currentUsers": "Current users",
+    "noUsers": "No users found",
+    "owner": "Owner",
+    "roles": {
+      "admin": "Admin",
+      "member": "Member"
+    },
+    "remove": "Remove",
+    "addTeamMember": "Add team member",
+    "selectTeamMember": "Select team member",
+    "selectRole": "Select role",
+    "add": "Add",
+    "adding": "Adding...",
+    "close": "Close",
+    "removeUser": "Remove user",
+    "// Toast messages": "",
+    "addingUser": "Adding user...",
+    "userAdded": "User added successfully",
+    "userReinstated": "User access reinstated",
+    "errorAddingUser": "Failed to add user",
+    "updatingRole": "Updating role...",
+    "roleUpdated": "Role updated successfully",
+    "errorUpdatingRole": "Failed to update role",
+    "removingUser": "Removing user...",
+    "userRemoved": "User removed successfully",
+    "errorRemovingUser": "Failed to remove user"
   }
 }

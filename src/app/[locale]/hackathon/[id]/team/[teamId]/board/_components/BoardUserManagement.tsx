@@ -9,6 +9,9 @@ import { BoardUser, BoardUserRole } from "@/types/entities/boardUser";
 import { Team } from "@/types/entities/team";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { useKanbanStore } from "@/store/kanbanStore";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface BoardUserManagementProps {
   board: Board;
@@ -26,6 +29,8 @@ export default function BoardUserManagement({
   isOwner,
 }: BoardUserManagementProps) {
   const { user } = useAuth();
+  const t = useTranslations("boardUserManagement");
+  const toast = useToast();
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>("");
   const [selectedRole, setSelectedRole] = useState<BoardUserRole>("MEMBER");
   const [error, setError] = useState<string | null>(null);
@@ -61,24 +66,30 @@ export default function BoardUserManagement({
 
     setError(null);
     try {
+      // Show loading toast
+      toast.info(t("addingUser"));
+
       // Check if this user was previously deleted (soft-deleted)
       const existingBoardUser = boardUsers.find(
         (bu) => bu.user?.id === selectedTeamMember && bu.isDeleted
       );
+
       if (existingBoardUser) {
         // If the user was previously soft-deleted, update their role and isDeleted status
         await updateBoardUserRole(existingBoardUser.id, selectedRole);
-
-        // The store already updates the state, so we don't need to do anything else
+        toast.success(t("userReinstated"));
       } else {
         // Create a new board user if they didn't exist before
         await createBoardUser(selectedTeamMember, selectedRole);
+        toast.success(t("userAdded"));
       }
 
       // Reset the selection
       setSelectedTeamMember("");
     } catch (err) {
-      setError("An error occurred while adding the user");
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage);
+      toast.error(t("errorAddingUser"));
       console.error("Error adding user:", err);
     }
   };
@@ -91,10 +102,14 @@ export default function BoardUserManagement({
 
     setError(null);
     try {
+      toast.info(t("updatingRole"));
       await updateBoardUserRole(boardUser.id, newRole);
+      toast.success(t("roleUpdated"));
       // The store already updates the state
     } catch (err) {
-      setError("An error occurred while updating the user role");
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage);
+      toast.error(t("errorUpdatingRole"));
       console.error("Error updating user role:", err);
     }
   };
@@ -111,10 +126,14 @@ export default function BoardUserManagement({
 
     setError(null);
     try {
+      toast.info(t("removingUser"));
       await deleteBoardUser(boardUser.id);
+      toast.success(t("userRemoved"));
       // The store already updates the state
     } catch (err) {
-      setError("An error occurred while removing the user");
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage);
+      toast.error(t("errorRemovingUser"));
       console.error("Error removing user:", err);
     }
   };
@@ -125,153 +144,207 @@ export default function BoardUserManagement({
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
-          <Dialog.Panel className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-            <Dialog.Title className="text-lg font-semibold">
-              {isOwner ? "Manage Board Users" : "Board Users"}
-            </Dialog.Title>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm" />
+        </Transition.Child>
 
-            {!isOwner && (
-              <p className="mt-2 text-gray-500 italic">
-                You are in view-only mode. Only the board owner can manage
-                users.
-              </p>
-            )}
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-xl w-full max-w-md transition-all transform">
+                <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {isOwner ? t("manageUsers") : t("boardUsers")}
+                </Dialog.Title>
 
-            {(error || useKanbanStore.getState().error) && (
-              <div className="mt-2 p-2 bg-red-100 text-red-700 rounded">
-                {error || useKanbanStore.getState().error}
-              </div>
-            )}
+                {!isOwner && (
+                  <p className="mt-2 text-gray-500 dark:text-gray-400 italic">
+                    {t("viewOnlyMode")}
+                  </p>
+                )}
 
-            <div className="mt-4 space-y-6">
-              {/* Current board users */}
-              <div>
-                <h3 className="font-medium mb-2">Current Users</h3>
-                {isLoading ? (
-                  <div className="text-center py-4">Loading users...</div>
-                ) : activeBoardUsers.length === 0 ? (
-                  <div className="text-gray-500 italic">No users found</div>
-                ) : (
-                  <div className="space-y-2">
-                    {activeBoardUsers.map((boardUser) => (
-                      <div
-                        key={boardUser.id}
-                        className="flex justify-between items-center p-2 border rounded"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                            <Image
-                              src={
-                                boardUser.user?.avatarUrl ||
-                                "https://via.placeholder.com/40"
-                              }
-                              alt={`${boardUser.user?.firstName} ${boardUser.user?.lastName}`}
-                              fill
-                              sizes="32px"
-                              className="object-cover"
-                              priority
-                            />
-                          </div>
-                          <span>
-                            {boardUser.user?.firstName}{" "}
-                            {boardUser.user?.lastName}
-                            {boardUser.user?.id === board.owner?.id &&
-                              " (Owner)"}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {boardUser.user?.id !== board.owner?.id && isOwner ? (
-                            <>
-                              <select
-                                value={boardUser.role}
-                                onChange={(e) =>
-                                  handleUpdateRole(
-                                    boardUser,
-                                    e.target.value as BoardUserRole
-                                  )
-                                }
-                                disabled={isLoading}
-                                className="border rounded px-2 py-1 text-sm"
-                              >
-                                <option value="ADMIN">Admin</option>
-                                <option value="MEMBER">Member</option>
-                              </select>
-                              {boardUser.user?.id !== user?.id && (
-                                <button
-                                  onClick={() => handleRemoveUser(boardUser)}
-                                  disabled={isLoading}
-                                  className="px-2 py-1 text-red-600 hover:underline disabled:text-red-300"
-                                >
-                                  Remove
-                                </button>
-                              )}
-                            </>
-                          ) : (
-                            <span className="text-sm text-gray-500">
-                              {boardUser.role}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                {(error || useKanbanStore.getState().error) && (
+                  <div className="mt-2 p-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">
+                    {error || useKanbanStore.getState().error}
                   </div>
                 )}
-              </div>
 
-              {/* Add new user - Only shown to owner */}
-              {isOwner && availableTeamMembers.length > 0 && (
-                <div>
-                  <h3 className="font-medium mb-2">Add Team Member</h3>
-                  <div className="flex space-x-2">
-                    <select
-                      value={selectedTeamMember}
-                      onChange={(e) => setSelectedTeamMember(e.target.value)}
-                      disabled={isLoading}
-                      className="flex-1 border rounded px-3 py-2"
-                    >
-                      <option value="">Select team member</option>
-                      {availableTeamMembers.map((member) => (
-                        <option key={member.user.id} value={member.user.id}>
-                          {member.user.firstName} {member.user.lastName}
-                        </option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={selectedRole}
-                      onChange={(e) =>
-                        setSelectedRole(e.target.value as BoardUserRole)
-                      }
-                      disabled={isLoading}
-                      className="border rounded px-3 py-2"
-                    >
-                      <option value="ADMIN">Admin</option>
-                      <option value="MEMBER">Member</option>
-                    </select>
-
-                    <button
-                      onClick={handleAddUser}
-                      disabled={!selectedTeamMember || isLoading}
-                      className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
-                    >
-                      {isLoading ? "Adding..." : "Add"}
-                    </button>
+                <div className="mt-4 space-y-6">
+                  {/* Current board users */}
+                  <div>
+                    <h3 className="font-medium mb-2 text-gray-900 dark:text-gray-200">
+                      {t("currentUsers")}
+                    </h3>
+                    {isLoading ? (
+                      <div className="text-center py-4">
+                        <LoadingSpinner size="md" showText={true} />
+                      </div>
+                    ) : activeBoardUsers.length === 0 ? (
+                      <div className="text-gray-500 dark:text-gray-400 italic">
+                        {t("noUsers")}
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {activeBoardUsers.map((boardUser) => (
+                          <div
+                            key={boardUser.id}
+                            className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2 border dark:border-gray-700 rounded bg-white dark:bg-gray-900 transition-colors"
+                          >
+                            <div className="flex items-center space-x-3 mb-2 sm:mb-0">
+                              <div className="relative w-8 h-8 rounded-full overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700">
+                                <Image
+                                  src={
+                                    boardUser.user?.avatarUrl ||
+                                    "https://via.placeholder.com/40"
+                                  }
+                                  alt={`${boardUser.user?.firstName} ${boardUser.user?.lastName}`}
+                                  fill
+                                  sizes="32px"
+                                  className="object-cover"
+                                  priority
+                                />
+                              </div>
+                              <span className="dark:text-white">
+                                {boardUser.user?.firstName}{" "}
+                                {boardUser.user?.lastName}
+                                {boardUser.user?.id === board.owner?.id &&
+                                  ` (${t("owner")})`}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2 w-full sm:w-auto">
+                              {boardUser.user?.id !== board.owner?.id &&
+                              isOwner ? (
+                                <>
+                                  <select
+                                    value={boardUser.role}
+                                    onChange={(e) =>
+                                      handleUpdateRole(
+                                        boardUser,
+                                        e.target.value as BoardUserRole
+                                      )
+                                    }
+                                    disabled={isLoading}
+                                    className="border dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 dark:text-white"
+                                  >
+                                    <option value="ADMIN">
+                                      {t("roles.admin")}
+                                    </option>
+                                    <option value="MEMBER">
+                                      {t("roles.member")}
+                                    </option>
+                                  </select>
+                                  {boardUser.user?.id !== user?.id && (
+                                    <button
+                                      onClick={() =>
+                                        handleRemoveUser(boardUser)
+                                      }
+                                      disabled={isLoading}
+                                      className="px-2 py-1 text-red-600 dark:text-red-400 hover:underline disabled:text-red-300 dark:disabled:text-red-600/50 transition-colors"
+                                      aria-label={t("removeUser")}
+                                    >
+                                      {t("remove")}
+                                    </button>
+                                  )}
+                                </>
+                              ) : (
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                  {boardUser.role === "ADMIN"
+                                    ? t("roles.admin")
+                                    : t("roles.member")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
-            </div>
 
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={onClose}
-                className="px-4 py-2 bg-gray-200 rounded"
-                disabled={isLoading}
-              >
-                Close
-              </button>
-            </div>
-          </Dialog.Panel>
+                  {/* Add new user - Only shown to owner */}
+                  {isOwner && availableTeamMembers.length > 0 && (
+                    <div>
+                      <h3 className="font-medium mb-2 text-gray-900 dark:text-gray-200">
+                        {t("addTeamMember")}
+                      </h3>
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                        <select
+                          value={selectedTeamMember}
+                          onChange={(e) =>
+                            setSelectedTeamMember(e.target.value)
+                          }
+                          disabled={isLoading}
+                          className="flex-1 border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-800 dark:text-white"
+                          aria-label={t("selectTeamMember")}
+                        >
+                          <option value="">{t("selectTeamMember")}</option>
+                          {availableTeamMembers.map((member) => (
+                            <option key={member.user.id} value={member.user.id}>
+                              {member.user.firstName} {member.user.lastName}
+                            </option>
+                          ))}
+                        </select>
+
+                        <select
+                          value={selectedRole}
+                          onChange={(e) =>
+                            setSelectedRole(e.target.value as BoardUserRole)
+                          }
+                          disabled={isLoading}
+                          className="border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-800 dark:text-white"
+                          aria-label={t("selectRole")}
+                        >
+                          <option value="ADMIN">{t("roles.admin")}</option>
+                          <option value="MEMBER">{t("roles.member")}</option>
+                        </select>
+
+                        <button
+                          onClick={handleAddUser}
+                          disabled={!selectedTeamMember || isLoading}
+                          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded disabled:bg-blue-300 dark:disabled:bg-blue-700/50 transition-colors"
+                          aria-label={t("add")}
+                        >
+                          {isLoading ? (
+                            <div className="flex items-center justify-center">
+                              <LoadingSpinner size="sm" className="mr-2" />
+                              <span>{t("adding")}</span>
+                            </div>
+                          ) : (
+                            t("add")
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={onClose}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 dark:text-white rounded transition-colors"
+                    disabled={isLoading}
+                    aria-label={t("close")}
+                  >
+                    {t("close")}
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
         </div>
       </Dialog>
     </Transition>
