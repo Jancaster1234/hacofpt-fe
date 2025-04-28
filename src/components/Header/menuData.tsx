@@ -1,42 +1,43 @@
 // src/components/Header/menuData.tsx
 import { Menu } from "@/types/menu";
 
-const menuData: Menu[] = [
+const menuData = (t: any): Menu[] => [
   {
     id: 1,
-    title: "Home",
+    title: t("home"),
     path: "/",
     newTab: false,
   },
   {
     id: 2,
-    title: "Hackathon",
+    title: t("hackathon"),
     path: "/hackathon",
     newTab: false,
   },
   {
     id: 3,
-    title: "User dashboard",
+    title: t("userDashboard"),
     path: "/user-dashboard",
     newTab: false,
   },
   {
     id: 4,
-    title: "Chat",
+    title: t("chat"),
     path: "/chat",
     newTab: false,
   },
   {
     id: 5,
-    title: "Forum",
+    title: t("forum"),
     path: "/forum",
     newTab: false,
   },
   {
     id: 6,
-    title: "Help",
+    title: t("help"),
     path: "/help",
     newTab: false,
   },
 ];
+
 export default menuData;

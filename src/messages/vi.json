@@ -1057,5 +1057,13 @@
       "logoutSuccess": "Bạn đã đăng xuất thành công",
       "logoutError": "Đăng xuất thất bại. Vui lòng thử lại."
     }
+  },
+  "menu": {
+    "home": "Trang chủ",
+    "hackathon": "Hackathon",
+    "userDashboard": "Bảng điều khiển",
+    "chat": "Trò chuyện",
+    "forum": "Diễn đàn",
+    "help": "Trợ giúp"
   }
 }

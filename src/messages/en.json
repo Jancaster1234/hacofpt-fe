@@ -1058,5 +1058,13 @@
     "userAvatar": "User avatar",
     "logoutSuccess": "You have been successfully logged out",
     "logoutError": "Failed to log out. Please try again."
+  },
+  "menu": {
+    "home": "Home",
+    "hackathon": "Hackathon",
+    "userDashboard": "User dashboard",
+    "chat": "Chat",
+    "forum": "Forum",
+    "help": "Help"
   }
 }
