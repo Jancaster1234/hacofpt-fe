@@ -3,6 +3,10 @@ import React, { useState, useEffect } from "react";
 import { FileUrl } from "@/types/entities/fileUrl";
 import { fileUrlService } from "@/services/fileUrl.service";
 import { scheduleEventService } from "@/services/scheduleEvent.service";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "@/hooks/useTranslations";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import Image from "next/image";
 
 interface EventFilesSectionProps {
   files: FileUrl[];
@@ -21,17 +25,15 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success"
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
+  const t = useTranslations("eventFiles");
 
-  useEffect(() => {
-    // Fetch files when component mounts and scheduleEventId is available
-    if (scheduleEventId) {
-      loadFiles();
-    }
-  }, [scheduleEventId]);
-
+  // This function is defined outside useEffect to avoid dependencies issues
   const loadFiles = async () => {
     if (!scheduleEventId) return;
 
+    setIsLoading(true);
     try {
       const { data: fileUrls, message } =
         await fileUrlService.getFileUrlsByScheduleEventId(scheduleEventId);
@@ -45,13 +47,20 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
       console.error("Failed to load event files:", error);
       // Extract message from error response if available
       const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to load event files";
+        error.response?.data?.message || error.message || t("failedToLoad");
       setApiMessage(errorMessage);
       setMessageType("error");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Fetch files when component mounts and scheduleEventId is available
+    if (scheduleEventId) {
+      loadFiles();
+    }
+  }, [scheduleEventId]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -72,6 +81,12 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
       if (uploadMessage) {
         setApiMessage(uploadMessage);
         setMessageType(uploadedFiles.length > 0 ? "success" : "error");
+
+        if (uploadedFiles.length > 0) {
+          toast.success(uploadMessage);
+        } else {
+          toast.error(uploadMessage);
+        }
       }
 
       // Step 2: Extract fileUrls from the uploaded files
@@ -88,6 +103,12 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
         if (associateMessage) {
           setApiMessage(associateMessage);
           setMessageType(associatedFiles.length > 0 ? "success" : "error");
+
+          if (associatedFiles.length > 0) {
+            toast.success(associateMessage);
+          } else {
+            toast.error(associateMessage);
+          }
         }
 
         // Step 4: Update local state with the associated files - prevent duplicates by ID
@@ -104,11 +125,10 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
       console.error("Error uploading files:", error);
       // Extract message from error response if available
       const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Error uploading files";
+        error.response?.data?.message || error.message || t("errorUploading");
       setApiMessage(errorMessage);
       setMessageType("error");
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
     }
@@ -125,14 +145,16 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
       if (message) {
         setApiMessage(message);
         setMessageType("success");
+        toast.success(message);
       }
     } catch (error: any) {
       console.error("Error removing file:", error);
       // Extract message from error response if available
       const errorMessage =
-        error.response?.data?.message || error.message || "Error removing file";
+        error.response?.data?.message || error.message || t("errorRemoving");
       setApiMessage(errorMessage);
       setMessageType("error");
+      toast.error(errorMessage);
     }
   };
 
@@ -141,10 +163,20 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
     window.open(fileUrl, "_blank", "noopener,noreferrer");
   };
 
+  const getFileSizeText = (sizeInBytes: number): string => {
+    if (sizeInBytes < 1024) {
+      return `${sizeInBytes} ${t("bytes")}`;
+    } else if (sizeInBytes < 1024 * 1024) {
+      return `${(sizeInBytes / 1024).toFixed(1)} ${t("kilobytes")}`;
+    } else {
+      return `${(sizeInBytes / (1024 * 1024)).toFixed(1)} ${t("megabytes")}`;
+    }
+  };
+
   return (
-    <div className="mt-6">
-      <h6 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
-        Attachments
+    <div className="mt-6 transition-colors duration-200">
+      <h6 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+        {t("attachments")}
       </h6>
 
       {apiMessage && (
@@ -153,23 +185,29 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
             messageType === "error"
               ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
               : "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-          }`}
+          } transition-colors duration-200`}
         >
           {apiMessage}
           <button
-            className="float-right text-xs hover:underline"
+            className="float-right text-xs hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded"
             onClick={() => setApiMessage(undefined)}
+            aria-label={t("dismiss")}
           >
-            Dismiss
+            {t("dismiss")}
           </button>
         </div>
       )}
 
       <div className="mb-4">
-        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800">
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+        <label
+          className="flex flex-col items-center justify-center w-full h-24 sm:h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800 transition-colors duration-200"
+          tabIndex={0}
+          role="button"
+          aria-label={t("uploadFile")}
+        >
+          <div className="flex flex-col items-center justify-center pt-3 pb-3 sm:pt-5 sm:pb-6">
             <svg
-              className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+              className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-4 text-gray-500 dark:text-gray-400"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -183,12 +221,12 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
                 d="M10 7v3m0 0v3m0-3h3m-3 0H7m6-4a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h8Z"
               />
             </svg>
-            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-              <span className="font-semibold">Click to upload</span> or drag and
-              drop
+            <p className="mb-1 sm:mb-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              <span className="font-semibold">{t("clickToUpload")}</span>{" "}
+              {t("orDragDrop")}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Any file type (MAX. 10MB)
+              {t("fileRestriction")}
             </p>
           </div>
           <input
@@ -198,36 +236,57 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
             multiple
             onChange={handleFileUpload}
             disabled={uploading}
+            aria-disabled={uploading}
           />
         </label>
       </div>
 
       {uploading && (
         <div className="my-4">
-          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 transition-colors duration-200">
             <div
-              className="bg-brand-500 h-2.5 rounded-full"
+              className="bg-brand-500 h-2.5 rounded-full transition-all duration-300"
               style={{ width: `${uploadProgress}%` }}
+              role="progressbar"
+              aria-valuenow={uploadProgress}
+              aria-valuemin={0}
+              aria-valuemax={100}
             ></div>
           </div>
-          <p className="text-xs text-gray-500 mt-1">Uploading...</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {t("uploading")}
+          </p>
         </div>
       )}
 
-      {files.length > 0 && (
+      {isLoading && (
+        <div className="flex justify-center items-center my-8">
+          <LoadingSpinner size="md" showText={true} />
+        </div>
+      )}
+
+      {!isLoading && files.length > 0 && (
         <div className="space-y-2 mt-4">
           {files.map((file) => (
             <div
               key={file.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-gray-800"
+              className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
             >
               <div
-                className="flex items-center flex-grow cursor-pointer"
+                className="flex items-center flex-grow cursor-pointer overflow-hidden"
                 onClick={() => handleFileClick(file.fileUrl)}
+                role="button"
+                tabIndex={0}
+                aria-label={`${t("openFile")}: ${file.fileName}`}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleFileClick(file.fileUrl);
+                  }
+                }}
               >
-                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg dark:bg-gray-700">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center bg-gray-200 rounded-lg dark:bg-gray-700 transition-colors duration-200">
                   <svg
-                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                    className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-gray-400"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -239,12 +298,12 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
                     ></path>
                   </svg>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                <div className="ml-2 sm:ml-3 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-900 truncate dark:text-white">
                     {file.fileName}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {(file.fileSize / 1024).toFixed(1)} KB
+                    {getFileSizeText(file.fileSize)}
                   </p>
                 </div>
               </div>
@@ -253,10 +312,11 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
                   e.stopPropagation(); // Prevent click from bubbling to parent
                   handleRemoveFile(file.id);
                 }}
-                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-red-400 transition-colors duration-200"
+                aria-label={`${t("removeFile")}: ${file.fileName}`}
               >
                 <svg
-                  className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-gray-400"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -270,6 +330,14 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {!isLoading && files.length === 0 && !uploading && (
+        <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg transition-colors duration-200">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {t("noFilesAttached")}
+          </p>
         </div>
       )}
     </div>

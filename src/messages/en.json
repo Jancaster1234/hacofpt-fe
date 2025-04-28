@@ -819,5 +819,23 @@
     "statusUpdateSuccess": "Status updated successfully",
     "statusUpdateError": "Failed to update status",
     "addMember": "Add member"
+  },
+  "eventFiles": {
+    "attachments": "Attachments",
+    "clickToUpload": "Click to upload",
+    "orDragDrop": "or drag and drop",
+    "fileRestriction": "Any file type (MAX. 10MB)",
+    "uploading": "Uploading...",
+    "dismiss": "Dismiss",
+    "openFile": "Open file",
+    "removeFile": "Remove file",
+    "noFilesAttached": "No files attached to this event",
+    "bytes": "B",
+    "kilobytes": "KB",
+    "megabytes": "MB",
+    "failedToLoad": "Failed to load event files",
+    "errorUploading": "Error uploading files",
+    "errorRemoving": "Error removing file",
+    "uploadFile": "Upload file"
   }
 }

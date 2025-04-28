@@ -819,5 +819,23 @@
     "statusUpdateSuccess": "Cập nhật trạng thái thành công",
     "statusUpdateError": "Không thể cập nhật trạng thái",
     "addMember": "Thêm thành viên"
+  },
+  "eventFiles": {
+    "attachments": "Tệp đính kèm",
+    "clickToUpload": "Nhấp để tải lên",
+    "orDragDrop": "hoặc kéo và thả",
+    "fileRestriction": "Bất kỳ loại tệp nào (TỐI ĐA 10MB)",
+    "uploading": "Đang tải lên...",
+    "dismiss": "Đóng",
+    "openFile": "Mở tệp",
+    "removeFile": "Xóa tệp",
+    "noFilesAttached": "Không có tệp nào được đính kèm vào sự kiện này",
+    "bytes": "B",
+    "kilobytes": "KB",
+    "megabytes": "MB",
+    "failedToLoad": "Không thể tải tệp sự kiện",
+    "errorUploading": "Lỗi khi tải lên tệp",
+    "errorRemoving": "Lỗi khi xóa tệp",
+    "uploadFile": "Tải lên tệp"
   }
 }
