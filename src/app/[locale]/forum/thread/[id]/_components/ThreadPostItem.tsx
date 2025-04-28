@@ -9,6 +9,10 @@ import UserInfo from "./UserInfo";
 import LikeButton from "./LikeButton";
 import ReportButton from "./ReportButton";
 import PostForm from "./PostForm";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import Image from "next/image";
 
 interface ThreadPostItemProps {
   post: ThreadPost;
@@ -31,6 +35,8 @@ export default function ThreadPostItem({
     null
   );
   const [isLoadingDeletedBy, setIsLoadingDeletedBy] = useState(false);
+  const t = useTranslations("forum");
+  const toast = useToast();
 
   const isPostOwner = user?.username === post.createdByUserName;
 
@@ -56,20 +62,19 @@ export default function ThreadPostItem({
   }, [post.isDeleted, post.deletedById]);
 
   const handleDelete = async () => {
-    if (
-      !isPostOwner ||
-      !window.confirm("Are you sure you want to delete this post?")
-    )
-      return;
+    if (!isPostOwner || !window.confirm(t("deleteConfirmation"))) return;
 
     setIsDeleting(true);
     setError(null);
 
     try {
-      await threadPostService.deleteThreadPost(post.id);
+      const response = await threadPostService.deleteThreadPost(post.id);
       onPostDeleted(post.id);
+      toast.success(response.message || t("postDeletedSuccess"));
     } catch (err: any) {
-      setError(err.message || "Failed to delete post. Please try again.");
+      const errorMessage = err.message || t("deletePostFailed");
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsDeleting(false);
     }
@@ -80,7 +85,9 @@ export default function ThreadPostItem({
     const date = new Date(dateString);
     return (
       date.toLocaleDateString() +
-      " at " +
+      " " +
+      t("atTime") +
+      " " +
       date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     );
   };
@@ -92,9 +99,9 @@ export default function ThreadPostItem({
     deletedByUsername !== post.createdByUserName;
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 shadow-md dark:shadow-gray-900/30 rounded-lg overflow-hidden transition-colors duration-200">
       {/* Post Header */}
-      <div className="p-4 bg-gray-50 border-b border-gray-200">
+      <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
         {post.createdByUserName && (
           <UserInfo
             username={post.createdByUserName}
@@ -104,7 +111,7 @@ export default function ThreadPostItem({
       </div>
 
       {/* Post Content */}
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {isEditing ? (
           <PostForm
             forumThreadId={post.forumThreadId || ""}
@@ -118,50 +125,63 @@ export default function ThreadPostItem({
             isEditing={true}
           />
         ) : (
-          <div className="prose max-w-none">
+          <div className="prose dark:prose-invert max-w-none prose-sm sm:prose-base">
             {post.isDeleted ? (
-              <div className="italic text-gray-500 border-l-4 border-gray-300 pl-4 py-2">
+              <div className="italic text-gray-500 dark:text-gray-400 border-l-4 border-gray-300 dark:border-gray-600 pl-4 py-2">
                 {wasDeletedDueToModeration ? (
                   <>
-                    <p className="mb-1 text-red-600 font-medium">
-                      This post has been removed due to a violation of community
-                      standards.
+                    <p className="mb-1 text-red-600 dark:text-red-400 font-medium">
+                      {t("postRemovedViolation")}
                     </p>
-                    <p className="text-sm">
+                    <p className="text-xs sm:text-sm">
                       {isLoadingDeletedBy
-                        ? "Loading moderation details..."
-                        : `Removed by moderator ${deletedByUsername} on ${formatDate(post.updatedAt)}`}
+                        ? t("loadingModerationDetails")
+                        : t("removedByModerator", {
+                            moderator: deletedByUsername,
+                            date: formatDate(post.updatedAt),
+                          })}
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="mb-1">This post has been deleted.</p>
+                    <p className="mb-1">{t("postDeleted")}</p>
                     {isLoadingDeletedBy ? (
-                      <p className="text-sm">Loading deletion details...</p>
+                      <p className="text-xs sm:text-sm">
+                        {t("loadingDeletionDetails")}
+                      </p>
                     ) : (
-                      <p className="text-sm">
+                      <p className="text-xs sm:text-sm">
                         {deletedByUsername
-                          ? `Deleted by ${deletedByUsername} on ${formatDate(post.updatedAt)}`
-                          : `Deleted by system (due to reports) on ${formatDate(post.updatedAt)}`}
+                          ? t("deletedByUser", {
+                              user: deletedByUsername,
+                              date: formatDate(post.updatedAt),
+                            })
+                          : t("deletedBySystem", {
+                              date: formatDate(post.updatedAt),
+                            })}
                       </p>
                     )}
                   </>
                 )}
               </div>
             ) : (
-              <p className="text-gray-800 whitespace-pre-wrap">
+              <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
                 {post.content}
               </p>
             )}
-            {error && <p className="text-red-500 mt-2">{error}</p>}
+            {error && (
+              <p className="text-red-500 dark:text-red-400 mt-2 text-sm">
+                {error}
+              </p>
+            )}
           </div>
         )}
       </div>
 
       {/* Post Actions */}
       {!post.isDeleted && (
-        <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-          <div className="flex items-center space-x-4">
+        <div className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <LikeButton
               threadPostId={post.id}
               initialLikes={post.threadPostLikes}
@@ -173,73 +193,62 @@ export default function ThreadPostItem({
             />
           </div>
           {isPostOwner && !isEditing && (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 ml-auto">
               <button
                 onClick={() => setIsEditing(true)}
-                className="text-gray-600 hover:text-blue-600 flex items-center space-x-1 px-2 py-1 rounded"
-                title="Edit post"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center space-x-1 px-2 py-1 rounded transition-colors duration-200 text-xs sm:text-sm"
+                title={t("editPost")}
+                aria-label={t("editPost")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
+                  width="14"
+                  height="14"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  className="sm:w-4 sm:h-4 w-3 h-3"
                 >
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
-                <span>Edit</span>
+                <span className="hidden sm:inline">{t("edit")}</span>
               </button>
 
               <button
                 onClick={handleDelete}
-                className="text-gray-600 hover:text-red-600 flex items-center space-x-1 px-2 py-1 rounded"
-                title="Delete post"
+                className="text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 flex items-center space-x-1 px-2 py-1 rounded transition-colors duration-200 text-xs sm:text-sm"
+                title={t("deletePost")}
+                aria-label={t("deletePost")}
                 disabled={isDeleting}
               >
                 {isDeleting ? (
-                  <svg
-                    className="animate-spin h-4 w-4 mr-1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
+                  <LoadingSpinner
+                    size="sm"
+                    showText={false}
+                    className="w-3 h-3 sm:w-4 sm:h-4"
+                  />
                 ) : (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    className="sm:w-4 sm:h-4 w-3 h-3"
                   >
                     <path d="M3 6h18"></path>
                     <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
                   </svg>
                 )}
-                <span>Delete</span>
+                <span className="hidden sm:inline">{t("delete")}</span>
               </button>
             </div>
           )}
