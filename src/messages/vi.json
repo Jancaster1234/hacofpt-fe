@@ -873,6 +873,30 @@
     "helpDescription": "Liên hệ với đội ngũ hỗ trợ của chúng tôi nếu bạn cần hỗ trợ.",
     "categoryDeletedSuccess": "Đã xóa danh mục thành công",
     "failedToDeleteCategory": "Không thể xóa danh mục",
-    "deletingCategory": "Đang xóa danh mục..."
+    "deletingCategory": "Đang xóa danh mục...",
+    "noCategoriesFound": "Không tìm thấy danh mục trong phần này",
+    "confirmCategoryDelete": "Bạn có chắc chắn muốn xóa danh mục này không?",
+    "categoryDeleteSuccess": "Danh mục đã được xóa thành công",
+    "categoryDeleteFailed": "Không thể xóa danh mục",
+    "editCategory": "Chỉnh sửa danh mục",
+    "edit": "Sửa",
+    "deleteCategory": "Xóa danh mục",
+    "delete": "Xóa",
+    "deleting": "Đang xóa..."
+  },
+  "feedback": {
+    "star": "sao",
+    "stars": "sao",
+    "feedbackQuestions": "Câu hỏi phản hồi",
+    "addCommentsPlaceholder": "Thêm nhận xét của bạn tại đây",
+    "comments": "Nhận xét",
+    "submitting": "Đang gửi...",
+    "updateFeedback": "Cập nhật phản hồi",
+    "submitFeedback": "Gửi phản hồi",
+    "loginRequired": "Bạn phải đăng nhập để gửi phản hồi",
+    "feedbackUpdatedSuccess": "Phản hồi đã được cập nhật thành công!",
+    "feedbackSubmittedSuccess": "Phản hồi đã được gửi thành công!",
+    "failedToSubmitFeedback": "Không thể gửi phản hồi. Vui lòng thử lại.",
+    "failedToLoadQuestions": "Không thể tải câu hỏi phản hồi. Vui lòng thử lại sau."
   }
 }

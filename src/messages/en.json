@@ -873,6 +873,30 @@
     "helpDescription": "Contact our support team if you need assistance.",
     "categoryDeletedSuccess": "Category deleted successfully",
     "failedToDeleteCategory": "Failed to delete category",
-    "deletingCategory": "Deleting category..."
+    "deletingCategory": "Deleting category...",
+    "noCategoriesFound": "No categories found in this section",
+    "confirmCategoryDelete": "Are you sure you want to delete this category?",
+    "categoryDeleteSuccess": "Category deleted successfully",
+    "categoryDeleteFailed": "Failed to delete the category",
+    "editCategory": "Edit category",
+    "edit": "Edit",
+    "deleteCategory": "Delete category",
+    "delete": "Delete",
+    "deleting": "Deleting..."
+  },
+  "feedback": {
+    "star": "star",
+    "stars": "stars",
+    "feedbackQuestions": "Feedback questions",
+    "addCommentsPlaceholder": "Add your comments here",
+    "comments": "Comments",
+    "submitting": "Submitting...",
+    "updateFeedback": "Update feedback",
+    "submitFeedback": "Submit feedback",
+    "loginRequired": "You must be logged in to submit feedback",
+    "feedbackUpdatedSuccess": "Feedback updated successfully!",
+    "feedbackSubmittedSuccess": "Feedback submitted successfully!",
+    "failedToSubmitFeedback": "Failed to submit feedback. Please try again.",
+    "failedToLoadQuestions": "Failed to load feedback questions. Please try again later."
   }
 }

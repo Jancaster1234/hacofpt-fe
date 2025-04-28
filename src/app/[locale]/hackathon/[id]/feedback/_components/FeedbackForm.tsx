@@ -1,12 +1,14 @@
 // src/app/[locale]/hackathon/[id]/feedback/_components/FeedbackForm.tsx
 import React, { useState, useEffect } from "react";
-import { toast } from "react-hot-toast";
 import { feedbackDetailService } from "@/services/feedbackDetail.service";
 import { Feedback } from "@/types/entities/feedback";
 import { FeedbackDetail } from "@/types/entities/feedbackDetail";
 import { User } from "@/types/entities/user";
 import { Hackathon } from "@/types/entities/hackathon";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 type StarRatingProps = {
   questionId: string;
@@ -19,6 +21,8 @@ const StarRating: React.FC<StarRatingProps> = ({
   rating,
   onChange,
 }) => {
+  const t = useTranslations("feedback");
+
   return (
     <div className="flex items-center space-x-1">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -26,10 +30,12 @@ const StarRating: React.FC<StarRatingProps> = ({
           key={star}
           type="button"
           onClick={() => onChange(questionId, star)}
-          className={`text-2xl focus:outline-none ${
-            star <= rating ? "text-yellow-500" : "text-gray-300"
+          className={`text-xl sm:text-2xl focus:outline-none transition-colors duration-200 ${
+            star <= rating
+              ? "text-yellow-500 dark:text-yellow-400"
+              : "text-gray-300 dark:text-gray-600"
           }`}
-          aria-label={`${star} star${star !== 1 ? "s" : ""}`}
+          aria-label={`${star} ${t(star === 1 ? "star" : "stars")}`}
         >
           ★
         </button>
@@ -51,6 +57,9 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
   user,
   router,
 }) => {
+  const t = useTranslations("feedback");
+  const toast = useToast();
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [ratings, setRatings] = useState<Record<string, number>>({});
@@ -111,16 +120,14 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
         }
       } catch (error) {
         console.error("Error fetching feedback details:", error);
-        toast.error(
-          "Failed to load feedback questions. Please try again later."
-        );
+        toast.error(t("failedToLoadQuestions"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchFeedbackDetails();
-  }, [feedback, user]);
+  }, [feedback, user, hackathon.createdByUserName]); // Intentionally omitting toast from dependencies
 
   const handleRatingChange = (questionId: string, rating: number) => {
     setRatings({
@@ -141,7 +148,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
     setSubmitting(true);
 
     if (!user || !feedback.id) {
-      toast.error("You must be logged in to submit feedback");
+      toast.error(t("loginRequired"));
       setSubmitting(false);
       return;
     }
@@ -162,9 +169,10 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
       );
 
       toast.success(
-        hasSubmitted
-          ? "Feedback updated successfully!"
-          : "Feedback submitted successfully!"
+        message ||
+          (hasSubmitted
+            ? t("feedbackUpdatedSuccess")
+            : t("feedbackSubmittedSuccess"))
       );
 
       // Update submission status
@@ -176,9 +184,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
       }, 1500);
     } catch (error: any) {
       console.error("Error submitting feedback:", error);
-      toast.error(
-        error.message || "Failed to submit feedback. Please try again."
-      );
+      toast.error(error.message || t("failedToSubmitFeedback"));
     } finally {
       setSubmitting(false);
     }
@@ -203,31 +209,30 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
   const categories =
     Object.keys(groupedDetails).length > 0
       ? Object.keys(groupedDetails)
-      : ["Feedback Questions"];
+      : [t("feedbackQuestions")];
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent align-[-0.125em]"></div>
-          <p className="mt-2 text-gray-700">Loading questions...</p>
+          <LoadingSpinner size="md" showText={true} />
         </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
       {categories.map((category) => (
         <div
           key={category}
-          className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6 shadow-sm transition-colors duration-200"
         >
-          <h2 className="text-xl font-semibold text-gray-800">
-            {category === "General" ? "Feedback Questions" : category}
+          <h2 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
+            {category === "General" ? t("feedbackQuestions") : category}
           </h2>
 
-          <div className="mt-6 space-y-6">
+          <div className="mt-4 md:mt-6 space-y-4 md:space-y-6">
             {(groupedDetails[category] || feedbackDetails).map((detail) => {
               // Extract question text (remove category prefix if present)
               const contentParts = detail.content.split(":");
@@ -235,9 +240,9 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
                 contentParts.length > 1 ? contentParts[1] : detail.content;
 
               return (
-                <div key={detail.content} className="space-y-3">
+                <div key={detail.content} className="space-y-2 md:space-y-3">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {questionText}
                     </label>
                     <StarRating
@@ -247,13 +252,14 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
                     />
                   </div>
                   <textarea
-                    className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 md:px-4 py-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                     rows={2}
-                    placeholder="Add your comments here"
+                    placeholder={t("addCommentsPlaceholder")}
                     value={notes[detail.content] || ""}
                     onChange={(e) =>
                       handleNoteChange(detail.content, e.target.value)
                     }
+                    aria-label={t("comments")}
                   />
                 </div>
               );
@@ -262,17 +268,18 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
         </div>
       ))}
 
-      <div className="mt-8 flex justify-center">
+      <div className="mt-6 md:mt-8 flex justify-center">
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-blue-600 px-6 py-3 text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-70"
+          className="rounded-md bg-blue-600 dark:bg-blue-700 px-4 sm:px-6 py-2 sm:py-3 text-white shadow-sm transition-all duration-200 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-70"
+          aria-busy={submitting}
         >
           {submitting
-            ? "Submitting..."
+            ? t("submitting")
             : hasSubmitted
-              ? "Update Feedback"
-              : "Submit Feedback"}
+              ? t("updateFeedback")
+              : t("submitFeedback")}
         </button>
       </div>
     </form>

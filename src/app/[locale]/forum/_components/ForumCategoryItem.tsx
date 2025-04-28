@@ -4,6 +4,8 @@ import { ForumCategory } from "@/types/entities/forumCategory";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { useState } from "react";
 import { forumCategoryService } from "@/services/forumCategory.service";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
 
 interface ForumCategoryItemProps {
   category: ForumCategory;
@@ -17,6 +19,8 @@ export const ForumCategoryItem = ({
   onEdit,
 }: ForumCategoryItemProps) => {
   const { user } = useAuth();
+  const t = useTranslations("forum");
+  const toast = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const isAdmin = user?.userRoles?.some(
@@ -24,14 +28,17 @@ export const ForumCategoryItem = ({
   );
 
   const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this category?")) {
+    if (confirm(t("confirmCategoryDelete"))) {
       setIsDeleting(true);
       try {
-        await forumCategoryService.deleteForumCategory(category.id);
+        const response = await forumCategoryService.deleteForumCategory(
+          category.id
+        );
         onDelete(category.id);
-      } catch (error) {
+        toast.success(response.message || t("categoryDeleteSuccess"));
+      } catch (error: any) {
         console.error("Failed to delete category:", error);
-        alert("Failed to delete the category");
+        toast.error(error.message || t("categoryDeleteFailed"));
       } finally {
         setIsDeleting(false);
       }
@@ -39,39 +46,45 @@ export const ForumCategoryItem = ({
   };
 
   return (
-    <div className="p-6 hover:bg-gray-50 transition duration-150">
-      <div className="flex items-start justify-between">
+    <div className="p-4 sm:p-6 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between">
         <Link href={`/forum/category/${category.id}`} className="group flex-1">
           <div className="flex items-start">
-            <div className="flex-shrink-0 mr-4">
+            <div className="flex-shrink-0 mr-3 sm:mr-4">
               {/* Icon based on category name */}
-              <div className="w-12 h-12 bg-indigo-100 text-indigo-500 rounded-lg flex items-center justify-center">
-                <span className="text-xl">{category.name.charAt(0)}</span>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900 text-indigo-500 dark:text-indigo-400 rounded-lg flex items-center justify-center transition-colors duration-200">
+                <span className="text-lg sm:text-xl">
+                  {category.name.charAt(0)}
+                </span>
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-medium text-indigo-600 group-hover:text-indigo-800 transition duration-150">
+              <h3 className="text-base sm:text-lg font-medium text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-800 dark:group-hover:text-indigo-300 transition-colors duration-200">
                 {category.name}
               </h3>
-              <p className="mt-1 text-gray-600">{category.description}</p>
+              <p className="mt-1 text-sm sm:text-base text-gray-600 dark:text-gray-300 line-clamp-2 sm:line-clamp-none">
+                {category.description}
+              </p>
             </div>
           </div>
         </Link>
 
         {isAdmin && (
-          <div className="flex space-x-2 ml-4">
+          <div className="flex space-x-2 mt-3 sm:mt-0 sm:ml-4">
             <button
               onClick={() => onEdit(category)}
-              className="px-3 py-1 text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-300 rounded hover:bg-indigo-50"
+              className="px-2 sm:px-3 py-1 text-xs sm:text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 border border-indigo-300 dark:border-indigo-700 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors duration-200"
+              aria-label={t("editCategory")}
             >
-              Edit
+              {t("edit")}
             </button>
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="px-3 py-1 text-sm text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50 disabled:opacity-50"
+              className="px-2 sm:px-3 py-1 text-xs sm:text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-700 rounded hover:bg-red-50 dark:hover:bg-red-900 disabled:opacity-50 transition-colors duration-200"
+              aria-label={t("deleteCategory")}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? t("deleting") : t("delete")}
             </button>
           </div>
         )}
