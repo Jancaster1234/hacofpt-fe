@@ -706,5 +706,15 @@
       "failedToUpdateEvent": "Không thể cập nhật sự kiện. Vui lòng thử lại.",
       "failedToDeleteEvent": "Không thể xóa sự kiện. Vui lòng thử lại."
     }
+  },
+  "scheduleMembers": {
+    "teamMembers": "Thành viên nhóm",
+    "close": "Đóng",
+    "noMembers": "Không tìm thấy thành viên nào",
+    "avatar": "ảnh đại diện",
+    "admin": "Quản trị viên",
+    "member": "Thành viên",
+    "viewer": "Người xem",
+    "organizer": "Người tổ chức"
   }
 }
