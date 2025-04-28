@@ -1174,5 +1174,33 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "teamInvitation": {
+    "teamInvitations": "Team invitations",
+    "loadingInvitations": "Loading your invitations...",
+    "noInvitations": "You don't have any team invitations yet.",
+    "note": "Note",
+    "status": "Status",
+    "deadline": "Deadline",
+    "createdBy": "Created by",
+    "teamMembers": "Team members",
+    "accept": "Accept",
+    "reject": "Reject",
+    "acceptInvitation": "Accept invitation",
+    "invitationAccepted": "Invitation accepted",
+    "invitationDeclined": "Invitation declined",
+    "youHaveAccepted": "You have accepted the team invitation.",
+    "youHaveDeclined": "You have declined the team invitation.",
+    "alreadyJoinedAnotherTeam": "You have already joined another team for this hackathon",
+    "alreadyRegisteredIndividually": "You have already registered individually for this hackathon",
+    "error": "Error",
+    "actionFailed": "Action failed",
+    "failedToFetchInvitations": "Failed to fetch team invitations. Please try again later.",
+    "failedToFetchRegistrationStatus": "Failed to fetch registration status. Please try again later.",
+    "failedToRespond": "Failed to respond to invitation. Please try again later.",
+    "acceptingInvitation": "Accepting invitation...",
+    "decliningInvitation": "Declining invitation...",
+    "invitationAcceptedSuccess": "Invitation accepted successfully!",
+    "invitationDeclinedSuccess": "Invitation declined successfully!"
   }
 }

@@ -1171,5 +1171,33 @@
     "light": "Sáng",
     "dark": "Tối",
     "system": "Hệ thống"
+  },
+  "teamInvitation": {
+    "teamInvitations": "Lời mời tham gia nhóm",
+    "loadingInvitations": "Đang tải lời mời của bạn...",
+    "noInvitations": "Bạn chưa có lời mời tham gia nhóm nào.",
+    "note": "Ghi chú",
+    "status": "Trạng thái",
+    "deadline": "Hạn chót",
+    "createdBy": "Tạo bởi",
+    "teamMembers": "Thành viên nhóm",
+    "accept": "Chấp nhận",
+    "reject": "Từ chối",
+    "acceptInvitation": "Chấp nhận lời mời",
+    "invitationAccepted": "Đã chấp nhận lời mời",
+    "invitationDeclined": "Đã từ chối lời mời",
+    "youHaveAccepted": "Bạn đã chấp nhận lời mời tham gia nhóm.",
+    "youHaveDeclined": "Bạn đã từ chối lời mời tham gia nhóm.",
+    "alreadyJoinedAnotherTeam": "Bạn đã tham gia một nhóm khác cho hackathon này",
+    "alreadyRegisteredIndividually": "Bạn đã đăng ký cá nhân cho hackathon này",
+    "error": "Lỗi",
+    "actionFailed": "Thao tác thất bại",
+    "failedToFetchInvitations": "Không thể lấy lời mời nhóm. Vui lòng thử lại sau.",
+    "failedToFetchRegistrationStatus": "Không thể lấy trạng thái đăng ký. Vui lòng thử lại sau.",
+    "failedToRespond": "Không thể phản hồi lời mời. Vui lòng thử lại sau.",
+    "acceptingInvitation": "Đang chấp nhận lời mời...",
+    "decliningInvitation": "Đang từ chối lời mời...",
+    "invitationAcceptedSuccess": "Đã chấp nhận lời mời thành công!",
+    "invitationDeclinedSuccess": "Đã từ chối lời mời thành công!"
   }
 }

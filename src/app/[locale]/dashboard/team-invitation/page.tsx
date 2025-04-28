@@ -11,6 +11,9 @@ import { individualRegistrationRequestService } from "@/services/individualRegis
 import { teamRequestMemberService } from "@/services/teamRequestMember.service";
 import ApiResponseModal from "@/components/common/ApiResponseModal";
 import { useApiModal } from "@/hooks/useApiModal";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function TeamInvitationPage() {
   const { user } = useAuth();
@@ -22,7 +25,10 @@ export default function TeamInvitationPage() {
     [key: string]: boolean;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { modalState, showError, showSuccess, hideModal } = useApiModal();
+  const toast = useToast();
+  const t = useTranslations("teamInvitation");
 
   const fetchTeamRequests = async () => {
     if (!user || !user.id) return;
@@ -35,10 +41,7 @@ export default function TeamInvitationPage() {
       setTeamRequests(data);
     } catch (error) {
       console.error("Failed to fetch team requests:", error);
-      showError(
-        "Error",
-        "Failed to fetch team invitations. Please try again later."
-      );
+      showError(t("error"), t("failedToFetchInvitations"));
     } finally {
       setIsLoading(false);
     }
@@ -56,10 +59,7 @@ export default function TeamInvitationPage() {
       setIndividualRegistrations(data);
     } catch (error) {
       console.error("Failed to fetch individual registrations:", error);
-      showError(
-        "Error",
-        "Failed to fetch registration status. Please try again later."
-      );
+      showError(t("error"), t("failedToFetchRegistrationStatus"));
     } finally {
       setIsLoading(false);
     }
@@ -86,8 +86,15 @@ export default function TeamInvitationPage() {
   ) => {
     if (!user || !user.id) return;
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
+      // Toast loading state for better UX
+      toast.info(
+        status === "APPROVED"
+          ? t("acceptingInvitation")
+          : t("decliningInvitation")
+      );
+
       // Call real API to update status
       const { data, message } =
         await teamRequestMemberService.respondToTeamRequest({
@@ -96,15 +103,25 @@ export default function TeamInvitationPage() {
           status,
           note:
             status === "APPROVED"
-              ? "Invitation accepted"
-              : "Invitation declined",
+              ? t("invitationAccepted")
+              : t("invitationDeclined"),
         });
 
-      // Show success message
-      showSuccess(
-        status === "APPROVED" ? "Invitation Accepted" : "Invitation Declined",
+      // Show success toast with the API response message
+      toast.success(
         message ||
-          `You have ${status === "APPROVED" ? "accepted" : "declined"} the team invitation.`
+          (status === "APPROVED"
+            ? t("invitationAcceptedSuccess")
+            : t("invitationDeclinedSuccess"))
+      );
+
+      // Show success message in modal
+      showSuccess(
+        status === "APPROVED"
+          ? t("invitationAccepted")
+          : t("invitationDeclined"),
+        message ||
+          `${status === "APPROVED" ? t("youHaveAccepted") : t("youHaveDeclined")}`
       );
 
       // Refresh data to show updated status
@@ -112,13 +129,13 @@ export default function TeamInvitationPage() {
       fetchIndividualRegistrations();
     } catch (error: any) {
       console.error("Failed to update status:", error);
-      showError(
-        "Action Failed",
-        error.message ||
-          "Failed to respond to invitation. Please try again later."
-      );
+
+      // Show error toast with API error message
+      toast.error(error.message || t("failedToRespond"));
+
+      showError(t("actionFailed"), error.message || t("failedToRespond"));
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -145,9 +162,9 @@ export default function TeamInvitationPage() {
       canAcceptTeamRequests:
         !hasApprovedTeamRequest && !hasIndividualRegistration,
       reason: hasApprovedTeamRequest
-        ? "You have already joined another team for this hackathon"
+        ? t("alreadyJoinedAnotherTeam")
         : hasIndividualRegistration
-          ? "You have already registered individually for this hackathon"
+          ? t("alreadyRegisteredIndividually")
           : "",
     };
   };
@@ -169,18 +186,23 @@ export default function TeamInvitationPage() {
   // Loading state UI
   if (isLoading && teamRequests.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 p-4 transition-colors duration-300">
         <div className="text-center">
-          <p className="text-lg text-gray-600">Loading your invitations...</p>
+          <LoadingSpinner size="lg" showText={true} />
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
+            {t("loadingInvitations")}
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gray-100 p-4">
-      <div className="mt-6 w-full max-w-3xl">
-        <h1 className="text-2xl font-bold mb-4">Team Invitations</h1>
+    <div className="flex min-h-screen flex-col items-center bg-gray-100 dark:bg-gray-900 p-4 transition-colors duration-300">
+      <div className="mt-6 w-full max-w-3xl px-4 sm:px-0">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+          {t("teamInvitations")}
+        </h1>
 
         {Object.entries(groupedRequests).length > 0 ? (
           Object.entries(groupedRequests).map(
@@ -191,18 +213,22 @@ export default function TeamInvitationPage() {
               return (
                 <div
                   key={hackathonId}
-                  className="mb-4 bg-white rounded-lg shadow p-4"
+                  className="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-4 transition-colors duration-300"
                 >
                   <div
                     className="flex justify-between items-center cursor-pointer"
                     onClick={() => toggleExpand(hackathonId)}
                   >
-                    <h2 className="text-xl font-semibold">{title}</h2>
-                    {expandedHackathons[hackathonId] ? (
-                      <ChevronUp />
-                    ) : (
-                      <ChevronDown />
-                    )}
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">
+                      {title}
+                    </h2>
+                    <div className="text-gray-600 dark:text-gray-300">
+                      {expandedHackathons[hackathonId] ? (
+                        <ChevronUp className="h-5 w-5" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5" />
+                      )}
+                    </div>
                   </div>
 
                   {expandedHackathons[hackathonId] && (
@@ -210,27 +236,27 @@ export default function TeamInvitationPage() {
                       {requests.map((request) => (
                         <div
                           key={request.id}
-                          className="border rounded-lg p-3 bg-gray-50"
+                          className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-700 transition-colors duration-300"
                         >
-                          <p className="text-gray-800">
-                            <strong>Note:</strong> {request.note}
+                          <p className="text-gray-800 dark:text-gray-200">
+                            <strong>{t("note")}:</strong> {request.note}
                           </p>
-                          <p className="text-gray-600">
-                            <strong>Status:</strong> {request.status}
+                          <p className="text-gray-600 dark:text-gray-300">
+                            <strong>{t("status")}:</strong> {request.status}
                           </p>
-                          <p className="text-gray-600">
-                            <strong>Deadline:</strong>{" "}
+                          <p className="text-gray-600 dark:text-gray-300">
+                            <strong>{t("deadline")}:</strong>{" "}
                             {new Date(
                               request.confirmationDeadline
                             ).toLocaleString()}
                           </p>
-                          <p className="text-gray-600">
-                            <strong>Created By:</strong>{" "}
+                          <p className="text-gray-600 dark:text-gray-300">
+                            <strong>{t("createdBy")}:</strong>{" "}
                             {request.createdByUserName}
                           </p>
                           <div className="mt-2">
-                            <strong>Team Members:</strong>
-                            <ul className="list-disc ml-4 text-gray-700">
+                            <strong>{t("teamMembers")}:</strong>
+                            <ul className="list-disc ml-4 text-gray-700 dark:text-gray-300">
                               {request.teamRequestMembers.map((member) => {
                                 const isCurrentUser =
                                   member.user?.id === user?.id;
@@ -240,19 +266,19 @@ export default function TeamInvitationPage() {
 
                                 return (
                                   <li key={member.id} className="py-1">
-                                    <div className="flex justify-between items-center">
-                                      <div>
+                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                                      <div className="mb-2 sm:mb-0">
                                         {member.user?.firstName}{" "}
                                         {member.user?.lastName} -{" "}
                                         <span
                                           className={
                                             member.status === "APPROVED" ||
                                             member.status === "approved"
-                                              ? "text-green-600"
+                                              ? "text-green-600 dark:text-green-400"
                                               : member.status === "REJECTED" ||
                                                   member.status === "rejected"
-                                                ? "text-red-600"
-                                                : "text-yellow-600"
+                                                ? "text-red-600 dark:text-red-400"
+                                                : "text-yellow-600 dark:text-yellow-400"
                                           }
                                         >
                                           {member.status}
@@ -271,22 +297,22 @@ export default function TeamInvitationPage() {
                                             }
                                             disabled={
                                               !canAcceptTeamRequests ||
-                                              isLoading
+                                              isSubmitting
                                             }
-                                            className={`flex items-center space-x-1 px-3 py-1 rounded-md text-white ${
+                                            className={`flex items-center space-x-1 px-3 py-1 rounded-md text-white transition-colors duration-200 ${
                                               canAcceptTeamRequests &&
-                                              !isLoading
-                                                ? "bg-green-500 hover:bg-green-600"
-                                                : "bg-gray-400 cursor-not-allowed"
+                                              !isSubmitting
+                                                ? "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+                                                : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
                                             }`}
                                             title={
                                               !canAcceptTeamRequests
                                                 ? reason
-                                                : "Accept invitation"
+                                                : t("acceptInvitation")
                                             }
                                           >
                                             <Check size={16} />
-                                            <span>Accept</span>
+                                            <span>{t("accept")}</span>
                                           </button>
                                           <button
                                             onClick={() =>
@@ -296,11 +322,11 @@ export default function TeamInvitationPage() {
                                                 "REJECTED"
                                               )
                                             }
-                                            disabled={isLoading}
-                                            className="flex items-center space-x-1 px-3 py-1 bg-red-500 hover:bg-red-600 rounded-md text-white"
+                                            disabled={isSubmitting}
+                                            className="flex items-center space-x-1 px-3 py-1 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 rounded-md text-white transition-colors duration-200"
                                           >
                                             <X size={16} />
-                                            <span>Reject</span>
+                                            <span>{t("reject")}</span>
                                           </button>
                                         </div>
                                       )}
@@ -308,7 +334,7 @@ export default function TeamInvitationPage() {
                                     {isCurrentUser &&
                                       isPending &&
                                       !canAcceptTeamRequests && (
-                                        <div className="mt-1 text-sm text-red-500">
+                                        <div className="mt-1 text-sm text-red-500 dark:text-red-400">
                                           {reason}
                                         </div>
                                       )}
@@ -326,8 +352,8 @@ export default function TeamInvitationPage() {
             }
           )
         ) : (
-          <div className="bg-white rounded-lg shadow p-4 text-center text-gray-600">
-            You don't have any team invitations yet.
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 text-center text-gray-600 dark:text-gray-300 transition-colors duration-300">
+            {t("noInvitations")}
           </div>
         )}
       </div>
