@@ -16,6 +16,9 @@ import EventRemindersSection from "./event/EventRemindersSection";
 import { scheduleEventService } from "@/services/scheduleEvent.service";
 import { fileUrlService } from "@/services/fileUrl.service";
 import { scheduleEventReminderService } from "@/services/scheduleEventReminder.service";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface EditEventModalProps {
   isOpen: boolean;
@@ -45,6 +48,8 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
   teamMembers,
 }) => {
   const { user } = useAuth();
+  const t = useTranslations("calendar");
+  const toast = useToast();
 
   // Event basic information
   const [eventName, setEventName] = useState("");
@@ -134,7 +139,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
 
   const handleSubmit = async () => {
     if (!selectedEvent?.id || !scheduleId) {
-      console.error("Missing event ID or schedule ID");
+      toast.error(t("errors.missingIds"));
       return;
     }
 
@@ -142,7 +147,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
 
     try {
       // Step 1: Update the basic event information
-      const { data: updatedEvent } =
+      const { data: updatedEvent, message } =
         await scheduleEventService.updateScheduleEventInformation(
           selectedEvent.id,
           {
@@ -175,9 +180,10 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
         reminders: reminders,
       });
 
+      toast.success(message || t("toasts.eventUpdated"));
       onClose();
-    } catch (error) {
-      console.error("Failed to update event:", error);
+    } catch (error: any) {
+      toast.error(error.message || t("errors.updateFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -185,39 +191,41 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
 
   // Tab navigation
   const tabs = [
-    { id: "information", label: "Information" },
-    { id: "attendees", label: "Attendees" },
-    { id: "files", label: "Files" },
-    { id: "reminders", label: "Reminders" },
+    { id: "information", label: t("tabs.information") },
+    { id: "attendees", label: t("tabs.attendees") },
+    { id: "files", label: t("tabs.files") },
+    { id: "reminders", label: t("tabs.reminders") },
   ];
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-[700px] p-6 lg:p-10"
+      className="max-w-[700px] p-4 sm:p-6 lg:p-10 w-full mx-4 sm:mx-auto transition-all duration-300 ease-in-out"
     >
-      <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
+      <div className="flex flex-col px-1 sm:px-2 overflow-y-auto custom-scrollbar">
         <div>
-          <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-            Edit Event
+          <h5 className="mb-2 font-semibold text-gray-800 modal-title text-lg sm:text-xl lg:text-2xl dark:text-white/90 transition-colors duration-300">
+            {t("editEvent.title")}
           </h5>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Modify the details of your existing event
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+            {t("editEvent.subtitle")}
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 mt-6 border-b border-gray-200 dark:border-gray-700">
+        {/* Tab Navigation - Scrollable on mobile */}
+        <div className="flex overflow-x-auto space-x-1 mt-6 border-b border-gray-200 dark:border-gray-700 transition-colors duration-300 pb-1 scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`px-4 py-2 text-sm font-medium rounded-t-lg ${
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t-lg whitespace-nowrap transition-all duration-300 ${
                 activeTab === tab.id
                   ? "text-brand-500 border-b-2 border-brand-500"
                   : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
               }`}
               onClick={() => setActiveTab(tab.id)}
+              aria-selected={activeTab === tab.id}
+              role="tab"
             >
               {tab.label}
             </button>
@@ -225,7 +233,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
         </div>
 
         {/* Tab Content */}
-        <div className="mt-6">
+        <div className="mt-6 transition-all duration-300">
           {activeTab === "information" && (
             <EventInformationSection
               eventName={eventName}
@@ -270,31 +278,41 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
         </div>
 
         {/* Footer Buttons */}
-        <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-between">
+        <div className="flex flex-col sm:flex-row items-center gap-3 mt-6 modal-footer sm:justify-between">
           <button
             onClick={() => onDeleteEvent(selectedEvent.id as string)}
             type="button"
-            className="flex justify-center rounded-lg border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+            className="w-full sm:w-auto flex justify-center items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors duration-300"
             disabled={isLoading}
+            aria-label={t("buttons.deleteEvent")}
           >
             Delete Event
           </button>
-          <div className="flex gap-3">
+          <div className="flex gap-3 w-full sm:w-auto mt-3 sm:mt-0">
             <button
               onClick={onClose}
               type="button"
-              className="flex justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+              className="flex-1 sm:flex-none justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors duration-300"
               disabled={isLoading}
+              aria-label={t("buttons.cancel")}
             >
-              Cancel
+              {t("buttons.cancel")}
             </button>
             <button
               onClick={handleSubmit}
               type="button"
-              className="btn btn-success btn-update-event flex justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600"
+              className="flex-1 sm:flex-none btn btn-success btn-update-event flex justify-center items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors duration-300"
               disabled={isLoading}
+              aria-label={t("buttons.updateEvent")}
             >
-              {isLoading ? "Updating..." : "Update Event"}
+              {isLoading ? (
+                <>
+                  <LoadingSpinner size="sm" className="text-white" />
+                  <span>{t("buttons.updating")}</span>
+                </>
+              ) : (
+                t("buttons.updateEvent")
+              )}
             </button>
           </div>
         </div>

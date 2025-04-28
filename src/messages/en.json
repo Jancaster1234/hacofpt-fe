@@ -707,7 +707,12 @@
       "failedToDeleteEvent": "Failed to delete event. Please try again.",
       "nameRequired": "Event name is required",
       "startDateRequired": "Start date is required",
-      "endDateAfterStart": "End date must be after start date"
+      "endDateAfterStart": "End date must be after start date",
+      "missingIds": "Missing event ID or schedule ID",
+      "missingEventId": "Missing event ID",
+      "updateFailed": "Failed to update event",
+      "deleteFailed": "Failed to delete event",
+      "loadingFailed": "Failed to load data"
     },
     "eventName": "Event name",
     "enterEventName": "Enter event name",
@@ -726,6 +731,30 @@
       "success": "Success",
       "primary": "Primary",
       "warning": "Warning"
+    },
+    "editEvent": {
+      "title": "Edit event",
+      "subtitle": "Modify the details of your existing event"
+    },
+    "tabs": {
+      "information": "Information",
+      "attendees": "Attendees",
+      "files": "Files",
+      "reminders": "Reminders"
+    },
+    "buttons": {
+      "deleteEvent": "Delete event",
+      "deleting": "Deleting...",
+      "cancel": "Cancel",
+      "updateEvent": "Update event",
+      "updating": "Updating..."
+    },
+    "toasts": {
+      "eventUpdated": "Event updated successfully",
+      "eventDeleted": "Event deleted successfully",
+      "filesUploaded": "Files uploaded successfully",
+      "reminderAdded": "Reminder added successfully",
+      "reminderDeleted": "Reminder deleted successfully"
     }
   },
   "scheduleMembers": {

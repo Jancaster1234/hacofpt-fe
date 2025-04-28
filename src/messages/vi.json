@@ -707,7 +707,12 @@
       "failedToDeleteEvent": "Không thể xóa sự kiện. Vui lòng thử lại.",
       "nameRequired": "Tên sự kiện là bắt buộc",
       "startDateRequired": "Ngày bắt đầu là bắt buộc",
-      "endDateAfterStart": "Ngày kết thúc phải sau ngày bắt đầu"
+      "endDateAfterStart": "Ngày kết thúc phải sau ngày bắt đầu",
+      "missingIds": "Thiếu ID sự kiện hoặc ID lịch",
+      "missingEventId": "Thiếu ID sự kiện",
+      "updateFailed": "Không thể cập nhật sự kiện",
+      "deleteFailed": "Không thể xóa sự kiện",
+      "loadingFailed": "Không thể tải dữ liệu"
     },
     "eventName": "Tên sự kiện",
     "enterEventName": "Nhập tên sự kiện",
@@ -726,6 +731,30 @@
       "success": "Thành công",
       "primary": "Chính",
       "warning": "Cảnh báo"
+    },
+    "editEvent": {
+      "title": "Chỉnh sửa sự kiện",
+      "subtitle": "Chỉnh sửa chi tiết sự kiện hiện có của bạn"
+    },
+    "tabs": {
+      "information": "Thông tin",
+      "attendees": "Người tham dự",
+      "files": "Tệp đính kèm",
+      "reminders": "Nhắc nhở"
+    },
+    "buttons": {
+      "deleteEvent": "Xóa sự kiện",
+      "deleting": "Đang xóa...",
+      "cancel": "Hủy bỏ",
+      "updateEvent": "Cập nhật sự kiện",
+      "updating": "Đang cập nhật..."
+    },
+    "toasts": {
+      "eventUpdated": "Cập nhật sự kiện thành công",
+      "eventDeleted": "Xóa sự kiện thành công",
+      "filesUploaded": "Tải lên tệp thành công",
+      "reminderAdded": "Thêm nhắc nhở thành công",
+      "reminderDeleted": "Xóa nhắc nhở thành công"
     }
   },
   "scheduleMembers": {
