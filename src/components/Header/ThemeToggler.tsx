@@ -3,11 +3,13 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useTranslations } from "@/hooks/useTranslations";
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false); // State to control dropdown visibility
+  const t = useTranslations("theme");
 
   useEffect(() => {
     setMounted(true);
@@ -19,6 +21,7 @@ export default function ThemeToggle() {
     <div className="relative inline-block">
       <button
         onClick={() => setIsOpen(!isOpen)} // Toggle dropdown on click
+        aria-label={t("themeToggle")}
         className="flex items-center gap-2 px-3 py-2 bg-gray-200 dark:bg-gray-800 rounded-lg"
       >
         {theme === "dark" ? (
@@ -52,7 +55,7 @@ export default function ThemeToggle() {
             />
           </svg>
         )}
-        <span className="text-sm">Theme</span>
+        <span className="text-sm">{t("theme")}</span>
       </button>
 
       {/* Dropdown Menu */}
@@ -65,7 +68,7 @@ export default function ThemeToggle() {
             }}
             className="block w-full px-4 py-2 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            Light
+            {t("light")}
           </button>
           <button
             onClick={() => {
@@ -74,7 +77,7 @@ export default function ThemeToggle() {
             }}
             className="block w-full px-4 py-2 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            Dark
+            {t("dark")}
           </button>
           <button
             onClick={() => {
@@ -83,7 +86,7 @@ export default function ThemeToggle() {
             }}
             className="block w-full px-4 py-2 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            System
+            {t("system")}
           </button>
         </div>
       )}

@@ -9,9 +9,16 @@ import menuData from "./menuData";
 import { AuthButtons } from "./AuthButtons";
 import { AuthenticatedMenu } from "./AuthenticatedMenu";
 import { useAuth } from "@/hooks/useAuth_v0";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 const Header = () => {
+  const t = useTranslations("header");
+
   const { user, loading } = useAuth();
+  const toast = useToast();
+
   console.log("🔹 Header - user:", user, "loading:", loading);
   // Navbar toggle
   const [navbarOpen, setNavbarOpen] = useState(false);
@@ -28,14 +35,6 @@ const Header = () => {
       setSticky(false);
     }
   };
-  // TODO: {Optional} Remove this console.log
-  useEffect(() => {
-    const interval = setInterval(() => {
-      console.log("🔹 Loading state:", loading);
-    }, 3000);
-
-    return () => clearInterval(interval); // Cleanup interval on unmount
-  }, [loading]); // Re-run effect when `loading` changes
 
   useEffect(() => {
     window.addEventListener("scroll", handleStickyNavbar);
@@ -56,15 +55,15 @@ const Header = () => {
   return (
     <>
       <header
-        className={`header left-0 top-0 z-40 flex w-full flex-col items-center ${
+        className={`header left-0 top-0 z-40 flex w-full flex-col items-center transition-all duration-300 ${
           sticky
-            ? "dark:bg-gray-dark dark:shadow-sticky-dark fixed z-40 bg-white !bg-opacity-80 shadow-sticky backdrop-blur-sm transition"
+            ? "dark:bg-gray-dark dark:shadow-sticky-dark fixed z-40 bg-white !bg-opacity-80 shadow-sticky backdrop-blur-sm"
             : "fixed bg-transparent"
         }`}
       >
         {/* Tier 1 - Logo and Auth buttons */}
         <div className="container px-4 mx-auto">
-          <div className="relative -mx-4 flex items-center justify-between">
+          <div className="relative -mx-4 flex flex-wrap sm:flex-nowrap items-center justify-between">
             {/* Logo */}
             <div className="w-auto max-w-full xl:mr-8">
               <Link
@@ -73,7 +72,7 @@ const Header = () => {
                   sticky ? "py-0 lg:py-0" : "py-0"
                 } `}
               >
-                <div className="flex items-center gap-1 py-2 px-4">
+                <div className="flex items-center gap-1 py-2 px-2 sm:px-4">
                   <Image
                     src="/images/logo/logoe.svg"
                     alt="logo"
@@ -91,31 +90,38 @@ const Header = () => {
                 </div>
               </Link>
             </div>
-            {/* Marquee Text (Expands to fill available space) */}
-            <div className="relative overflow-hidden flex-1">
-              <p className="overflow-hidden italic text-transparent bg-gradient-to-b from-[#33FFCC] to-[#0033CC] bg-clip-text animate-marquee whitespace-nowrap">
-                Platform for organizing and managing Hackathon competitions for
-                FPT University students.
+
+            {/* Marquee Text (Responsive - hidden on mobile) */}
+            <div className="hidden md:block relative overflow-hidden flex-1">
+              <p className="overflow-hidden italic text-transparent bg-gradient-to-b from-[#33FFCC] to-[#0033CC] dark:from-[#5FFFDD] dark:to-[#3355FF] bg-clip-text animate-marquee whitespace-nowrap">
+                {t("marqueeText")}
               </p>
             </div>
 
             {/* Auth Buttons or Authenticated Menu */}
-            <div className="flex items-center justify-end px-4 xl:ml-8">
-              {!loading &&
-                (user ? <AuthenticatedMenu user={user} /> : <AuthButtons />)}
+            <div className="flex items-center justify-end px-2 sm:px-4 xl:ml-8">
+              {loading ? (
+                <LoadingSpinner size="sm" className="mr-2" />
+              ) : user ? (
+                <AuthenticatedMenu user={user} />
+              ) : (
+                <AuthButtons />
+              )}
               <ThemeToggler />
             </div>
           </div>
         </div>
+
         {/* Tier 2 - Navigation menu */}
         <div className="container mx-auto flex justify-center items-center border-t border-body-color/10 dark:border-body-color/20">
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center justify-between px-4">
-              <div>
+          <div className="relative flex items-center justify-between w-full">
+            <div className="flex items-center justify-between px-4 w-full">
+              <div className="w-full">
+                {/* Mobile menu button */}
                 <button
                   onClick={navbarToggleHandler}
                   id="navbarToggler"
-                  aria-label="Mobile Menu"
+                  aria-label={t("mobileMenuAriaLabel")}
                   className="absolute right-4 top-1/2 block translate-y-[-50%] rounded-lg px-3 py-[6px] ring-[#4A6CF7] focus:ring-2 lg:hidden"
                 >
                   <span
@@ -134,6 +140,8 @@ const Header = () => {
                     }`}
                   />
                 </button>
+
+                {/* Navigation menu */}
                 <nav
                   id="navbarCollapse"
                   className={`navbar absolute right-0 z-30 w-[250px] rounded border-[.5px] border-body-color/50 bg-white px-6 py-4 duration-300 dark:border-body-color/20 dark:bg-dark lg:visible lg:static lg:w-auto lg:border-none lg:!bg-transparent lg:p-0 lg:opacity-100 ${
@@ -148,21 +156,21 @@ const Header = () => {
                         {menuItem.path ? (
                           <Link
                             href={menuItem.path}
-                            className={`flex py-2 px-4 md:px-6 lg:px-8 xl:px-12 text-base lg:mr-0 lg:inline-flex lg:py-3 ${
+                            className={`flex py-2 px-4 md:px-6 lg:px-8 xl:px-12 text-base lg:mr-0 lg:inline-flex lg:py-3 transition-colors duration-200 ${
                               usePathName === menuItem.path
                                 ? "text-[#4A6CF7] dark:text-white"
                                 : "text-dark hover:text-[#4A6CF7] dark:text-white/70 dark:hover:text-white"
                             }`}
                           >
-                            {menuItem.title}
+                            {t(`menu.${menuItem.title.toLowerCase()}`)}
                           </Link>
                         ) : (
                           <>
                             <p
                               onClick={() => handleSubmenu(index)}
-                              className="flex cursor-pointer items-center justify-between py-2 text-base text-dark group-hover:text-[#4A6CF7] dark:text-white/70 dark:group-hover:text-white lg:mr-0 lg:inline-flex lg:px-0 lg:py-6"
+                              className="flex cursor-pointer items-center justify-between py-2 text-base text-dark group-hover:text-[#4A6CF7] dark:text-white/70 dark:group-hover:text-white lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 transition-colors duration-200"
                             >
-                              {menuItem.title}
+                              {t(`menu.${menuItem.title.toLowerCase()}`)}
                               <span className="pl-3">
                                 <svg width="25" height="24" viewBox="0 0 25 24">
                                   <path
@@ -183,9 +191,11 @@ const Header = () => {
                                 <Link
                                   href={submenuItem.path}
                                   key={index}
-                                  className="block rounded py-2.5 text-sm text-dark hover:text-[#4A6CF7] dark:text-white/70 dark:hover:text-white lg:px-3"
+                                  className="block rounded py-2.5 text-sm text-dark hover:text-[#4A6CF7] dark:text-white/70 dark:hover:text-white lg:px-3 transition-colors duration-200"
                                 >
-                                  {submenuItem.title}
+                                  {t(
+                                    `submenu.${submenuItem.title.toLowerCase()}`
+                                  )}
                                 </Link>
                               ))}
                             </div>

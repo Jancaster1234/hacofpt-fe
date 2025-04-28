@@ -1096,18 +1096,18 @@
       "card2Description": "Kiểm tra những gì đã xảy ra trong nhóm của bạn gần đây.",
       "card3Title": "Sự kiện sắp tới",
       "card3Description": "Luôn cập nhật về các sự kiện và thời hạn sắp đến."
-    },
-    "userDropdown": {
-      "toggleUserMenu": "Hiển thị menu người dùng",
-      "editProfile": "Chỉnh sửa hồ sơ",
-      "accountSettings": "Cài đặt tài khoản",
-      "dashboard": "Bảng điều khiển",
-      "signOut": "Đăng xuất",
-      "signingOut": "Đang đăng xuất...",
-      "userAvatar": "Ảnh đại diện",
-      "logoutSuccess": "Bạn đã đăng xuất thành công",
-      "logoutError": "Đăng xuất thất bại. Vui lòng thử lại."
     }
+  },
+  "userDropdown": {
+    "toggleUserMenu": "Hiển thị menu người dùng",
+    "editProfile": "Chỉnh sửa hồ sơ",
+    "accountSettings": "Cài đặt tài khoản",
+    "dashboard": "Bảng điều khiển",
+    "signOut": "Đăng xuất",
+    "signingOut": "Đang đăng xuất...",
+    "userAvatar": "Ảnh đại diện",
+    "logoutSuccess": "Bạn đã đăng xuất thành công",
+    "logoutError": "Đăng xuất thất bại. Vui lòng thử lại."
   },
   "menu": {
     "home": "Trang chủ",
@@ -1134,5 +1134,35 @@
     "thread": "chủ đề",
     "threads": "chủ đề",
     "loadingThreads": "Đang tải chủ đề..."
+  },
+  "header": {
+    "logoAlt": "Logo Hackathon FPTU",
+    "logoTextAlt": "Logo Chữ Hackathon FPTU",
+    "marqueeText": "Nền tảng tổ chức và quản lý các cuộc thi Hackathon cho sinh viên Đại học FPT.",
+    "mobileMenuAriaLabel": "Menu di động",
+    "logoutSuccess": "Bạn đã đăng xuất thành công",
+    "logoutError": "Lỗi khi đăng xuất",
+    "authError": "Lỗi xác thực",
+    "loginSuccess": "Đăng nhập thành công",
+    "menu": {
+      "home": "Trang chủ",
+      "hackathon": "Hackathon",
+      "user dashboard": "Bảng điều khiển",
+      "chat": "Trò chuyện",
+      "forum": "Diễn đàn",
+      "help": "Trợ giúp"
+    },
+    "submenu": {
+      "faq": "Câu hỏi thường gặp",
+      "contact": "Liên hệ",
+      "documentation": "Tài liệu"
+    }
+  },
+  "theme": {
+    "theme": "Giao diện",
+    "themeToggle": "Chuyển đổi giao diện",
+    "light": "Sáng",
+    "dark": "Tối",
+    "system": "Hệ thống"
   }
 }

@@ -1135,5 +1135,35 @@
     "thread": "thread",
     "threads": "threads",
     "loadingThreads": "Loading threads..."
+  },
+  "header": {
+    "logoAlt": "FPTU Hackathon Logo",
+    "logoTextAlt": "FPTU Hackathon Text Logo",
+    "marqueeText": "Platform for organizing and managing Hackathon competitions for FPT University students.",
+    "mobileMenuAriaLabel": "Mobile Menu",
+    "logoutSuccess": "You have been successfully logged out",
+    "logoutError": "Error logging out",
+    "authError": "Authentication error",
+    "loginSuccess": "Successfully logged in",
+    "menu": {
+      "home": "Home",
+      "hackathon": "Hackathon",
+      "user dashboard": "User dashboard",
+      "chat": "Chat",
+      "forum": "Forum",
+      "help": "Help"
+    },
+    "submenu": {
+      "faq": "FAQ",
+      "contact": "Contact",
+      "documentation": "Documentation"
+    }
+  },
+  "theme": {
+    "theme": "Theme",
+    "themeToggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   }
 }

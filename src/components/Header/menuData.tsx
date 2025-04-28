@@ -1,6 +1,7 @@
 // src/components/Header/menuData.tsx
 import { Menu } from "@/types/menu";
 
+// Note: We keep original IDs and paths, but title text will be translated
 const menuData: Menu[] = [
   {
     id: 1,
@@ -39,4 +40,5 @@ const menuData: Menu[] = [
     newTab: false,
   },
 ];
+
 export default menuData;
