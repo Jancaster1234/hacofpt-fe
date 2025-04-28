@@ -94,7 +94,7 @@ export default function IndividualRegistrationsTab({
 
       if (response.data && response.data.id) {
         // Keep toast for successful user action
-        toast.success(response.message || t("registrationSuccess"));
+        toast.success(t("registrationSuccess"));
         onDataUpdate(); // Refresh data
       } else {
         // Keep toast for error from user action
@@ -128,7 +128,7 @@ export default function IndividualRegistrationsTab({
         );
 
       // Keep toast for successful user action
-      toast.success(response.message || t("registrationDeleted"));
+      toast.success(t("registrationDeleted"));
       onDataUpdate(); // Refresh data
     } catch (error: any) {
       console.error("Error deleting individual registration:", error);

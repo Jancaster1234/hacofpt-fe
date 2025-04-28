@@ -407,7 +407,7 @@ export default function HackathonOverview({
                   setIndividualRegistrations(indivRegs.data);
                   setTeamRequests(teamReqs.data);
                   setTeams(teams.data);
-                  toast.success(teams.message || t("enrollmentDataRefreshed"));
+                  toast.success(t("enrollmentDataRefreshed"));
                 })
                 .catch((error: any) => {
                   console.error("Failed to update enrollment data:", error);

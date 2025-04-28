@@ -265,7 +265,7 @@ export default function TeamRequestsTab({
       setIsDeletingRequest(requestId);
       const response = await teamRequestService.deleteTeamRequest(requestId);
 
-      toast.success(response.message || t("requestDeleted"));
+      toast.success(t("requestDeleted"));
 
       // Refresh the data
       if (onDataUpdate) {
@@ -343,7 +343,7 @@ export default function TeamRequestsTab({
       // Call the service
       const response = await teamRequestService.createTeamRequest(requestBody);
 
-      toast.success(response.message || t("teamRequestCreated"));
+      toast.success(t("teamRequestCreated"));
 
       // Reset form
       setTeamName("");
