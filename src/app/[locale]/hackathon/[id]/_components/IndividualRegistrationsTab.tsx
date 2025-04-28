@@ -80,7 +80,7 @@ export default function IndividualRegistrationsTab({
 
     try {
       setIsLoading(true);
-      toast.info(t("submittingRegistration"));
+      // Removed toast for data fetching
 
       const requestBody = {
         hackathonId,
@@ -93,9 +93,11 @@ export default function IndividualRegistrationsTab({
         );
 
       if (response.data && response.data.id) {
+        // Keep toast for successful user action
         toast.success(response.message || t("registrationSuccess"));
         onDataUpdate(); // Refresh data
       } else {
+        // Keep toast for error from user action
         toast.error(response.message || t("registrationError"));
       }
     } catch (error) {
@@ -118,13 +120,14 @@ export default function IndividualRegistrationsTab({
 
     try {
       setDeletingId(registrationId);
-      toast.info(t("deletingRegistration"));
+      // Removed toast for data fetching
 
       const response =
         await individualRegistrationRequestService.deleteIndividualRegistration(
           registrationId
         );
 
+      // Keep toast for successful user action
       toast.success(response.message || t("registrationDeleted"));
       onDataUpdate(); // Refresh data
     } catch (error: any) {

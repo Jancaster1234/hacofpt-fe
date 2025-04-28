@@ -177,14 +177,13 @@ export default function TeamRequestsTab({
 
         if (isMounted) {
           setTeamMembers(response.data);
-          // Remove success toast from normal data fetching
-          // Only show error toasts
+          // Removed success toast from normal data fetching
         }
       } catch (error) {
-        // Only show error if not aborted and component still mounted
+        // Only log error but don't show toast for background data fetching
         if (error.name !== "AbortError" && isMounted) {
           console.error("Error fetching team members:", error);
-          toast.error(t("errorFetchingMembers"));
+          // Removed toast for background data fetching errors
         }
       } finally {
         if (isMounted) {

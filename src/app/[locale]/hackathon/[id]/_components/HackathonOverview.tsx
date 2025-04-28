@@ -102,8 +102,7 @@ export default function HackathonOverview({
     // Define fetchData inside useEffect but don't include external dependencies
     const fetchData = async () => {
       setIsLoading(true);
-      // Call toast inside the function, not in the effect body
-      toast.info(t("loadingData"));
+      // Removed toast notification for initial data loading
 
       try {
         // Fetch individual registrations
@@ -130,8 +129,7 @@ export default function HackathonOverview({
         setTeamRequests(teamReqsResponse.data);
         setTeams(teamsResponse.data);
 
-        // Show success message with response message if available
-        toast.success(teamsResponse.message || t("dataLoadedSuccess"));
+        // Removed success toast for data loading
 
         if (teamsResponse.data.length === 0) {
           setIsLoading(false);
@@ -184,9 +182,8 @@ export default function HackathonOverview({
         }
       } catch (error: any) {
         console.error("Failed to fetch hackathon data:", error);
-        const errorMessage = error?.message || t("dataLoadError");
-        toast.error(errorMessage);
-        showError(t("dataLoadErrorTitle"), errorMessage);
+        // Only log the error, don't show toast for background errors
+        // Keep the error in the console for debugging purposes
       } finally {
         setIsLoading(false);
       }
@@ -228,6 +225,7 @@ export default function HackathonOverview({
 
     try {
       setIsUpdating(true);
+      // This is a user-initiated action, so we keep the toast
       toast.info(t("updatingData"));
 
       // Fetch updated mentor data
@@ -275,7 +273,7 @@ export default function HackathonOverview({
         setMentorshipSessionRequests(allSessionRequests);
       }
 
-      // Use the message from the API response if available
+      // Keep success toast for user-initiated action
       const successMessage =
         mentorTeamsResults[0]?.message || t("dataUpdateSuccess");
       toast.success(successMessage);
@@ -283,6 +281,7 @@ export default function HackathonOverview({
     } catch (error: any) {
       console.error("Failed to update mentorship data:", error);
       const errorMessage = error?.message || t("dataUpdateError");
+      // Keep error toast for user-initiated action
       toast.error(errorMessage);
       showError(t("updateErrorTitle"), errorMessage);
     } finally {
@@ -388,10 +387,10 @@ export default function HackathonOverview({
           minimumTeamMembers={minimumTeamMembers}
           maximumTeamMembers={maximumTeamMembers}
           onDataUpdate={() => {
-            // Refetch data when enrollment changes
+            // This is a user-initiated action (closing modal), so toast is appropriate
             if (user) {
-              toast.info(t("refreshingEnrollmentData"));
               setIsUpdating(true);
+              toast.info(t("refreshingEnrollmentData"));
 
               Promise.all([
                 individualRegistrationRequestService.getIndividualRegistrationRequestsByUserAndHackathon(
