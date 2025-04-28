@@ -704,7 +704,28 @@
       "noActiveSchedule": "No active schedule selected",
       "failedToAddEvent": "Failed to add event. Please try again.",
       "failedToUpdateEvent": "Failed to update event. Please try again.",
-      "failedToDeleteEvent": "Failed to delete event. Please try again."
+      "failedToDeleteEvent": "Failed to delete event. Please try again.",
+      "nameRequired": "Event name is required",
+      "startDateRequired": "Start date is required",
+      "endDateAfterStart": "End date must be after start date"
+    },
+    "eventName": "Event name",
+    "enterEventName": "Enter event name",
+    "description": "Description",
+    "enterEventDescription": "Enter event description",
+    "descriptionInfo": "Add details about your event",
+    "enterEventLocation": "Enter event location",
+    "eventColor": "Event color",
+    "startDateTime": "Start date & time",
+    "endDateTime": "End date & time",
+    "endDateInfo": "If not specified, end date will be the same as start date",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "colors": {
+      "danger": "Danger",
+      "success": "Success",
+      "primary": "Primary",
+      "warning": "Warning"
     }
   },
   "scheduleMembers": {

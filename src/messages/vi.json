@@ -704,7 +704,28 @@
       "noActiveSchedule": "Chưa chọn lịch trình",
       "failedToAddEvent": "Không thể thêm sự kiện. Vui lòng thử lại.",
       "failedToUpdateEvent": "Không thể cập nhật sự kiện. Vui lòng thử lại.",
-      "failedToDeleteEvent": "Không thể xóa sự kiện. Vui lòng thử lại."
+      "failedToDeleteEvent": "Không thể xóa sự kiện. Vui lòng thử lại.",
+      "nameRequired": "Tên sự kiện là bắt buộc",
+      "startDateRequired": "Ngày bắt đầu là bắt buộc",
+      "endDateAfterStart": "Ngày kết thúc phải sau ngày bắt đầu"
+    },
+    "eventName": "Tên sự kiện",
+    "enterEventName": "Nhập tên sự kiện",
+    "description": "Mô tả",
+    "enterEventDescription": "Nhập mô tả sự kiện",
+    "descriptionInfo": "Thêm chi tiết về sự kiện của bạn",
+    "enterEventLocation": "Nhập địa điểm sự kiện",
+    "eventColor": "Màu sự kiện",
+    "startDateTime": "Ngày & giờ bắt đầu",
+    "endDateTime": "Ngày & giờ kết thúc",
+    "endDateInfo": "Nếu không được chỉ định, ngày kết thúc sẽ giống ngày bắt đầu",
+    "cancel": "Hủy",
+    "submit": "Gửi",
+    "colors": {
+      "danger": "Nguy hiểm",
+      "success": "Thành công",
+      "primary": "Chính",
+      "warning": "Cảnh báo"
     }
   },
   "scheduleMembers": {
