@@ -7,7 +7,15 @@
     },
     "loading": "Loading...",
     "notAvailable": "N/A",
-    "close": "Close"
+    "close": "Close",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit",
+    "tryAgain": "Try again"
   },
   "navigation": {
     "home": "Home",
@@ -837,5 +845,34 @@
     "errorUploading": "Error uploading files",
     "errorRemoving": "Error removing file",
     "uploadFile": "Upload file"
+  },
+  "hackathonFeedback": {
+    "hackathonFeedback": "Hackathon feedback",
+    "noFeedbackAvailable": "No feedback forms are available for this hackathon yet. Please check back later.",
+    "returnToDashboard": "Return to dashboard",
+    "greeting": "Hello, {name}! Please provide your feedback on the hackathon experience.",
+    "participant": "Participant",
+    "mentor": "Mentor",
+    "submitting": "Submitting feedback...",
+    "feedbackSubmitted": "Feedback submitted successfully!",
+    "feedbackError": "Failed to submit feedback. Please try again."
+  },
+  "forum": {
+    "communityForum": "Community forum",
+    "forumDescription": "Join discussions, share ideas, and connect with other community members",
+    "addNewCategory": "Add new category",
+    "loadingCategories": "Loading forum categories...",
+    "failedToLoadCategories": "Failed to load forum categories",
+    "tryAgain": "Try again",
+    "noCategories": "No forum categories found.",
+    "forumGuidelines": "Forum guidelines",
+    "guidelinesDescription": "Make sure to read our community guidelines before posting.",
+    "recentActivity": "Recent activity",
+    "activityDescription": "Check out the latest discussions and updates.",
+    "needHelp": "Need help?",
+    "helpDescription": "Contact our support team if you need assistance.",
+    "categoryDeletedSuccess": "Category deleted successfully",
+    "failedToDeleteCategory": "Failed to delete category",
+    "deletingCategory": "Deleting category..."
   }
 }

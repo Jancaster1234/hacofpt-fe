@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { useRouter, useParams } from "next/navigation";
-import { toast } from "react-hot-toast";
 import { Tab } from "@headlessui/react";
 import { feedbackService } from "@/services/feedback.service";
 import { feedbackDetailService } from "@/services/feedbackDetail.service";
@@ -20,12 +19,16 @@ import { Hackathon } from "@/types/entities/hackathon";
 import { MentorTeam } from "@/types/entities/mentorTeam";
 import FeedbackForm from "./_components/FeedbackForm";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
 
 export default function HackathonFeedback() {
   const { user } = useAuth();
   const router = useRouter();
   const params = useParams();
   const hackathonId = params.id as string;
+  const toast = useToast();
+  const t = useTranslations("hackathonFeedback");
 
   const [loading, setLoading] = useState(true);
   const [hackathon, setHackathon] = useState<Hackathon | null>(null);
@@ -113,9 +116,9 @@ export default function HackathonFeedback() {
         } catch (error) {
           console.log("No general hackathon feedback found");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching data:", error);
-        toast.error("Failed to load feedback data. Please try again later.");
+        // No toast here as this is initial data loading, not user action
       } finally {
         setLoading(false);
       }
@@ -125,34 +128,37 @@ export default function HackathonFeedback() {
   }, [user, hackathonId]);
 
   if (loading) {
-    return <LoadingSpinner showText={true} />;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <LoadingSpinner size="lg" showText={true} />
+      </div>
+    );
   }
 
   // Prepare tabs data
   const tabs = [
-    { name: "Hackathon Feedback", feedback: hackathonFeedback },
+    { name: t("hackathonFeedback"), feedback: hackathonFeedback },
     ...mentors.map((mentor, index) => ({
-      name: `${mentor.firstName} ${mentor.lastName} (Mentor)`,
+      name: `${mentor.firstName} ${mentor.lastName} (${t("mentor")})`,
       feedback: mentorFeedbacks[mentor.id],
     })),
   ].filter((tab) => tab.feedback); // Only show tabs with available feedback
 
   if (tabs.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 py-8">
-        <div className="mx-auto w-full max-w-3xl px-4 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Hackathon Feedback
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 px-4 transition-colors duration-300">
+        <div className="mx-auto w-full max-w-3xl text-center">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+            {t("hackathonFeedback")}
           </h1>
-          <p className="mt-4 text-gray-600">
-            No feedback forms are available for this hackathon yet. Please check
-            back later.
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            {t("noFeedbackAvailable")}
           </p>
           <button
             onClick={() => router.push("/dashboard")}
-            className="mt-6 rounded-md bg-blue-600 px-6 py-3 text-white shadow-sm transition hover:bg-blue-700"
+            className="mt-6 rounded-md bg-blue-600 hover:bg-blue-700 px-6 py-3 text-white shadow-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            Return to Dashboard
+            {t("returnToDashboard")}
           </button>
         </div>
       </div>
@@ -160,29 +166,32 @@ export default function HackathonFeedback() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 py-8">
-      <div className="mx-auto w-full max-w-3xl px-4">
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900 py-8 px-4 transition-colors duration-300">
+      <div className="mx-auto w-full max-w-3xl">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Hackathon Feedback
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+            {t("hackathonFeedback")}
           </h1>
-          <p className="mt-2 text-gray-600">
-            Hello, {user ? `${user.firstName} ${user.lastName}` : "Participant"}
-            ! Please provide your feedback on the hackathon experience.
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            {t("greeting", {
+              name: user
+                ? `${user.firstName} ${user.lastName}`
+                : t("participant"),
+            })}
           </p>
         </div>
 
         <Tab.Group onChange={setActiveTabIndex}>
-          <Tab.List className="flex rounded-xl bg-blue-50 p-1">
+          <Tab.List className="flex flex-wrap rounded-xl bg-blue-50 dark:bg-blue-900/30 p-1 transition-colors duration-300">
             {tabs.map((tab, index) => (
               <Tab
                 key={index}
                 className={({ selected }) =>
-                  `w-full rounded-lg py-2.5 text-sm font-medium leading-5 
+                  `flex-1 min-w-0 whitespace-nowrap truncate rounded-lg py-2.5 text-sm font-medium leading-5 transition-all duration-200
                   ${
                     selected
-                      ? "bg-white text-blue-700 shadow"
-                      : "text-blue-600 hover:bg-white/[0.12] hover:text-blue-700"
+                      ? "bg-white dark:bg-gray-800 text-blue-700 dark:text-blue-300 shadow"
+                      : "text-blue-600 dark:text-blue-400 hover:bg-white/[0.12] dark:hover:bg-gray-800/50 hover:text-blue-700 dark:hover:text-blue-300"
                   }`
                 }
               >
@@ -194,12 +203,14 @@ export default function HackathonFeedback() {
             {tabs.map((tab, index) => (
               <Tab.Panel key={index}>
                 {tab.feedback && (
-                  <FeedbackForm
-                    feedback={tab.feedback}
-                    hackathon={hackathon}
-                    user={user}
-                    router={router}
-                  />
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 transition-colors duration-300">
+                    <FeedbackForm
+                      feedback={tab.feedback}
+                      hackathon={hackathon}
+                      user={user}
+                      router={router}
+                    />
+                  </div>
                 )}
               </Tab.Panel>
             ))}

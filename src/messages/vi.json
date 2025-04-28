@@ -7,7 +7,15 @@
     },
     "loading": "Đang tải...",
     "notAvailable": "Không có",
-    "close": "Đóng"
+    "close": "Đóng",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "submit": "Gửi",
+    "tryAgain": "Thử lại"
   },
   "navigation": {
     "home": "Trang chủ",
@@ -837,5 +845,34 @@
     "errorUploading": "Lỗi khi tải lên tệp",
     "errorRemoving": "Lỗi khi xóa tệp",
     "uploadFile": "Tải lên tệp"
+  },
+  "hackathonFeedback": {
+    "hackathonFeedback": "Phản hồi hackathon",
+    "noFeedbackAvailable": "Chưa có biểu mẫu phản hồi nào cho hackathon này. Vui lòng kiểm tra lại sau.",
+    "returnToDashboard": "Quay lại bảng điều khiển",
+    "greeting": "Xin chào, {name}! Vui lòng cung cấp phản hồi của bạn về trải nghiệm hackathon.",
+    "participant": "Người tham gia",
+    "mentor": "Người hướng dẫn",
+    "submitting": "Đang gửi phản hồi...",
+    "feedbackSubmitted": "Đã gửi phản hồi thành công!",
+    "feedbackError": "Không thể gửi phản hồi. Vui lòng thử lại."
+  },
+  "forum": {
+    "communityForum": "Diễn đàn cộng đồng",
+    "forumDescription": "Tham gia thảo luận, chia sẻ ý tưởng và kết nối với các thành viên cộng đồng khác",
+    "addNewCategory": "Thêm danh mục mới",
+    "loadingCategories": "Đang tải danh mục diễn đàn...",
+    "failedToLoadCategories": "Không thể tải danh mục diễn đàn",
+    "tryAgain": "Thử lại",
+    "noCategories": "Không tìm thấy danh mục diễn đàn nào.",
+    "forumGuidelines": "Hướng dẫn diễn đàn",
+    "guidelinesDescription": "Hãy đọc hướng dẫn cộng đồng của chúng tôi trước khi đăng bài.",
+    "recentActivity": "Hoạt động gần đây",
+    "activityDescription": "Xem các cuộc thảo luận và cập nhật mới nhất.",
+    "needHelp": "Cần trợ giúp?",
+    "helpDescription": "Liên hệ với đội ngũ hỗ trợ của chúng tôi nếu bạn cần hỗ trợ.",
+    "categoryDeletedSuccess": "Đã xóa danh mục thành công",
+    "failedToDeleteCategory": "Không thể xóa danh mục",
+    "deletingCategory": "Đang xóa danh mục..."
   }
 }

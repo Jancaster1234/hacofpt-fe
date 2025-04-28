@@ -7,6 +7,10 @@ import { forumCategoryService } from "@/services/forumCategory.service";
 import { ForumSection } from "./_components/ForumSection";
 import { ForumCategoryForm } from "./_components/ForumCategoryForm";
 import { useAuth } from "@/hooks/useAuth_v0";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import Image from "next/image";
 
 export default function ForumPage() {
   const [categories, setCategories] = useState<ForumCategory[]>([]);
@@ -18,6 +22,9 @@ export default function ForumPage() {
   >(undefined);
 
   const { user } = useAuth();
+  const t = useTranslations("forum");
+  const toast = useToast();
+
   const isAdmin = user?.userRoles?.some(
     (userRole) => userRole.role.name === "ADMIN"
   );
@@ -35,7 +42,7 @@ export default function ForumPage() {
       const response = await forumCategoryService.getAllForumCategories();
       setCategories(response.data);
     } catch (err: any) {
-      setError(err.message || "Failed to load forum categories");
+      setError(err.message || t("failedToLoadCategories"));
     } finally {
       setIsLoading(false);
     }
@@ -63,8 +70,15 @@ export default function ForumPage() {
     setShowForm(true);
   };
 
-  const handleDeleteCategory = (id: string) => {
-    setCategories((prev) => prev.filter((cat) => cat.id !== id));
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      toast.info(t("deletingCategory"));
+      const response = await forumCategoryService.deleteForumCategory(id);
+      toast.success(response.message || t("categoryDeletedSuccess"));
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+    } catch (error: any) {
+      toast.error(error.message || t("failedToDeleteCategory"));
+    }
   };
 
   const handleFormSuccess = () => {
@@ -72,25 +86,24 @@ export default function ForumPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="max-w-6xl mx-auto px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
         {/* Header */}
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Community Forum
+        <div className="mb-8 sm:mb-10 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4 transition-colors duration-300">
+            {t("communityForum")}
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Join discussions, share ideas, and connect with other community
-            members
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto transition-colors duration-300">
+            {t("forumDescription")}
           </p>
 
           {isAdmin && (
-            <div className="mt-6">
+            <div className="mt-4 sm:mt-6">
               <button
                 onClick={handleAddCategory}
-                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
               >
-                Add New Category
+                {t("addNewCategory")}
               </button>
             </div>
           )}
@@ -98,27 +111,29 @@ export default function ForumPage() {
 
         {/* Loading and Error States */}
         {isLoading && (
-          <div className="text-center py-10">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent"></div>
-            <p className="mt-2 text-gray-600">Loading forum categories...</p>
+          <div className="text-center py-6 sm:py-10">
+            <LoadingSpinner size="md" showText={true} />
+            <p className="mt-2 text-gray-600 dark:text-gray-400 transition-colors duration-300">
+              {t("loadingCategories")}
+            </p>
           </div>
         )}
 
         {error && (
-          <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
+          <div className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 p-4 rounded-lg mb-6 transition-colors duration-300">
             <p>{error}</p>
             <button
               onClick={fetchCategories}
-              className="mt-2 text-sm underline hover:text-red-800"
+              className="mt-2 text-sm underline hover:text-red-800 dark:hover:text-red-200 transition-colors duration-200"
             >
-              Try again
+              {t("tryAgain")}
             </button>
           </div>
         )}
 
         {/* Forum Sections */}
         {!isLoading && !error && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {Object.entries(sections).length > 0 ? (
               Object.entries(sections).map(
                 ([sectionName, sectionCategories]) => (
@@ -132,31 +147,39 @@ export default function ForumPage() {
                 )
               )
             ) : (
-              <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-                <p className="text-gray-500">No forum categories found.</p>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8 text-center transition-colors duration-300">
+                <p className="text-gray-500 dark:text-gray-400">
+                  {t("noCategories")}
+                </p>
               </div>
             )}
           </div>
         )}
 
         {/* Quick Links */}
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 className="font-medium text-gray-900 mb-2">Forum Guidelines</h3>
-            <p className="text-gray-600 text-sm">
-              Make sure to read our community guidelines before posting.
+        <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md">
+            <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">
+              {t("forumGuidelines")}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-300">
+              {t("guidelinesDescription")}
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 className="font-medium text-gray-900 mb-2">Recent Activity</h3>
-            <p className="text-gray-600 text-sm">
-              Check out the latest discussions and updates.
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md">
+            <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">
+              {t("recentActivity")}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-300">
+              {t("activityDescription")}
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 className="font-medium text-gray-900 mb-2">Need Help?</h3>
-            <p className="text-gray-600 text-sm">
-              Contact our support team if you need assistance.
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md hidden sm:block lg:col-span-1">
+            <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">
+              {t("needHelp")}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm transition-colors duration-300">
+              {t("helpDescription")}
             </p>
           </div>
         </div>
