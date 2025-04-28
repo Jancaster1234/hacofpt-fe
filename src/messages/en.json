@@ -950,6 +950,26 @@
       "cancel": "Cancel editing",
       "post": "Submit post",
       "update": "Update post"
+    },
+    "threads": {
+      "loading": "Loading threads...",
+      "loadError": "Failed to load threads. Please try again later.",
+      "tryAgain": "Try again",
+      "noThreadsYet": "No threads yet",
+      "beFirstToStart": "Be the first to start a discussion in this category",
+      "pinned": "Pinned",
+      "locked": "Locked",
+      "unknownUser": "Unknown user",
+      "viewThread": "View thread",
+      "deleteSuccess": "Thread deleted successfully",
+      "deleteError": "Failed to delete thread. Please try again.",
+      "updateSuccess": "Thread updated successfully",
+      "updateError": "Failed to update thread. Please try again.",
+      "roles": {
+        "admin": "Administrator",
+        "moderator": "Moderator",
+        "user": "User"
+      }
     }
   },
   "feedback": {
@@ -999,6 +1019,33 @@
       "reportReason": "Reason for report",
       "cancel": "Cancel report",
       "submitReport": "Submit report"
+    }
+  },
+  "dashboard": {
+    "sidebar": {
+      "teamInvitations": "Team invitations",
+      "individualRegistrations": "Individual registrations",
+      "analytics": "Analytics",
+      "billing": "Billing",
+      "calendar": "Calendar",
+      "settings": "Settings",
+      "openSidebar": "Open sidebar",
+      "closeSidebar": "Close sidebar",
+      "expandSidebar": "Expand sidebar",
+      "collapseSidebar": "Collapse sidebar"
+    },
+    "home": {
+      "welcomeTitle": "Dashboard home",
+      "welcomeMessage": "Welcome back, {name}!",
+      "guest": "Guest",
+      "dashboardTip": "Use the sidebar to navigate through different sections of your dashboard.",
+      "userAvatar": "User avatar",
+      "card1Title": "Your progress",
+      "card1Description": "Track your progress and achievements in ongoing projects.",
+      "card2Title": "Recent activity",
+      "card2Description": "Check what's been happening in your team lately.",
+      "card3Title": "Upcoming events",
+      "card3Description": "Stay informed about events and deadlines approaching."
     }
   }
 }

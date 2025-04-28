@@ -949,6 +949,26 @@
       "cancel": "Hủy chỉnh sửa",
       "post": "Đăng bài viết",
       "update": "Cập nhật bài viết"
+    },
+    "threads": {
+      "loading": "Đang tải các chủ đề...",
+      "loadError": "Không thể tải chủ đề. Vui lòng thử lại sau.",
+      "tryAgain": "Thử lại",
+      "noThreadsYet": "Chưa có chủ đề nào",
+      "beFirstToStart": "Hãy là người đầu tiên bắt đầu thảo luận trong danh mục này",
+      "pinned": "Đã ghim",
+      "locked": "Đã khóa",
+      "unknownUser": "Người dùng không xác định",
+      "viewThread": "Xem chủ đề",
+      "deleteSuccess": "Đã xóa chủ đề thành công",
+      "deleteError": "Không thể xóa chủ đề. Vui lòng thử lại.",
+      "updateSuccess": "Đã cập nhật chủ đề thành công",
+      "updateError": "Không thể cập nhật chủ đề. Vui lòng thử lại.",
+      "roles": {
+        "admin": "Quản trị viên",
+        "moderator": "Điều hành viên",
+        "user": "Người dùng"
+      }
     }
   },
   "feedback": {
@@ -998,6 +1018,33 @@
       "reportReason": "Lý do báo cáo",
       "cancel": "Hủy báo cáo",
       "submitReport": "Gửi báo cáo"
+    }
+  },
+  "dashboard": {
+    "sidebar": {
+      "teamInvitations": "Lời mời nhóm",
+      "individualRegistrations": "Đăng ký cá nhân",
+      "analytics": "Phân tích",
+      "billing": "Thanh toán",
+      "calendar": "Lịch",
+      "settings": "Cài đặt",
+      "openSidebar": "Mở sidebar",
+      "closeSidebar": "Đóng sidebar",
+      "expandSidebar": "Mở rộng sidebar",
+      "collapseSidebar": "Thu gọn sidebar"
+    },
+    "home": {
+      "welcomeTitle": "Trang chủ bảng điều khiển",
+      "welcomeMessage": "Chào mừng trở lại, {name}!",
+      "guest": "Khách",
+      "dashboardTip": "Sử dụng thanh bên để điều hướng qua các phần khác nhau của bảng điều khiển.",
+      "userAvatar": "Ảnh đại diện",
+      "card1Title": "Tiến độ của bạn",
+      "card1Description": "Theo dõi tiến độ và thành tựu của bạn trong các dự án đang diễn ra.",
+      "card2Title": "Hoạt động gần đây",
+      "card2Description": "Kiểm tra những gì đã xảy ra trong nhóm của bạn gần đây.",
+      "card3Title": "Sự kiện sắp tới",
+      "card3Description": "Luôn cập nhật về các sự kiện và thời hạn sắp đến."
     }
   }
 }
