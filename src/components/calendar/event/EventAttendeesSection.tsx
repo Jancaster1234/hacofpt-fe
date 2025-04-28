@@ -8,6 +8,9 @@ import {
 import { scheduleEventAttendeeService } from "@/services/scheduleEventAttendee.service";
 import { userService } from "@/services/user.service";
 import { useAuth } from "@/hooks/useAuth_v0";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface EventAttendeesSectionProps {
   attendees: ScheduleEventAttendee[];
@@ -31,9 +34,16 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
   const [attendeesWithUsers, setAttendeesWithUsers] = useState<
     AttendeeWithUser[]
   >([]);
+  const [actionInProgress, setActionInProgress] = useState<string | null>(null);
 
   // Get current user from auth hook
   const { user: currentUser } = useAuth();
+
+  // Toast notifications
+  const toast = useToast();
+
+  // Translations
+  const t = useTranslations("eventAttendees");
 
   // Load attendees when component mounts or schedule event ID changes
   useEffect(() => {
@@ -52,7 +62,7 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
 
     setIsLoading(true);
     try {
-      const { data } =
+      const { data, message } =
         await scheduleEventAttendeeService.getAttendeesByScheduleEventId(
           scheduleEventId
         );
@@ -109,10 +119,10 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
       return;
     }
 
-    setIsLoading(true);
+    setActionInProgress("add");
     try {
       // Make API call to add attendee
-      const { data: newAttendee } =
+      const { data: newAttendee, message } =
         await scheduleEventAttendeeService.addAttendeeToScheduleEvent({
           scheduleEventId,
           userId: user.id,
@@ -121,28 +131,37 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
 
       // Update local state with the new attendee from API
       setAttendees([...attendees, newAttendee]);
-    } catch (error) {
+
+      // Show success toast
+      toast.success(message || t("attendeeAddedSuccess"));
+    } catch (error: any) {
       console.error("Failed to add attendee", error);
+      toast.error(error.message || t("attendeeAddedError"));
     } finally {
-      setIsLoading(false);
+      setActionInProgress(null);
       setShowMemberSelector(false);
     }
   };
 
   const handleRemoveAttendee = async (attendeeId: string) => {
-    setIsLoading(true);
+    setActionInProgress(`remove-${attendeeId}`);
     try {
       // Make API call to remove attendee
-      await scheduleEventAttendeeService.removeAttendeeFromScheduleEvent(
-        attendeeId
-      );
+      const { message } =
+        await scheduleEventAttendeeService.removeAttendeeFromScheduleEvent(
+          attendeeId
+        );
 
       // Update local state
       setAttendees(attendees.filter((a) => a.id !== attendeeId));
-    } catch (error) {
+
+      // Show success toast
+      toast.success(message || t("attendeeRemovedSuccess"));
+    } catch (error: any) {
       console.error("Failed to remove attendee", error);
+      toast.error(error.message || t("attendeeRemovedError"));
     } finally {
-      setIsLoading(false);
+      setActionInProgress(null);
     }
   };
 
@@ -152,7 +171,7 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
   ) => {
     if (!scheduleEventId) return;
 
-    setIsLoading(true);
+    setActionInProgress(`status-${attendeeId}`);
     try {
       // Get the attendee object
       const attendee = attendees.find((a) => a.id === attendeeId);
@@ -163,7 +182,7 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
       }
 
       // Make API call to update attendee's status
-      const { data: updatedAttendee } =
+      const { data: updatedAttendee, message } =
         await scheduleEventAttendeeService.updateScheduleEventAttendeeStatus(
           attendeeId,
           {
@@ -177,10 +196,14 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
       setAttendees(
         attendees.map((a) => (a.id === attendeeId ? updatedAttendee : a))
       );
-    } catch (error) {
+
+      // Show success toast
+      toast.success(message || t("statusUpdateSuccess"));
+    } catch (error: any) {
       console.error("Failed to update attendee status", error);
+      toast.error(error.message || t("statusUpdateError"));
     } finally {
-      setIsLoading(false);
+      setActionInProgress(null);
     }
   };
 
@@ -200,52 +223,63 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
   );
 
   return (
-    <div className="mt-6">
-      <div className="flex justify-between items-center mb-4">
-        <h6 className="text-sm font-medium text-gray-700 dark:text-gray-400">
-          Attendees
+    <div className="mt-6 transition-colors duration-200">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+        <h6 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          {t("attendeesTitle")}
         </h6>
         <button
           type="button"
           onClick={() => setShowMemberSelector(!showMemberSelector)}
-          className="px-3 py-1.5 text-xs font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
-          disabled={isLoading}
+          className="px-3 py-1.5 text-xs font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 transition-colors duration-200 shadow-sm w-full sm:w-auto"
+          disabled={isLoading || actionInProgress === "add"}
+          aria-label={t("addAttendeeAriaLabel")}
         >
-          Add Attendee
+          {actionInProgress === "add" ? (
+            <LoadingSpinner size="sm" className="mr-1" />
+          ) : null}
+          {t("addAttendee")}
         </button>
       </div>
 
-      {isLoading && (
+      {isLoading && !actionInProgress && (
         <div className="text-center py-3">
-          <p className="text-sm text-gray-500">Loading attendees...</p>
+          <LoadingSpinner size="md" showText={true} />
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            {t("loadingAttendees")}
+          </p>
         </div>
       )}
 
       {showMemberSelector && (
-        <div className="mb-4 p-3 border border-gray-200 rounded-lg bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-          <h6 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-400">
-            Select Team Member
+        <div className="mb-4 p-3 border border-gray-200 rounded-lg bg-gray-50 dark:border-gray-700 dark:bg-gray-800 transition-colors duration-200 shadow-sm">
+          <h6 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t("selectTeamMember")}
           </h6>
           {availableTeamMembers.length === 0 ? (
-            <p className="text-sm text-gray-500">
-              All team members are already added as attendees.
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {t("allMembersAdded")}
             </p>
           ) : (
-            <div className="max-h-40 overflow-y-auto space-y-2">
+            <div className="max-h-40 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 pr-1">
               {availableTeamMembers.map((member) => (
                 <div
                   key={member.id}
                   onClick={() => handleAddAttendee(member)}
-                  className="flex items-center p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="flex items-center p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                  role="button"
+                  aria-label={`${t("addMember")}: ${member.firstName} ${member.lastName}`}
                 >
-                  <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
+                  <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-200">
                     {member.firstName?.charAt(0) || "U"}
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium dark:text-gray-200">
                       {member.firstName} {member.lastName}
                     </p>
-                    <p className="text-xs text-gray-500">{member.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {member.email}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -259,70 +293,92 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
           {attendeesWithUsers.map((attendee) => {
             const canManageAttendee =
               isOrganizer || isCurrentUserAttendee(attendee.userId);
+            const isRemoveInProgress =
+              actionInProgress === `remove-${attendee.id}`;
+            const isStatusInProgress =
+              actionInProgress === `status-${attendee.id}`;
+
             return (
               <div
                 key={attendee.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-gray-800"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm transition-colors duration-200"
               >
-                <div className="flex items-center">
-                  <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
+                <div className="flex items-center mb-2 sm:mb-0">
+                  <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-200">
                     {attendee.user?.firstName?.charAt(0) || "U"}
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium dark:text-gray-200">
                       {attendee.user?.firstName} {attendee.user?.lastName}
                       {isCurrentUserAttendee(attendee.userId) && (
-                        <span className="ml-2 text-xs text-brand-500">
-                          (You)
+                        <span className="ml-2 text-xs text-brand-500 dark:text-brand-400">
+                          ({t("you")})
                         </span>
                       )}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px] sm:max-w-[300px]">
                       {attendee.user?.email}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <select
-                    value={attendee.status}
-                    onChange={(e) =>
-                      handleChangeStatus(
-                        attendee.id,
-                        e.target.value as ScheduleEventStatus
-                      )
-                    }
-                    className={`text-xs rounded-lg border border-gray-300 bg-transparent p-1 dark:border-gray-700 dark:bg-gray-800 ${
-                      !canManageAttendee
-                        ? "opacity-60 cursor-not-allowed"
-                        : "cursor-pointer"
-                    }`}
-                    disabled={isLoading || !canManageAttendee}
-                  >
-                    <option value="INVITED">Invited</option>
-                    <option value="CONFIRMED">Confirmed</option>
-                    <option value="DECLINED">Declined</option>
-                  </select>
+                <div className="flex items-center space-x-2 ml-11 sm:ml-0">
+                  <div className="relative">
+                    {isStatusInProgress && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-700 bg-opacity-50 dark:bg-opacity-50 rounded-lg z-10">
+                        <LoadingSpinner size="sm" />
+                      </div>
+                    )}
+                    <select
+                      value={attendee.status}
+                      onChange={(e) =>
+                        handleChangeStatus(
+                          attendee.id,
+                          e.target.value as ScheduleEventStatus
+                        )
+                      }
+                      className={`text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent p-1.5 dark:bg-gray-700 dark:text-gray-200 transition-colors duration-200 ${
+                        !canManageAttendee
+                          ? "opacity-60 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
+                      disabled={
+                        isLoading || !canManageAttendee || isStatusInProgress
+                      }
+                      aria-label={t("changeStatus")}
+                    >
+                      <option value="INVITED">{t("statusInvited")}</option>
+                      <option value="CONFIRMED">{t("statusConfirmed")}</option>
+                      <option value="DECLINED">{t("statusDeclined")}</option>
+                    </select>
+                  </div>
                   <button
                     onClick={() => handleRemoveAttendee(attendee.id)}
-                    className={`p-1 rounded-full ${
+                    className={`p-1.5 rounded-full ${
                       canManageAttendee
                         ? "hover:bg-gray-200 dark:hover:bg-gray-700"
                         : "opacity-60 cursor-not-allowed"
-                    }`}
-                    disabled={isLoading || !canManageAttendee}
+                    } transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50`}
+                    disabled={
+                      isLoading || !canManageAttendee || isRemoveInProgress
+                    }
+                    aria-label={t("removeAttendee")}
                   >
-                    <svg
-                      className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      ></path>
-                    </svg>
+                    {isRemoveInProgress ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <svg
+                        className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        ></path>
+                      </svg>
+                    )}
                   </button>
                 </div>
               </div>
@@ -331,7 +387,9 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
         </div>
       ) : (
         !isLoading && (
-          <p className="text-sm text-gray-500">No attendees added yet.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 p-4 text-center border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+            {t("noAttendees")}
+          </p>
         )
       )}
     </div>
