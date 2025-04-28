@@ -4,10 +4,13 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { IndividualRegistrationRequest } from "@/types/entities/individualRegistrationRequest";
-import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2, Moon, Sun } from "lucide-react";
 import { individualRegistrationRequestService } from "@/services/individualRegistrationRequest.service";
 import ApiResponseModal from "@/components/common/ApiResponseModal";
 import { useApiModal } from "@/hooks/useApiModal";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "@/hooks/useTranslations";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function IndividualRegistrationPage() {
   const { user } = useAuth();
@@ -19,10 +22,11 @@ export default function IndividualRegistrationPage() {
   }>({});
   const [isLoading, setIsLoading] = useState(false);
   const { modalState, hideModal, showSuccess, showError } = useApiModal();
+  const toast = useToast();
+  const t = useTranslations("individualRegistration");
 
   useEffect(() => {
     if (user) {
-      // Fetch individual registrations using the real service
       fetchIndividualRegistrations();
     }
   }, [user]);
@@ -40,16 +44,17 @@ export default function IndividualRegistrationPage() {
       if (response.data) {
         setIndividualRegistrations(response.data);
       } else {
+        toast.error(response.message || t("errors.fetchFailed"));
         showError(
-          "Failed to fetch registrations",
-          response.message ||
-            "An error occurred while fetching your registrations"
+          t("errors.fetchFailedTitle"),
+          response.message || t("errors.fetchFailedMessage")
         );
       }
     } catch (error: any) {
+      toast.error(error?.message || t("errors.fetchFailed"));
       showError(
-        "Error",
-        error?.message || "Failed to fetch your registration data"
+        t("errors.errorTitle"),
+        error?.message || t("errors.fetchFailedMessage")
       );
     } finally {
       setIsLoading(false);
@@ -66,27 +71,27 @@ export default function IndividualRegistrationPage() {
   const handleDeleteRegistration = async (registrationId: string) => {
     setIsLoading(true);
     try {
-      // Call real API to delete registration
       const response =
         await individualRegistrationRequestService.deleteIndividualRegistration(
           registrationId
         );
 
-      // Update local state by removing the deleted registration
       setIndividualRegistrations((prevRegistrations) =>
         prevRegistrations.filter(
           (registration) => registration.id !== registrationId
         )
       );
 
+      toast.success(response.message || t("success.registrationCancelled"));
       showSuccess(
-        "Registration Cancelled",
-        response.message || "Your registration was successfully cancelled"
+        t("success.registrationCancelledTitle"),
+        response.message || t("success.registrationCancelledMessage")
       );
     } catch (error: any) {
+      toast.error(error?.message || t("errors.cancellationFailed"));
       showError(
-        "Cancellation Failed",
-        error?.message || "Failed to cancel registration. Please try again."
+        t("errors.cancellationFailedTitle"),
+        error?.message || t("errors.cancellationFailedMessage")
       );
     } finally {
       setIsLoading(false);
@@ -122,22 +127,25 @@ export default function IndividualRegistrationPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "APPROVED":
-        return "text-green-600";
+        return "text-green-600 dark:text-green-400";
       case "REJECTED":
-        return "text-red-600";
+        return "text-red-600 dark:text-red-400";
       default:
-        return "text-yellow-600";
+        return "text-yellow-600 dark:text-yellow-400";
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gray-100 p-4">
+    <div className="flex min-h-screen flex-col items-center bg-gray-100 dark:bg-gray-900 p-4 transition-colors duration-300">
       <div className="mt-6 w-full max-w-3xl">
-        <h1 className="text-2xl font-bold mb-4">Individual Registrations</h1>
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+          {t("title")}
+        </h1>
 
         {isLoading && (
-          <div className="bg-white rounded-lg shadow p-4 text-center text-gray-600">
-            Loading your registrations...
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 text-center text-gray-600 dark:text-gray-300 transition-colors duration-300">
+            <LoadingSpinner size="md" showText={true} />
+            <p className="mt-2">{t("loading")}</p>
           </div>
         )}
 
@@ -147,17 +155,19 @@ export default function IndividualRegistrationPage() {
                 return (
                   <div
                     key={hackathonId}
-                    className="mb-4 bg-white rounded-lg shadow p-4"
+                    className="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow p-4 transition-colors duration-300"
                   >
                     <div
                       className="flex justify-between items-center cursor-pointer"
                       onClick={() => toggleExpand(hackathonId)}
                     >
-                      <h2 className="text-xl font-semibold">{title}</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                        {title}
+                      </h2>
                       {expandedHackathons[hackathonId] ? (
-                        <ChevronUp />
+                        <ChevronUp className="text-gray-600 dark:text-gray-300" />
                       ) : (
-                        <ChevronDown />
+                        <ChevronDown className="text-gray-600 dark:text-gray-300" />
                       )}
                     </div>
 
@@ -166,16 +176,16 @@ export default function IndividualRegistrationPage() {
                         {registrations.map((registration) => (
                           <div
                             key={registration.id}
-                            className="border rounded-lg p-3 bg-gray-50"
+                            className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-700 transition-colors duration-300"
                           >
-                            <div className="flex justify-between items-center">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                               <div>
-                                <p className="text-gray-600">
-                                  <strong>Registration ID:</strong>{" "}
+                                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                                  <strong>{t("registrationId")}:</strong>{" "}
                                   {registration.id}
                                 </p>
-                                <p className="text-gray-600">
-                                  <strong>Status:</strong>{" "}
+                                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                                  <strong>{t("status")}:</strong>{" "}
                                   <span
                                     className={getStatusColor(
                                       registration.status
@@ -184,35 +194,36 @@ export default function IndividualRegistrationPage() {
                                     {registration.status}
                                   </span>
                                 </p>
-                                <p className="text-gray-600">
-                                  <strong>Created:</strong>{" "}
+                                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                                  <strong>{t("created")}:</strong>{" "}
                                   {formatDate(registration.createdAt)}
                                 </p>
-                                <p className="text-gray-600">
-                                  <strong>Last Updated:</strong>{" "}
+                                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                                  <strong>{t("lastUpdated")}:</strong>{" "}
                                   {formatDate(registration.updatedAt)}
                                 </p>
                               </div>
 
                               {registration.status === "PENDING" && (
                                 <button
-                                  onClick={() =>
-                                    handleDeleteRegistration(registration.id)
-                                  }
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteRegistration(registration.id);
+                                  }}
                                   disabled={isLoading}
-                                  className="flex items-center space-x-1 px-3 py-1 bg-red-500 hover:bg-red-600 rounded-md text-white disabled:bg-red-300"
-                                  title="Cancel registration"
+                                  className="flex items-center space-x-1 px-3 py-1 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 rounded-md text-white disabled:bg-red-300 dark:disabled:bg-red-400 transition-colors duration-200 text-sm sm:text-base"
+                                  title={t("cancelRegistration")}
                                 >
                                   <Trash2 size={16} />
-                                  <span>Cancel</span>
+                                  <span>{t("cancel")}</span>
                                 </button>
                               )}
                             </div>
 
                             {registration.reviewedBy && (
-                              <div className="mt-2 p-2 bg-gray-100 rounded">
-                                <p className="text-gray-700">
-                                  <strong>Reviewed by:</strong>{" "}
+                              <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-600 rounded transition-colors duration-300">
+                                <p className="text-gray-700 dark:text-gray-200 text-sm">
+                                  <strong>{t("reviewedBy")}:</strong>{" "}
                                   {registration.reviewedBy.firstName}{" "}
                                   {registration.reviewedBy.lastName}
                                 </p>
@@ -227,8 +238,8 @@ export default function IndividualRegistrationPage() {
               }
             )
           : !isLoading && (
-              <div className="bg-white rounded-lg shadow p-4 text-center text-gray-600">
-                You don't have any individual registrations yet.
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 text-center text-gray-600 dark:text-gray-300 transition-colors duration-300">
+                {t("noRegistrations")}
               </div>
             )}
       </div>

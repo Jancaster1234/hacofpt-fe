@@ -194,7 +194,29 @@
     "registrationDeleted": "Your individual registration has been deleted successfully.",
     "deletionError": "Failed to delete individual registration. Please try again.",
     "submittingRegistration": "Submitting your registration...",
-    "deletingRegistration": "Deleting your registration..."
+    "deletingRegistration": "Deleting your registration...",
+    "title": "Individual registrations",
+    "loading": "Loading your registrations...",
+    "registrationId": "Registration ID",
+    "created": "Created",
+    "lastUpdated": "Last updated",
+    "cancel": "Cancel",
+    "cancelRegistration": "Cancel registration",
+    "noRegistrations": "You don't have any individual registrations yet.",
+    "errors": {
+      "fetchFailed": "Failed to fetch registrations",
+      "fetchFailedTitle": "Failed to fetch registrations",
+      "fetchFailedMessage": "An error occurred while fetching your registrations",
+      "errorTitle": "Error",
+      "cancellationFailed": "Failed to cancel registration",
+      "cancellationFailedTitle": "Cancellation failed",
+      "cancellationFailedMessage": "Failed to cancel registration. Please try again."
+    },
+    "success": {
+      "registrationCancelled": "Your registration was successfully cancelled",
+      "registrationCancelledTitle": "Registration cancelled",
+      "registrationCancelledMessage": "Your registration was successfully cancelled"
+    }
   },
   "teamRequests": {
     "yourTeamRequests": "Your team requests",
@@ -1095,5 +1117,23 @@
     "chat": "Chat",
     "forum": "Forum",
     "help": "Help"
+  },
+  "threadActions": {
+    "threadActions": "Thread actions",
+    "pinThread": "Pin thread",
+    "unpinThread": "Unpin thread",
+    "lockThread": "Lock thread",
+    "unlockThread": "Unlock thread",
+    "deleteThread": "Delete thread",
+    "deleteConfirmation": "Are you sure you want to delete this thread? This action cannot be undone."
+  },
+  "forumCategory": {
+    "newThread": "New thread",
+    "loginRequired": "Please log in to create a thread"
+  },
+  "threadCounter": {
+    "thread": "thread",
+    "threads": "threads",
+    "loadingThreads": "Loading threads..."
   }
 }

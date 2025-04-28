@@ -194,7 +194,29 @@
     "registrationDeleted": "Đăng ký cá nhân của bạn đã được xóa thành công.",
     "deletionError": "Không thể xóa đăng ký cá nhân. Vui lòng thử lại.",
     "submittingRegistration": "Đang gửi đăng ký của bạn...",
-    "deletingRegistration": "Đang xóa đăng ký của bạn..."
+    "deletingRegistration": "Đang xóa đăng ký của bạn...",
+    "title": "Đăng ký cá nhân",
+    "loading": "Đang tải đăng ký của bạn...",
+    "registrationId": "Mã đăng ký",
+    "created": "Ngày tạo",
+    "lastUpdated": "Cập nhật lần cuối",
+    "cancel": "Hủy",
+    "cancelRegistration": "Hủy đăng ký",
+    "noRegistrations": "Bạn chưa có đăng ký cá nhân nào.",
+    "errors": {
+      "fetchFailed": "Không thể tải đăng ký",
+      "fetchFailedTitle": "Không thể tải đăng ký",
+      "fetchFailedMessage": "Đã xảy ra lỗi khi tải đăng ký của bạn",
+      "errorTitle": "Lỗi",
+      "cancellationFailed": "Không thể hủy đăng ký",
+      "cancellationFailedTitle": "Hủy đăng ký thất bại",
+      "cancellationFailedMessage": "Không thể hủy đăng ký. Vui lòng thử lại."
+    },
+    "success": {
+      "registrationCancelled": "Đăng ký của bạn đã được hủy thành công",
+      "registrationCancelledTitle": "Đã hủy đăng ký",
+      "registrationCancelledMessage": "Đăng ký của bạn đã được hủy thành công"
+    }
   },
   "teamRequests": {
     "yourTeamRequests": "Yêu cầu đội của bạn",
@@ -1094,5 +1116,23 @@
     "chat": "Trò chuyện",
     "forum": "Diễn đàn",
     "help": "Trợ giúp"
+  },
+  "threadActions": {
+    "threadActions": "Tùy chọn chủ đề",
+    "pinThread": "Ghim chủ đề",
+    "unpinThread": "Bỏ ghim chủ đề",
+    "lockThread": "Khóa chủ đề",
+    "unlockThread": "Mở khóa chủ đề",
+    "deleteThread": "Xóa chủ đề",
+    "deleteConfirmation": "Bạn có chắc chắn muốn xóa chủ đề này? Hành động này không thể hoàn tác."
+  },
+  "forumCategory": {
+    "newThread": "Chủ đề mới",
+    "loginRequired": "Vui lòng đăng nhập để tạo chủ đề"
+  },
+  "threadCounter": {
+    "thread": "chủ đề",
+    "threads": "chủ đề",
+    "loadingThreads": "Đang tải chủ đề..."
   }
 }
