@@ -144,7 +144,7 @@ export const createBoardLabel = async (data: {
   name: string;
   color: string;
   boardId: string;
-}): Promise<BoardLabel> => {
+}): Promise<{ data: BoardLabel; message?: string }> => {
   try {
     const response = await boardLabelService.createBoardLabel({
       name: data.name,
@@ -153,12 +153,21 @@ export const createBoardLabel = async (data: {
     });
 
     if (!response || !response.data) {
-      throw new Error("Failed to create board label");
+      throw new Error(response?.message || "Failed to create board label");
     }
 
-    return response.data;
-  } catch (error) {
+    return {
+      data: response.data,
+      message: response.message || "Board label created successfully",
+    };
+  } catch (error: any) {
     console.error("API error creating board label:", error);
+    // Pass through the error with its message
+    if (error.message) {
+      throw new Error(error.message);
+    } else if (typeof error === "object" && error?.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
     throw error;
   }
 };
@@ -166,7 +175,7 @@ export const createBoardLabel = async (data: {
 export const updateBoardLabel = async (
   boardLabelId: string,
   data: { name: string; color: string; boardId: string }
-): Promise<BoardLabel> => {
+): Promise<{ data: BoardLabel; message?: string }> => {
   try {
     const response = await boardLabelService.updateBoardLabel(boardLabelId, {
       name: data.name,
@@ -175,12 +184,21 @@ export const updateBoardLabel = async (
     });
 
     if (!response || !response.data) {
-      throw new Error("Failed to update board label");
+      throw new Error(response?.message || "Failed to update board label");
     }
 
-    return response.data;
-  } catch (error) {
+    return {
+      data: response.data,
+      message: response.message || "Board label updated successfully",
+    };
+  } catch (error: any) {
     console.error("API error updating board label:", error);
+    // Pass through the error with its message
+    if (error.message) {
+      throw new Error(error.message);
+    } else if (typeof error === "object" && error?.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
     throw error;
   }
 };

@@ -88,12 +88,15 @@ interface KanbanState {
   moveList: (listId: string, newPosition: number) => void;
 
   // BoardLabel operations
-  createLabel: (name: string, color: string) => Promise<BoardLabel | null>;
+  createLabel: (
+    name: string,
+    color: string
+  ) => Promise<{ label: BoardLabel; message?: string } | null>;
   updateLabel: (
     labelId: string,
     name: string,
     color: string
-  ) => Promise<BoardLabel | null>;
+  ) => Promise<{ label: BoardLabel; message?: string } | null>;
   deleteLabel: (labelId: string) => Promise<boolean>;
 
   // BoardUser operations (new additions)
@@ -810,11 +813,14 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const newLabel = await createBoardLabel({
+      const result = await createBoardLabel({
         name,
         color,
         boardId: state.board.id,
       });
+
+      const newLabel = result.data;
+      const message = result.message;
 
       // Update local state if board.boardLabels exists
       if (state.board.boardLabels) {
@@ -835,53 +841,58 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
         });
       }
 
-      return newLabel;
-    } catch (error) {
+      return { label: newLabel, message };
+    } catch (error: any) {
       console.error("Failed to create label:", error);
       set({
         isLoading: false,
         error:
           error instanceof Error ? error.message : "Failed to create label",
       });
-      return null;
+      // Propagate the error with its message
+      throw error;
     }
   },
 
-  updateLabel: async (labelId, name, color) => {
+  updateLabel: async (id, name, color) => {
     const state = get();
     if (!state.board) return null;
 
     set({ isLoading: true, error: null });
 
     try {
-      const updatedLabel = await updateBoardLabel(labelId, {
+      const result = await updateBoardLabel(id, {
         name,
         color,
         boardId: state.board.id,
       });
 
-      // Update local state if boardLabels exists
+      const updatedLabel = result.data;
+      const message = result.message;
+
+      // Update the labels in the board
       if (state.board.boardLabels) {
         set({
           board: {
             ...state.board,
             boardLabels: state.board.boardLabels.map((label) =>
-              label.id === labelId ? { ...label, name, color } : label
+              label.id === id ? updatedLabel : label
             ),
           },
           isLoading: false,
         });
       }
 
-      return updatedLabel;
-    } catch (error) {
+      return { label: updatedLabel, message };
+    } catch (error: any) {
       console.error("Failed to update label:", error);
       set({
         isLoading: false,
         error:
           error instanceof Error ? error.message : "Failed to update label",
       });
-      return null;
+      // Propagate the error with its message
+      throw error;
     }
   },
 

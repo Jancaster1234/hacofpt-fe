@@ -211,15 +211,17 @@ function BoardLabelManagement({
 
     try {
       // Make sure the board ID is passed to the createLabel function
-      const newLabel = await createLabel(newLabelName, newLabelColor);
-      if (newLabel) {
-        setLabels([...labels, newLabel]);
+      const result = await createLabel(newLabelName, newLabelColor);
+      if (result) {
+        setLabels([...labels, result.label]);
         setNewLabelName("");
-        toast.success(t("labelAddedSuccess"));
+        toast.success(result.message || t("labelAddedSuccess"));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding label:", error);
-      toast.error(t("labelAddedError"));
+      // Use the error message from the API if available
+      const errorMessage = error?.message || t("labelAddedError");
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -230,12 +232,12 @@ function BoardLabelManagement({
     setIsLoading(true);
 
     try {
-      const updatedLabel = await updateLabel(
+      const result = await updateLabel(
         editingLabel.id,
         newLabelName,
         newLabelColor
       );
-      if (updatedLabel) {
+      if (result) {
         setLabels(
           labels.map((label) =>
             label.id === editingLabel.id
@@ -246,11 +248,13 @@ function BoardLabelManagement({
         setEditingLabel(null);
         setNewLabelName("");
         setNewLabelColor(colorOptions[0].value);
-        toast.success(t("labelUpdatedSuccess"));
+        toast.success(result.message || t("labelUpdatedSuccess"));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating label:", error);
-      toast.error(t("labelUpdatedError"));
+      // Use the error message from the API if available
+      const errorMessage = error?.message || t("labelUpdatedError");
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -952,7 +952,8 @@
       "judge": "Giám khảo",
       "mentor": "Cố vấn",
       "admin": "Quản trị viên",
-      "organizer": "Người tổ chức"
+      "organizer": "Người tổ chức",
+      "team_leader": "Trưởng nhóm"
     },
     "errors": {
       "emptyContent": "Nội dung bài viết không được để trống",
@@ -1004,7 +1005,8 @@
       "create": "Tạo mới",
       "update": "Cập nhật",
       "cancel": "Hủy",
-      "saving": "Đang lưu..."
+      "saving": "Đang lưu...",
+      "at": "lúc"
     },
     "forum": "Diễn đàn",
     "categoryNotFound": "Không tìm thấy danh mục",
