@@ -51,7 +51,7 @@ export default function TaskComments({
 
       if (createdComment && onAddComment) {
         onAddComment(createdComment);
-        toast.success(message || t("commentAdded"));
+        toast.success(t("commentAdded"));
       }
 
       setNewComment("");
@@ -91,7 +91,7 @@ export default function TaskComments({
         // Update the parent component with the edited comment
         if (onAddComment && updatedComment) {
           onAddComment(updatedComment);
-          toast.success(message || t("commentUpdated"));
+          toast.success(t("commentUpdated"));
         }
       }
 
@@ -120,7 +120,7 @@ export default function TaskComments({
       // Use the dedicated onDeleteComment function if available
       if (onDeleteComment) {
         onDeleteComment(commentId);
-        toast.success(message || t("commentDeleted"));
+        toast.success(t("commentDeleted"));
       } else if (onAddComment) {
         // Fallback to the previous workaround if onDeleteComment isn't provided
         const deletedComment = comments.find((c) => c.id === commentId);
@@ -129,7 +129,7 @@ export default function TaskComments({
             ...deletedComment,
             _isDeleted: true, // Special flag to signal deletion
           } as any);
-          toast.success(message || t("commentDeleted"));
+          toast.success(t("commentDeleted"));
         }
       }
     } catch (error) {

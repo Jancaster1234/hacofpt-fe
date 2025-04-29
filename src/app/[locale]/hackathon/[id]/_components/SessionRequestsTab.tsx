@@ -53,7 +53,7 @@ export default function SessionRequestsTab({
         });
 
         if (success) {
-          toast.success(message || t("cancelSuccess"));
+          toast.success(t("cancelSuccess"));
         } else {
           toast.error(message || t("cancelError"));
         }
@@ -81,7 +81,7 @@ export default function SessionRequestsTab({
         });
 
         if (success) {
-          toast.success(message || t("updateSuccess"));
+          toast.success(t("updateSuccess"));
           setEditingSession(null);
         } else {
           toast.error(message || t("updateError"));

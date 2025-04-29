@@ -60,7 +60,7 @@ export default function PostForm({
             isDeleted: false,
           }
         );
-        toast.success(response.message || t("success.postUpdated"));
+        toast.success(t("success.postUpdated"));
       } else {
         // Create new post
         response = await threadPostService.createThreadPost({
@@ -68,7 +68,7 @@ export default function PostForm({
           content,
           isDeleted: false,
         });
-        toast.success(response.message || t("success.postCreated"));
+        toast.success(t("success.postCreated"));
       }
 
       // Reset form if it's a new post

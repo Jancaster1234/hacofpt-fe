@@ -133,7 +133,7 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
       setAttendees([...attendees, newAttendee]);
 
       // Show success toast
-      toast.success(message || t("attendeeAddedSuccess"));
+      toast.success(t("attendeeAddedSuccess"));
     } catch (error: any) {
       console.error("Failed to add attendee", error);
       toast.error(error.message || t("attendeeAddedError"));
@@ -156,7 +156,7 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
       setAttendees(attendees.filter((a) => a.id !== attendeeId));
 
       // Show success toast
-      toast.success(message || t("attendeeRemovedSuccess"));
+      toast.success(t("attendeeRemovedSuccess"));
     } catch (error: any) {
       console.error("Failed to remove attendee", error);
       toast.error(error.message || t("attendeeRemovedError"));
@@ -198,7 +198,7 @@ const EventAttendeesSection: React.FC<EventAttendeesSectionProps> = ({
       );
 
       // Show success toast
-      toast.success(message || t("statusUpdateSuccess"));
+      toast.success(t("statusUpdateSuccess"));
     } catch (error: any) {
       console.error("Failed to update attendee status", error);
       toast.error(error.message || t("statusUpdateError"));

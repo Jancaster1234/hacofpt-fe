@@ -78,7 +78,7 @@ const EventRemindersSection: React.FC<EventRemindersSectionProps> = ({
       if (newReminder) {
         setUserReminder(newReminder);
         setReminders([newReminder]);
-        toast.success(message || t("reminderAddedSuccess"));
+        toast.success(t("reminderAddedSuccess"));
       }
 
       // Clear the input field
@@ -104,7 +104,7 @@ const EventRemindersSection: React.FC<EventRemindersSectionProps> = ({
       // Update the UI by removing the deleted reminder
       setUserReminder(null);
       setReminders([]);
-      toast.success(message || t("reminderRemovedSuccess"));
+      toast.success(t("reminderRemovedSuccess"));
     } catch (error: any) {
       console.error("Failed to remove reminder:", error);
       toast.error(error.message || t("reminderRemovedError"));

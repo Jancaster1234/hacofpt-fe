@@ -50,7 +50,7 @@ export default function MentorTeamsTab({
       });
 
       if (response.success) {
-        toast.success(response.message || t("sessionRequestSuccess"));
+        toast.success(t("sessionRequestSuccess"));
         setShowForm(false);
       } else {
         toast.error(response.message || t("sessionRequestError"));

@@ -49,10 +49,10 @@ export const ForumCategoryForm = ({
           category.id,
           formData
         );
-        toast.success(response.message || t("categoryForm.updateSuccess"));
+        toast.success(t("categoryForm.updateSuccess"));
       } else {
         response = await forumCategoryService.createForumCategory(formData);
-        toast.success(response.message || t("categoryForm.createSuccess"));
+        toast.success(t("categoryForm.createSuccess"));
       }
       onSuccess();
       onClose();

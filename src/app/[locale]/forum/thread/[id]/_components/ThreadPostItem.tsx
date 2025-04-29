@@ -70,7 +70,7 @@ export default function ThreadPostItem({
     try {
       const response = await threadPostService.deleteThreadPost(post.id);
       onPostDeleted(post.id);
-      toast.success(response.message || t("postDeletedSuccess"));
+      toast.success(t("postDeletedSuccess"));
     } catch (err: any) {
       const errorMessage = err.message || t("deletePostFailed");
       setError(errorMessage);

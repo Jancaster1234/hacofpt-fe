@@ -95,7 +95,7 @@ export default function LikeButton({
         setLikes((prev) => prev.filter((like) => like.id !== userLike.id));
         setUserLike(null);
         if (onLikeRemoved) onLikeRemoved();
-        toast.success(response.message || t("likeRemoved"));
+        toast.success(t("likeRemoved"));
       } else {
         // Like: add a new like
         const response = await threadPostLikeService.createThreadPostLike({
@@ -106,7 +106,7 @@ export default function LikeButton({
           setLikes((prev) => [...prev, response.data]);
           setUserLike(response.data);
           if (onLikeAdded) onLikeAdded();
-          toast.success(response.message || t("likeAdded"));
+          toast.success(t("likeAdded"));
         }
       }
     } catch (error: any) {

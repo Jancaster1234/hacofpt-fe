@@ -63,7 +63,7 @@ export default function TaskAttachments({
         // 5. Notify parent component if callback is provided
         if (newlyAddedFiles.length > 0 && onAddFile) {
           onAddFile(newlyAddedFiles);
-          toast.success(taskFilesMessage || t("attachments.uploadSuccess"));
+          toast.success(t("attachments.uploadSuccess"));
         }
       }
 
@@ -86,7 +86,7 @@ export default function TaskAttachments({
 
       if (onRemoveFile) {
         onRemoveFile(fileId);
-        toast.success(message || t("attachments.removeSuccess"));
+        toast.success(t("attachments.removeSuccess"));
       }
     } catch (error: any) {
       console.error("Error removing file:", error);

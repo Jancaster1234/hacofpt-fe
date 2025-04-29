@@ -180,7 +180,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
         reminders: reminders,
       });
 
-      toast.success(message || t("toasts.eventUpdated"));
+      toast.success(t("toasts.eventUpdated"));
       onClose();
     } catch (error: any) {
       toast.error(error.message || t("errors.updateFailed"));

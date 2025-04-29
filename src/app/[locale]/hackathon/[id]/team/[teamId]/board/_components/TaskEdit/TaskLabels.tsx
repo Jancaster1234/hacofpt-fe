@@ -58,7 +58,7 @@ export default function TaskLabels({
           onChange(updatedTaskLabels);
 
           // Show success toast
-          toast.success(message || t("labelRemoved"));
+          toast.success(t("labelRemoved"));
         }
       } else {
         // Add new label
@@ -77,7 +77,7 @@ export default function TaskLabels({
           onChange(updatedTaskLabels);
 
           // Show success toast
-          toast.success(message || t("labelAdded"));
+          toast.success(t("labelAdded"));
         }
       }
     } catch (err: any) {

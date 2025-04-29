@@ -169,10 +169,9 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
       );
 
       toast.success(
-        message ||
-          (hasSubmitted
-            ? t("feedbackUpdatedSuccess")
-            : t("feedbackSubmittedSuccess"))
+        hasSubmitted
+          ? t("feedbackUpdatedSuccess")
+          : t("feedbackSubmittedSuccess")
       );
 
       // Update submission status

@@ -202,11 +202,8 @@ export default function SubmissionTab({
           ? t("submissionUpdated")
           : t("submissionSuccessful");
 
-        toast.success(response.message || successMessage);
-        showSuccess(
-          t("submissionSuccessTitle"),
-          response.message || successMessage
-        );
+        toast.success(successMessage);
+        showSuccess(t("submissionSuccessTitle"), successMessage);
       } else {
         throw new Error(response.message || t("submissionFailedTryAgain"));
       }

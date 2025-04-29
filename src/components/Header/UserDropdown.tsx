@@ -37,7 +37,7 @@ export default function UserDropdown({ user }: { user: User }) {
 
     try {
       const response = await logout();
-      toast.success(response?.message || t("logoutSuccess"));
+      toast.success(t("logoutSuccess"));
       router.push("/signin");
     } catch (error: any) {
       toast.error(error?.message || t("logoutError"));

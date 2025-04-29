@@ -59,7 +59,7 @@ export default function TaskAssignees({
           onChange(updatedTaskAssignees);
 
           // Show success toast
-          toast.success(message || t("assigneeRemoved"));
+          toast.success(t("assigneeRemoved"));
         }
       } else {
         // Add new assignee
@@ -78,7 +78,7 @@ export default function TaskAssignees({
           onChange(updatedTaskAssignees);
 
           // Show success toast
-          toast.success(message || t("assigneeAdded"));
+          toast.success(t("assigneeAdded"));
         }
       }
     } catch (err: any) {
@@ -107,7 +107,7 @@ export default function TaskAssignees({
         onChange(updatedTaskAssignees);
 
         // Show success toast
-        toast.success(message || t("assigneeRemoved"));
+        toast.success(t("assigneeRemoved"));
       }
     } catch (err: any) {
       console.error("Error removing task assignee:", err);

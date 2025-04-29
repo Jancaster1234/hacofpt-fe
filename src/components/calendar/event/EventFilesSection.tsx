@@ -83,7 +83,7 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
         setMessageType(uploadedFiles.length > 0 ? "success" : "error");
 
         if (uploadedFiles.length > 0) {
-          toast.success(uploadMessage);
+          toast.success(t("fileUploadSuccess"));
         } else {
           toast.error(uploadMessage);
         }
@@ -105,7 +105,7 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
           setMessageType(associatedFiles.length > 0 ? "success" : "error");
 
           if (associatedFiles.length > 0) {
-            toast.success(associateMessage);
+            toast.success(t("filesAssociatedSuccess"));
           } else {
             toast.error(associateMessage);
           }
@@ -143,9 +143,9 @@ const EventFilesSection: React.FC<EventFilesSectionProps> = ({
       setFiles(files.filter((file) => file.id !== fileId));
 
       if (message) {
-        setApiMessage(message);
+        setApiMessage(t("fileRemoveSuccess"));
         setMessageType("success");
-        toast.success(message);
+        toast.success(t("fileRemoveSuccess"));
       }
     } catch (error: any) {
       console.error("Error removing file:", error);

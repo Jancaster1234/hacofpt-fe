@@ -27,7 +27,7 @@ export default function MentorshipRequestsTab({
       const { success, message } = await onDeleteRequest(requestId);
 
       if (success) {
-        toast.success(message || t("cancelRequestSuccess"));
+        toast.success(t("cancelRequestSuccess"));
       } else {
         toast.error(message || t("cancelRequestError"));
       }

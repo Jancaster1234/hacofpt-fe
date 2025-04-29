@@ -109,7 +109,7 @@ export default function MentorshipModal({
       });
 
       if (response.data && response.data.id) {
-        toast.success(response.message || t("requestCreatedSuccess"));
+        toast.success(t("requestCreatedSuccess"));
         onDataUpdate();
       } else {
         toast.error(response.message || t("requestCreationError"));
@@ -132,7 +132,7 @@ export default function MentorshipModal({
         await mentorshipRequestService.deleteMentorshipRequest(requestId);
 
       if (response.message) {
-        toast.success(response.message || t("requestDeletedSuccess"));
+        toast.success(t("requestDeletedSuccess"));
         onDataUpdate();
       } else {
         toast.error(t("requestDeletionError"));
@@ -164,7 +164,7 @@ export default function MentorshipModal({
         });
 
       if (response.data && response.data.id) {
-        toast.success(response.message || t("sessionRequestCreatedSuccess"));
+        toast.success(t("sessionRequestCreatedSuccess"));
         onDataUpdate();
       } else {
         toast.error(response.message || t("sessionRequestCreationError"));
@@ -200,7 +200,7 @@ export default function MentorshipModal({
         });
 
       if (response.data) {
-        toast.success(response.message || t("sessionRequestUpdatedSuccess"));
+        toast.success(t("sessionRequestUpdatedSuccess"));
         onDataUpdate();
       } else {
         toast.error(response.message || t("sessionRequestUpdateError"));

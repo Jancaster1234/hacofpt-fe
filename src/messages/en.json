@@ -500,7 +500,10 @@
       "boardUpdated": "Board updated successfully",
       "listCreated": "List created successfully",
       "taskMoved": "Task moved successfully",
-      "listMoved": "List moved successfully"
+      "listMoved": "List moved successfully",
+      "columnUpdated": "List updated successfully",
+      "columnDeleted": "List deleted successfully",
+      "taskCreated": "Task created successfully"
     },
     "errors": {
       "updateBoardFailed": "Failed to update board",
@@ -866,7 +869,11 @@
     "failedToLoad": "Failed to load event files",
     "errorUploading": "Error uploading files",
     "errorRemoving": "Error removing file",
-    "uploadFile": "Upload file"
+    "uploadFile": "Upload file",
+    "fileUploadSuccess": "Files uploaded successfully",
+    "filesAssociatedSuccess": "Files associated with event successfully",
+    "fileRemoveSuccess": "File removed successfully",
+    "errorAssociatingFiles": "Error associating files with event"
   },
   "hackathonFeedback": {
     "hackathonFeedback": "Hackathon feedback",

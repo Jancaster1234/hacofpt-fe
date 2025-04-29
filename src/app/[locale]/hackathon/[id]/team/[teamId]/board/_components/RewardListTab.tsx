@@ -34,7 +34,7 @@ export default function RewardListTab({ hackathonId }: RewardListTabProps) {
             (a, b) => b.totalScore - a.totalScore
           );
           setResults(sortedResults);
-          toast.success(message || t("fetchSuccess"));
+          //toast.success(t("fetchSuccess"));
         } else {
           setResults([]);
           toast.info(message || t("noResults"));

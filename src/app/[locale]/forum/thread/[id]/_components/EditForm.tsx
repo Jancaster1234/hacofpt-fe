@@ -56,8 +56,7 @@ export default function EditForm({ post, onPostSaved }: EditFormProps) {
 
       // Show success toast
       toast.success(
-        data.message ||
-          (post ? t("postUpdatedSuccessfully") : t("postCreatedSuccessfully"))
+        post ? t("postUpdatedSuccessfully") : t("postCreatedSuccessfully")
       );
 
       // Clear form

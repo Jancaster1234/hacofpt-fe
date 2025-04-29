@@ -109,10 +109,9 @@ export default function TeamInvitationPage() {
 
       // Show success toast with the API response message
       toast.success(
-        message ||
-          (status === "APPROVED"
-            ? t("invitationAcceptedSuccess")
-            : t("invitationDeclinedSuccess"))
+        status === "APPROVED"
+          ? t("invitationAcceptedSuccess")
+          : t("invitationDeclinedSuccess")
       );
 
       // Show success message in modal

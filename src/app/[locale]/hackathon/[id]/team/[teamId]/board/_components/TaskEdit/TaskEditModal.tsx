@@ -172,7 +172,7 @@ export default function TaskEditModal({
         updateTask(completeUpdatedTask);
 
         // Show success toast
-        toast.success(message || t("saveSuccess"));
+        toast.success(t("saveSuccess"));
 
         // Close the modal
         onClose();
@@ -200,7 +200,7 @@ export default function TaskEditModal({
 
       if (success) {
         // Show success toast
-        toast.success(message || t("deleteSuccess"));
+        toast.success(t("deleteSuccess"));
 
         // Close the modal
         onClose();

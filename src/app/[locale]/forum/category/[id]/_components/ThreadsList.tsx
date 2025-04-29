@@ -82,7 +82,7 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
       setThreads(threads.filter((thread) => thread.id !== threadId));
 
       // Show success toast
-      toast.success(message || t("deleteSuccess"));
+      toast.success(t("deleteSuccess"));
     } catch (err: any) {
       console.error("Failed to delete thread:", err);
       // Show error toast
@@ -131,7 +131,7 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
       );
 
       // Show success toast
-      toast.success(message || t("updateSuccess"));
+      toast.success(t("updateSuccess"));
     } catch (err: any) {
       console.error("Failed to update thread:", err);
       // Show error toast

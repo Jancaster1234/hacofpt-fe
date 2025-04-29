@@ -500,7 +500,10 @@
       "boardUpdated": "Cập nhật bảng thành công",
       "listCreated": "Tạo danh sách thành công",
       "taskMoved": "Di chuyển công việc thành công",
-      "listMoved": "Di chuyển danh sách thành công"
+      "listMoved": "Di chuyển danh sách thành công",
+      "columnUpdated": "Cập nhật cột thành công",
+      "columnDeleted": "Xóa cột thành công",
+      "taskCreated": "Tạo công việc thành công"
     },
     "errors": {
       "updateBoardFailed": "Không thể cập nhật bảng",
@@ -866,7 +869,11 @@
     "failedToLoad": "Không thể tải tệp sự kiện",
     "errorUploading": "Lỗi khi tải lên tệp",
     "errorRemoving": "Lỗi khi xóa tệp",
-    "uploadFile": "Tải lên tệp"
+    "uploadFile": "Tải lên tệp",
+    "fileUploadSuccess": "Tải lên tệp thành công",
+    "filesAssociatedSuccess": "Tệp đã được liên kết với sự kiện thành công",
+    "fileRemoveSuccess": "Đã xóa tệp thành công",
+    "errorAssociatingFiles": "Lỗi khi liên kết tệp với sự kiện"
   },
   "hackathonFeedback": {
     "hackathonFeedback": "Phản hồi hackathon",

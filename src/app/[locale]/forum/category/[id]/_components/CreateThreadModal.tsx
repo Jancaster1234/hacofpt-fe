@@ -55,7 +55,7 @@ export default function CreateThreadModal({
       });
 
       if (data && data.id) {
-        toast.success(message || t("threadCreatedSuccessfully"));
+        toast.success(t("threadCreatedSuccessfully"));
         router.refresh();
         router.push(`/forum/thread/${data.id}`);
       } else {

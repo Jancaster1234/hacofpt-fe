@@ -82,7 +82,7 @@ export default function IndividualRegistrationPage() {
         )
       );
 
-      toast.success(response.message || t("success.registrationCancelled"));
+      toast.success(t("success.registrationCancelled"));
       showSuccess(
         t("success.registrationCancelledTitle"),
         response.message || t("success.registrationCancelledMessage")

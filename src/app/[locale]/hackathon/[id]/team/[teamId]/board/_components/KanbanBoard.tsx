@@ -374,6 +374,8 @@ export default function KanbanBoard({
           const result = await moveList(activeId, targetIndex);
           if (result?.message) {
             toast.success(result.message);
+          } else {
+            toast.success(t("success.listMoved"));
           }
         } catch (error: any) {
           toast.error(error.message || t("errors.listMoveFailed"));
@@ -407,6 +409,8 @@ export default function KanbanBoard({
           const result = await moveTask(activeId, sourceColumnId, overId);
           if (result?.message) {
             toast.success(result.message);
+          } else {
+            toast.success(t("success.taskMoved"));
           }
         } catch (error: any) {
           toast.error(error.message || t("errors.taskMoveFailed"));

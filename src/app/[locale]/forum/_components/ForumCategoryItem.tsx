@@ -35,7 +35,7 @@ export const ForumCategoryItem = ({
           category.id
         );
         onDelete(category.id);
-        toast.success(response.message || t("categoryDeleteSuccess"));
+        toast.success(t("categoryDeleteSuccess"));
       } catch (error: any) {
         console.error("Failed to delete category:", error);
         toast.error(error.message || t("categoryDeleteFailed"));

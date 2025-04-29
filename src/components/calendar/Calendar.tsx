@@ -319,7 +319,7 @@ const Calendar: React.FC<CalendarProps> = ({ teamId, hackathonId }) => {
       );
 
       // Show success toast
-      toast.success(message || t("success.eventDeleted"));
+      toast.success(t("success.eventDeleted"));
 
       closeEditModal();
     } catch (error: any) {

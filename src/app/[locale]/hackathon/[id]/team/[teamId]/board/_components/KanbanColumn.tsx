@@ -65,6 +65,8 @@ export default function KanbanColumn({
         .updateList(column.id, columnName);
       if (result && result.message) {
         toast.success(result.message);
+      } else {
+        toast.success(t("success.columnUpdated"));
       }
       setIsEditing(false);
     } catch (error: any) {
@@ -84,6 +86,8 @@ export default function KanbanColumn({
       const result = await useKanbanStore.getState().deleteList(column.id);
       if (result && result.message) {
         toast.success(result.message);
+      } else {
+        toast.success(t("success.columnDeleted"));
       }
     } catch (error: any) {
       toast.error(error.message || t("deleteColumnError"));
@@ -105,6 +109,8 @@ export default function KanbanColumn({
 
       if (result && result.message) {
         toast.success(result.message);
+      } else {
+        toast.success(t("success.taskCreated"));
       }
 
       // Reset form

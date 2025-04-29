@@ -78,7 +78,7 @@ export default function ReportButton({
         setUserReport(response.data);
         setShowReportModal(false);
         setReason("");
-        toast.success(response.message || t("success.reportSubmitted"));
+        toast.success(t("success.reportSubmitted"));
       }
     } catch (err: any) {
       const errorMessage = err.message || t("errors.failedToSubmit");

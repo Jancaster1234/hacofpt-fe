@@ -31,7 +31,7 @@ export default function RequestMentorTab({
       const { success, message } = await onRequestMentorship(mentorId);
 
       if (success) {
-        toast.success(message || t("requestSuccess"));
+        toast.success(t("requestSuccess"));
       } else {
         toast.error(message || t("requestError"));
       }
