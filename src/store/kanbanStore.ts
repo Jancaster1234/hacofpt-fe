@@ -67,7 +67,9 @@ interface KanbanState {
     }
   ) => Promise<Task | null>;
   updateTask: (updatedTask: Task) => void;
-  removeTask: (taskId: string) => Promise<boolean>;
+  removeTask: (
+    taskId: string
+  ) => Promise<{ success: boolean; message?: string }>;
 
   // Board operations
   setBoard: (board: Board) => void;
@@ -424,7 +426,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
 
       if (!columnWithTask) {
         set({ isLoading: false });
-        return false;
+        return { success: false, message: "Task not found" };
       }
 
       // Find the task to get its position
@@ -433,7 +435,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       );
       if (!taskToRemove) {
         set({ isLoading: false });
-        return false;
+        return { success: false, message: "Task not found" };
       }
 
       // Get tasks that need position updates (tasks below the current task)
@@ -476,14 +478,16 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
         isLoading: false,
       });
 
-      return true;
+      return { success: true, message: "Task deleted successfully" };
     } catch (error) {
       console.error("Failed to delete task:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to delete task";
       set({
         isLoading: false,
-        error: error instanceof Error ? error.message : "Failed to delete task",
+        error: errorMessage,
       });
-      return false;
+      return { success: false, message: errorMessage };
     }
   },
 

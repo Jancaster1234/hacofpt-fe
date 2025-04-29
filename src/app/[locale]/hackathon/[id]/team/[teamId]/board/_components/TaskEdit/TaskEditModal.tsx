@@ -295,10 +295,10 @@ export default function TaskEditModal({
 
       if (Array.isArray(file)) {
         updatedFiles = [...files, ...file];
-        toast.success(t("filesAdded"));
+        //toast.success(t("filesAdded"));
       } else {
         updatedFiles = [...files, file];
-        toast.success(t("fileAdded"));
+        //toast.success(t("fileAdded"));
       }
 
       setFiles(updatedFiles);
