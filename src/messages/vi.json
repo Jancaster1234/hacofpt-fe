@@ -159,7 +159,9 @@
     "subtabs": {
       "teams": "Đội",
       "individuals": "Cá nhân"
-    }
+    },
+    "showToc": "Hiển thị mục lục",
+    "hideToc": "Ẩn mục lục"
   },
   "enrollment": {
     "overviewTitle": "Tổng quan đăng ký",

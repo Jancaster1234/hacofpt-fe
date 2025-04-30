@@ -159,7 +159,9 @@
     "subtabs": {
       "teams": "Teams",
       "individuals": "Individuals"
-    }
+    },
+    "showToc": "Show Table of Contents",
+    "hideToc": "Hide Table of Contents"
   },
   "enrollment": {
     "overviewTitle": "Enrollment overview",
