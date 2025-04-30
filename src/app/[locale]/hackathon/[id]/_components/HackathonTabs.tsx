@@ -8,6 +8,18 @@ import { IndividualParticipantsTab } from "./IndividualParticipantsTab";
 import TiptapRenderer from "@/components/TiptapRenderer/ClientRenderer";
 import PostContent from "@/components/shared/PostContent";
 import PostToc from "@/components/shared/PostToc";
+import {
+  FileText,
+  FileImage,
+  FileSpreadsheet,
+  FileCode,
+  FilePpt,
+  FileArchive,
+  FileVideo,
+  FileAudio,
+  FilePdf,
+  File,
+} from "lucide-react";
 
 type TabKey =
   | "information"
@@ -52,6 +64,74 @@ export default function HackathonTabs({
   // Helper to determine if the tab should use the PostContent/PostToc layout
   const shouldUsePostLayout = (tabKey: TabKey) => {
     return ["information", "description", "contact"].includes(tabKey);
+  };
+
+  // Extract filename from URL
+  const getFileName = (url: string) => {
+    // Get the part after the last slash and before any query parameters
+    const fullFileName = url.split("/").pop()?.split("?")[0] || "";
+
+    // Remove any UUID or other identifiers (assuming they're separated by underscores)
+    // This regex looks for patterns like: 682be3c2-aea3-4fa8-b0fe-c580102c3ec3_FileName.ext
+    const cleanedName = fullFileName.replace(/^[0-9a-f-]+_/i, "");
+
+    // URL decode the filename to handle any encoded characters
+    return decodeURIComponent(cleanedName);
+  };
+
+  // Get file extension from URL
+  const getFileExtension = (url: string) => {
+    const fileName = url.split("/").pop()?.split("?")[0] || "";
+    return fileName.split(".").pop()?.toLowerCase() || "";
+  };
+
+  // Get icon based on file extension
+  const getFileIcon = (extension: string) => {
+    switch (extension) {
+      case "pdf":
+        return <FilePdf className="text-red-500" size={20} />;
+      case "doc":
+      case "docx":
+        return <FileText className="text-blue-500" size={20} />;
+      case "xls":
+      case "xlsx":
+      case "csv":
+        return <FileSpreadsheet className="text-green-500" size={20} />;
+      case "ppt":
+      case "pptx":
+        return <FilePpt className="text-orange-500" size={20} />;
+      case "jpg":
+      case "jpeg":
+      case "png":
+      case "gif":
+      case "svg":
+      case "webp":
+        return <FileImage className="text-purple-500" size={20} />;
+      case "mp4":
+      case "mov":
+      case "avi":
+      case "webm":
+        return <FileVideo className="text-pink-500" size={20} />;
+      case "mp3":
+      case "wav":
+      case "ogg":
+        return <FileAudio className="text-yellow-500" size={20} />;
+      case "zip":
+      case "rar":
+      case "tar":
+      case "7z":
+        return <FileArchive className="text-gray-500" size={20} />;
+      case "html":
+      case "css":
+      case "js":
+      case "jsx":
+      case "ts":
+      case "tsx":
+      case "json":
+        return <FileCode className="text-blue-600" size={20} />;
+      default:
+        return <File className="text-gray-400" size={20} />;
+    }
   };
 
   // Render content with PostContent and PostToc layout
@@ -156,22 +236,41 @@ export default function HackathonTabs({
             // Use PostContent/PostToc layout for information, description and contact tabs
             renderPostLayout(content[activeTab] as string)
           ) : Array.isArray(content[activeTab]) ? (
-            // Documentation tab (list of links)
-            <div className="lg:ml-8 md:ml-4 sm:ml-2 transition-all duration-300 overflow-x-auto">
-              <ul className="list-disc pl-5 text-gray-800 dark:text-gray-200">
-                {(content[activeTab] as string[]).map((doc, index) => (
-                  <li key={index} className="mb-1">
-                    <a
-                      href={doc}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline focus:underline focus:outline-none transition-colors duration-200"
-                    >
-                      {doc}
-                    </a>
-                  </li>
-                ))}
+            // Documentation tab (list of files)
+            <div className="lg:ml-8 md:ml-4 sm:ml-2 transition-all duration-300">
+              <ul className="space-y-3">
+                {(content[activeTab] as string[]).map((fileUrl, index) => {
+                  const fileName = getFileName(fileUrl);
+                  const extension = getFileExtension(fileUrl);
+                  const fileIcon = getFileIcon(extension);
+
+                  return (
+                    <li key={index} className="flex items-center">
+                      <a
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 w-full transition-colors duration-200"
+                      >
+                        <div className="flex-shrink-0 mr-3">{fileIcon}</div>
+                        <div className="flex flex-col">
+                          <span className="text-sm sm:text-base font-medium text-gray-800 dark:text-gray-200 break-all">
+                            {fileName}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">
+                            {extension}
+                          </span>
+                        </div>
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
+              {(content[activeTab] as string[]).length === 0 && (
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  {t("noDocuments", "No documents available")}
+                </p>
+              )}
             </div>
           ) : (
             // Fallback rendering for other content

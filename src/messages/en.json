@@ -147,7 +147,6 @@
     "failedToLoad": "Failed to load hackathon details",
     "noHackathonFound": "No hackathon found with this ID"
   },
-
   "hackathonTabs": {
     "tabs": {
       "information": "Information",
@@ -161,7 +160,8 @@
       "individuals": "Individuals"
     },
     "showToc": "Show Table of Contents",
-    "hideToc": "Hide Table of Contents"
+    "hideToc": "Hide Table of Contents",
+    "noDocuments": "No documents available"
   },
   "enrollment": {
     "overviewTitle": "Enrollment overview",

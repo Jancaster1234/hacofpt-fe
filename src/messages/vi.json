@@ -147,7 +147,6 @@
     "failedToLoad": "Không thể tải thông tin hackathon",
     "noHackathonFound": "Không tìm thấy hackathon với ID này"
   },
-
   "hackathonTabs": {
     "tabs": {
       "information": "Thông tin",
@@ -161,7 +160,8 @@
       "individuals": "Cá nhân"
     },
     "showToc": "Hiển thị mục lục",
-    "hideToc": "Ẩn mục lục"
+    "hideToc": "Ẩn mục lục",
+    "noDocuments": "Không có tài liệu nào"
   },
   "enrollment": {
     "overviewTitle": "Tổng quan đăng ký",
