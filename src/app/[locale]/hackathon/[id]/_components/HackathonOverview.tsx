@@ -361,7 +361,7 @@ export default function HackathonOverview({
               {t("loading")}
             </button>
           ) : isTeamMember ? (
-            <>
+            <div className="flex items-center gap-3 sm:gap-4">
               <button
                 className={`${
                   enrollmentStatus === "open"
@@ -381,11 +381,11 @@ export default function HackathonOverview({
                 {getButtonTitle()}
               </button>
               {enrollmentStatus !== "open" && (
-                <p className="text-sm text-amber-500 dark:text-amber-400 font-medium">
+                <p className="text-sm text-amber-500 dark:text-amber-400 font-medium self-center">
                   {getEnrollmentStatusMessage()}
                 </p>
               )}
-            </>
+            </div>
           ) : (
             <div>
               <button
