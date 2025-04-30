@@ -1,4 +1,4 @@
-// src/components/Header/NotificationDropdown.tsx
+// src/components/header/NotificationDropdown.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,7 +6,9 @@ import { Bell } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { toast } from "sonner";
 import Image from "next/image";
-import { notificationService } from "@/services/notification.service";
+import { useWebSocket } from '@/contexts/WebSocketContext';
+import { Message, StompSubscription } from '@stomp/stompjs';
+import NotificationDetailModal from "./NotificationDetailModal";
 
 interface Notification {
   id: string;
@@ -18,19 +20,70 @@ interface Notification {
     name: string;
     avatarUrl: string;
   };
+  isRead: boolean;
 }
 
 export default function NotificationDropdown() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
+  const { client, isConnected } = useWebSocket();
+
+  const truncateContent = (content: string, maxLength: number = 50) => {
+    if (content.length <= maxLength) return content;
+    return content.slice(0, maxLength) + "...";
+  };
 
   useEffect(() => {
     if (user?.id) {
       fetchNotifications();
     }
   }, [user?.id]);
+
+  useEffect(() => {
+    let subscription: StompSubscription | null = null;
+
+    const setupSubscription = async () => {
+      if (!isConnected || !client || !user?.id) return;
+
+      try {
+        // Wait a short moment to ensure connection is fully established
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (client.connected) {
+          // Subscribe to the topic that matches the backend's destination
+          // The backend uses: messagingTemplate.convertAndSend("/topic/notifications/" + userId, notificationResponse);
+          const topic = `/topic/notifications/${user.id}`;
+          console.log(`Subscribing to topic: ${topic}`);
+
+          subscription = client.subscribe(topic, (message: Message) => {
+            try {
+              const newNotification = JSON.parse(message.body);
+              console.log("Received WebSocket notification:", newNotification);
+              setNotifications(prev => [newNotification, ...prev]);
+              toast.info(newNotification.content);
+            } catch (error) {
+              console.error("Error parsing notification message:", error);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error setting up WebSocket subscription:', error);
+        toast.error('Failed to connect to notification service');
+      }
+    };
+
+    setupSubscription();
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
+  }, [isConnected, client, user?.id]);
 
   const fetchNotifications = async () => {
     try {
@@ -39,14 +92,24 @@ export default function NotificationDropdown() {
         return;
       }
 
-      setLoading(true);
-      // Using the notification service instead of direct fetch
-      const response = await notificationService.getAllNotifications();
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        toast.error("No access token found");
+        return;
+      }
 
-      if (response && response.data) {
-        setNotifications(response.data || []);
+      setLoading(true);
+      const response = await fetch(`/api/notifications/user/${user.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      if (response.ok && data) {
+        setNotifications(data.data || []);
       } else {
-        toast.error("Failed to fetch notifications");
+        toast.error(data.error?.message || "Failed to fetch notifications");
       }
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -56,35 +119,38 @@ export default function NotificationDropdown() {
     }
   };
 
-  // Mark notifications as read when dropdown is opened
-  useEffect(() => {
-    if (isOpen && notifications.length > 0) {
-      markNotificationsAsRead();
-    }
-  }, [isOpen]);
+  const handleNotificationClick = async (notification: Notification) => {
+    setSelectedNotification(notification);
+    setIsModalOpen(true);
 
-  const markNotificationsAsRead = async () => {
-    try {
-      const unreadNotifications = notifications
-        .filter((notification) => !notification.isRead)
-        .map((notification) => notification.id);
-
-      if (unreadNotifications.length > 0) {
-        await notificationService.updateReadStatusBulk({
-          notificationIds: unreadNotifications,
-          read: true,
+    if (!notification.isRead) {
+      try {
+        const response = await fetch("/api/notifications/read-status", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          body: JSON.stringify({
+            notificationIds: [notification.id],
+            isRead: true,
+          }),
         });
 
-        // Update local state to reflect read status
+        if (!response.ok) {
+          throw new Error("Failed to mark notification as read");
+        }
+
+        // Update local state
         setNotifications((prevNotifications) =>
-          prevNotifications.map((notification) => ({
-            ...notification,
-            isRead: true,
-          }))
+          prevNotifications.map((n) =>
+            n.id === notification.id ? { ...n, isRead: true } : n
+          )
         );
+      } catch (error) {
+        console.error("Error marking notification as read:", error);
+        toast.error("Failed to mark notification as read");
       }
-    } catch (error) {
-      console.error("Error marking notifications as read:", error);
     }
   };
 
@@ -124,7 +190,11 @@ export default function NotificationDropdown() {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    onClick={() => handleNotificationClick(notification)}
+                    className={`p-3 rounded-lg transition-colors cursor-pointer ${notification.isRead
+                      ? "bg-gray-50 hover:bg-gray-100"
+                      : "bg-blue-50 hover:bg-blue-100 border-l-4 border-blue-500"
+                      }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0">
@@ -139,17 +209,23 @@ export default function NotificationDropdown() {
                           className="rounded-full object-cover"
                         />
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <p className="text-sm font-medium text-gray-900">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start mb-2">
+                          <p
+                            className={`text-sm font-medium ${notification.isRead ? "text-gray-900" : "text-blue-900"
+                              }`}
+                          >
                             {notification.sender.name}
                           </p>
-                          <span className="text-xs text-gray-500 ml-2">
+                          <span className="text-xs text-gray-500 flex-shrink-0">
                             {new Date(notification.createdAt).toLocaleString()}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-800">
-                          {notification.content}
+                        <p
+                          className={`text-sm break-words ${notification.isRead ? "text-gray-800" : "text-blue-800"
+                            }`}
+                        >
+                          {truncateContent(notification.content)}
                         </p>
                       </div>
                     </div>
@@ -171,6 +247,15 @@ export default function NotificationDropdown() {
           )}
         </div>
       )}
+
+      <NotificationDetailModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedNotification(null);
+        }}
+        notification={selectedNotification}
+      />
     </div>
   );
 }

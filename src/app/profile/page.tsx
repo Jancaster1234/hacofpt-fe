@@ -1,11 +1,11 @@
-// src/app/[locale]/profile/page.tsx
+// src/app/profile/page.tsx
 "use client";
 
 import Image from "next/image";
 import InformationTab from "@/app/profile/_components/InformationTab";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import HackathonParticipatedTab from "./_components/HackathonParticipatedTab";
-import AwardTab from "./_components/AwardTab";
+import HackathonParticipatedTab from "@/app/profile/_components/HackathonParticipatedTab";
+import AwardTab from "@/app/profile/_components/AwardTab";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { User } from "@/types/entities/user";
 import { useAuthStore } from "@/store/authStore";
@@ -106,7 +106,7 @@ export default function ProfilePage() {
       <div className="flex gap-8 items-center mb-8">
         <div className="relative group">
           <Image
-            src={user.avatarUrl || "https://randomuser.me/api/portraits/men/99.jpg"}
+            src={user?.avatarUrl || "https://randomuser.me/api/portraits/men/99.jpg"}
             alt="Profile Picture"
             width={150}
             height={150}
@@ -145,13 +145,13 @@ export default function ProfilePage() {
           <InformationTab user={user} onUpdateUser={handleUpdateUser} />
         </TabsContent>
 
-         <TabsContent value="hackathon">
+        <TabsContent value="hackathon">
           <HackathonParticipatedTab user={user} />
-        </TabsContent> 
+        </TabsContent>
 
         <TabsContent value="award">
           <AwardTab user={user} />
-        </TabsContent> 
+        </TabsContent>
       </Tabs>
     </div>
   );
