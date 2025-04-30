@@ -1,10 +1,12 @@
-// src/app/[locale]/hackathon/[id]/_components/HackathonTabs.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "@/hooks/useTranslations";
 import { TeamParticipantsTab } from "./TeamParticipantsTab";
 import { IndividualParticipantsTab } from "./IndividualParticipantsTab";
+import TiptapRenderer from "@/components/TiptapRenderer/ClientRenderer";
+import PostContent from "@/components/shared/PostContent";
+import PostToc from "@/components/shared/PostToc";
 
 type TabKey =
   | "information"
@@ -45,6 +47,40 @@ export default function HackathonTabs({
     setActiveTab(key);
     window.location.hash = key; // Update URL hash
   };
+
+  // Helper to determine if the tab should use the PostContent/PostToc layout
+  const shouldUsePostLayout = (tabKey: TabKey) => {
+    return ["information", "description", "contact"].includes(tabKey);
+  };
+
+  // Render content with PostContent and PostToc layout
+  const renderPostLayout = (tabContent: string) => (
+    <div
+      className="grid grid-cols-1 w-full px-2 sm:px-0 
+      md:grid-cols-[1fr_minmax(650px,_1fr)_1fr] 
+      lg:grid-cols-[minmax(auto,256px)_minmax(720px,1fr)_minmax(auto,256px)] 
+      gap-4 md:gap-6 lg:gap-8"
+    >
+      {/* Left spacer on desktop */}
+      <div className="hidden md:block relative"></div>
+
+      {/* Main content area */}
+      <div>
+        <PostContent>
+          <div className="dark:prose-invert prose-img:rounded prose-headings:scroll-mt-28">
+            <TiptapRenderer>{tabContent}</TiptapRenderer>
+          </div>
+        </PostContent>
+      </div>
+
+      {/* Right sidebar with TOC - sticky positioning */}
+      <div className="hidden md:block relative">
+        <div className="sticky top-24">
+          <PostToc />
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="mt-4 sm:mt-6 transition-all duration-300">
@@ -100,7 +136,12 @@ export default function HackathonTabs({
               <IndividualParticipantsTab hackathonId={hackathonId} />
             )}
           </div>
+        ) : shouldUsePostLayout(activeTab) &&
+          typeof content[activeTab] === "string" ? (
+          // Use PostContent/PostToc layout for information, description and contact tabs
+          renderPostLayout(content[activeTab] as string)
         ) : Array.isArray(content[activeTab]) ? (
+          // Documentation tab (list of links)
           <ul className="list-disc pl-5 text-gray-800 dark:text-gray-200">
             {(content[activeTab] as string[]).map((doc, index) => (
               <li key={index} className="mb-1">
@@ -116,8 +157,9 @@ export default function HackathonTabs({
             ))}
           </ul>
         ) : (
+          // Fallback rendering for other content
           <p className="text-gray-800 dark:text-gray-200 text-sm sm:text-base">
-            {content[activeTab]}
+            {content[activeTab] as string}
           </p>
         )}
       </div>

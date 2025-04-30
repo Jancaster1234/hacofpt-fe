@@ -17,6 +17,7 @@
   white-space: pre-wrap;
   position: relative;
   padding-block: 1.75rem;
+
   // Editable content styles
   &[contenteditable="true"] {
     .ProseMirror-selectednode:has(iframe),

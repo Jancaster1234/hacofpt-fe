@@ -1,4 +1,4 @@
-// src/sample.ts
+// src/styles/sample.ts
 export const title =
   "Tiptap with React and Next.js: Building a Powerful Rich Text Editor";
 
