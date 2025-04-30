@@ -1,16 +1,22 @@
 // src/app/[locale]/hackathon/[id]/_components/IndividualParticipantsTab.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { individualRegistrationRequestService } from "@/services/individualRegistrationRequest.service";
 import { IndividualRegistrationRequest } from "@/types/entities/individualRegistrationRequest";
 import Image from "next/image";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export function IndividualParticipantsTab({
   hackathonId,
 }: {
   hackathonId: string;
 }) {
+  const t = useTranslations("participants");
+  const toast = useToast();
+
   const [approvedRegistrations, setApprovedRegistrations] = useState<
     IndividualRegistrationRequest[]
   >([]);
@@ -22,6 +28,15 @@ export function IndividualParticipantsTab({
   const [activeStatus, setActiveStatus] = useState<"APPROVED" | "COMPLETED">(
     "APPROVED"
   );
+
+  // Use a ref to prevent toast in useEffect causing re-renders
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const fetchIndividualRegistrations = async () => {
@@ -38,29 +53,41 @@ export function IndividualParticipantsTab({
           ),
         ]);
 
-        setApprovedRegistrations(approvedRes.data);
-        setCompletedRegistrations(completedRes.data);
+        if (isMounted.current) {
+          setApprovedRegistrations(approvedRes.data);
+          setCompletedRegistrations(completedRes.data);
+          // Don't display toast for initial data fetching
+        }
       } catch (err) {
         console.error("Error fetching individual registrations:", err);
-        setError(
-          "Failed to load individual participants. Please try again later."
-        );
+        if (isMounted.current) {
+          setError(t("failedToLoadParticipants"));
+          // Don't display toast for initial data fetching
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted.current) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchIndividualRegistrations();
-  }, [hackathonId]);
+  }, [hackathonId, t]);
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-8">Loading participants...</div>
+      <div className="flex justify-center items-center py-8 transition-colors duration-300">
+        <LoadingSpinner size="md" showText={true} />
+      </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500 py-4">{error}</div>;
+    return (
+      <div className="text-red-500 dark:text-red-400 py-4 transition-colors duration-300">
+        {error}
+      </div>
+    );
   }
 
   const currentRegistrations =
@@ -73,77 +100,87 @@ export function IndividualParticipantsTab({
     completedRegistrations.length === 0
   ) {
     return (
-      <div className="py-4">
-        No individual participants have registered for this hackathon yet.
+      <div className="py-4 text-gray-700 dark:text-gray-300 transition-colors duration-300">
+        {t("noParticipantsRegistered")}
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex mb-4">
+    <div className="transition-colors duration-300">
+      <div className="flex mb-4 border-b dark:border-gray-700">
         <button
           onClick={() => setActiveStatus("APPROVED")}
-          className={`px-4 py-2 ${
+          className={`px-3 sm:px-4 py-2 transition-colors duration-200 ${
             activeStatus === "APPROVED"
-              ? "bg-blue-100 text-blue-800 rounded-t-lg font-medium"
-              : "text-gray-600"
+              ? "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-t-lg font-medium"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
           }`}
         >
-          Approved ({approvedRegistrations.length})
+          {t("approved")} ({approvedRegistrations.length})
         </button>
         <button
           onClick={() => setActiveStatus("COMPLETED")}
-          className={`px-4 py-2 ${
+          className={`px-3 sm:px-4 py-2 transition-colors duration-200 ${
             activeStatus === "COMPLETED"
-              ? "bg-green-100 text-green-800 rounded-t-lg font-medium"
-              : "text-gray-600"
+              ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-t-lg font-medium"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
           }`}
         >
-          Completed ({completedRegistrations.length})
+          {t("completed")} ({completedRegistrations.length})
         </button>
       </div>
 
-      <div className="bg-white">
+      <div className="bg-white dark:bg-gray-800 transition-colors duration-300">
         {currentRegistrations.length === 0 ? (
-          <div className="py-6 text-center text-gray-500">
-            No {activeStatus.toLowerCase()} registrations found.
+          <div className="py-6 text-center text-gray-500 dark:text-gray-400">
+            {t("noRegistrationsFound", { status: activeStatus.toLowerCase() })}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {currentRegistrations.map((registration) => {
               // If we have proper user data structure, use it
-              // This section might need adjustment based on actual data structure
-              const userName = registration.createdByUserName || "Unknown User";
+              const userName =
+                registration.createdByUserName || t("unknownUser");
+              const formattedDate = new Date(
+                registration.createdAt
+              ).toLocaleDateString();
 
               return (
                 <div
                   key={registration.id}
-                  className="border rounded-lg p-4 shadow-sm flex items-center gap-3"
+                  className="border dark:border-gray-700 rounded-lg p-3 sm:p-4 shadow-sm 
+                           bg-white dark:bg-gray-800 flex items-center gap-3 
+                           hover:shadow-md transition-all duration-300"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-sm font-medium text-gray-600">
+                  <div
+                    className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 
+                                flex items-center justify-center flex-shrink-0
+                                transition-colors duration-300"
+                  >
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                       {userName.charAt(0)}
                     </span>
                   </div>
 
-                  <div>
-                    <div className="font-medium">{userName}</div>
+                  <div className="min-w-0">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      {userName}
+                    </div>
 
-                    <div className="text-sm text-gray-500">
-                      Registered on{" "}
-                      {new Date(registration.createdAt).toLocaleDateString()}
+                    <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                      {t("registeredOn")} {formattedDate}
                     </div>
 
                     <div className="mt-1">
                       <span
-                        className={`text-xs px-2 py-0.5 rounded ${
+                        className={`text-xs px-2 py-0.5 rounded transition-colors duration-300 ${
                           registration.status === "APPROVED"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-green-100 text-green-800"
+                            ? "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
+                            : "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
                         }`}
                       >
-                        {registration.status}
+                        {t(registration.status.toLowerCase())}
                       </span>
                     </div>
                   </div>

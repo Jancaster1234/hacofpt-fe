@@ -1,73 +1,120 @@
 // src/app/[locale]/hackathon/[id]/_components/TeamParticipantsTab.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { teamService } from "@/services/team.service";
 import { Team } from "@/types/entities/team";
 import Image from "next/image";
+import { useTranslations } from "@/hooks/useTranslations";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export function TeamParticipantsTab({ hackathonId }: { hackathonId: string }) {
+  const t = useTranslations("teams");
+  const toast = useToast();
+
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Use a ref to prevent toast in useEffect causing re-renders
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const fetchTeams = async () => {
       try {
         setIsLoading(true);
         const response = await teamService.getTeamsByHackathonId(hackathonId);
-        setTeams(response.data);
+
+        if (isMounted.current) {
+          setTeams(response.data);
+          // Don't display toast for initial data fetching
+        }
       } catch (err) {
         console.error("Error fetching teams:", err);
-        setError("Failed to load teams. Please try again later.");
+        if (isMounted.current) {
+          setError(t("failedToLoadTeams"));
+          // Don't display toast for initial data fetching
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted.current) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchTeams();
-  }, [hackathonId]);
+  }, [hackathonId, t]);
 
   if (isLoading) {
-    return <div className="flex justify-center py-8">Loading teams...</div>;
+    return (
+      <div className="flex justify-center items-center py-8 transition-colors duration-300">
+        <LoadingSpinner size="md" showText={true} />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-red-500 py-4">{error}</div>;
+    return (
+      <div className="text-red-500 dark:text-red-400 py-4 transition-colors duration-300">
+        {error}
+      </div>
+    );
   }
 
   if (teams.length === 0) {
     return (
-      <div className="py-4">
-        No teams have registered for this hackathon yet.
+      <div className="py-4 text-gray-700 dark:text-gray-300 transition-colors duration-300">
+        {t("noTeamsRegistered")}
       </div>
     );
   }
 
   return (
-    <div>
-      <h3 className="text-xl font-medium mb-4">
-        Registered Teams ({teams.length})
+    <div className="transition-colors duration-300">
+      <h3 className="text-xl font-medium mb-4 text-gray-900 dark:text-gray-100">
+        {t("registeredTeams")} ({teams.length})
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {teams.map((team) => (
-          <div key={team.id} className="border rounded-lg p-4 shadow-sm">
+          <div
+            key={team.id}
+            className="border dark:border-gray-700 rounded-lg p-3 sm:p-4 shadow-sm 
+                     bg-white dark:bg-gray-800 transition-all duration-300 hover:shadow-md"
+          >
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-lg font-semibold">{team.name}</h4>
-              <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                {team.teamMembers.length} members
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {team.name}
+              </h4>
+              <span className="text-xs sm:text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded transition-colors duration-300">
+                {team.teamMembers.length} {t("members")}
               </span>
             </div>
 
-            {team.bio && <p className="text-gray-600 mb-3">{team.bio}</p>}
+            {team.bio && (
+              <p className="text-gray-600 dark:text-gray-300 mb-3 text-sm sm:text-base">
+                {team.bio}
+              </p>
+            )}
 
-            <div className="border-t pt-3">
-              <h5 className="font-medium mb-2">Team Members:</h5>
+            <div className="border-t dark:border-gray-700 pt-3 transition-colors duration-300">
+              <h5 className="font-medium mb-2 text-gray-800 dark:text-gray-200">
+                {t("teamMembers")}:
+              </h5>
               <ul className="space-y-2">
                 {team.teamMembers.map((member) => (
-                  <li key={member.id} className="flex items-center gap-3">
+                  <li
+                    key={member.id}
+                    className="flex items-center gap-3 transition-colors duration-300"
+                  >
                     {member.user.avatarUrl ? (
-                      <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                      <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                         <Image
                           src={member.user.avatarUrl}
                           alt={`${member.user.firstName} ${member.user.lastName}`}
@@ -77,23 +124,25 @@ export function TeamParticipantsTab({ hackathonId }: { hackathonId: string }) {
                         />
                       </div>
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-600">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 transition-colors duration-300">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                           {member.user.firstName.charAt(0)}
                           {member.user.lastName.charAt(0)}
                         </span>
                       </div>
                     )}
-                    <div>
-                      <div className="font-medium">
-                        {member.user.firstName} {member.user.lastName}
+                    <div className="min-w-0">
+                      <div className="font-medium text-gray-900 dark:text-gray-100 flex flex-wrap items-center gap-1">
+                        <span className="truncate">
+                          {member.user.firstName} {member.user.lastName}
+                        </span>
                         {team.teamLeader.id === member.user.id && (
-                          <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
-                            Team Leader
+                          <span className="ml-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-0.5 rounded whitespace-nowrap">
+                            {t("teamLeader")}
                           </span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
                         {member.user.email} • @{member.user.username}
                       </div>
                     </div>

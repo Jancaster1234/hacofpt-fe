@@ -288,7 +288,12 @@
       "approved": "Approved",
       "rejected": "Rejected",
       "completed": "Completed"
-    }
+    },
+    "registeredTeams": "Registered teams",
+    "noTeamsRegistered": "No teams have registered for this hackathon yet.",
+    "members": "members",
+    "teamLeader": "Team leader",
+    "failedToLoadTeams": "Failed to load teams. Please try again later."
   },
   "mentorship": {
     "mentorshipOverview": "Mentorship overview",
@@ -723,6 +728,15 @@
     "removingUser": "Removing user...",
     "userRemoved": "User removed successfully",
     "errorRemovingUser": "Failed to remove user"
+  },
+  "participants": {
+    "approved": "Approved",
+    "completed": "Completed",
+    "registeredOn": "Registered on",
+    "unknownUser": "Unknown user",
+    "noParticipantsRegistered": "No individual participants have registered for this hackathon yet.",
+    "noRegistrationsFound": "No {status} registrations found.",
+    "failedToLoadParticipants": "Failed to load individual participants. Please try again later."
   },
   "calendar": {
     "teamSchedule": "Team schedule",

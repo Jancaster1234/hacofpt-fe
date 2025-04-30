@@ -169,6 +169,15 @@
     "hideToc": "Ẩn mục lục",
     "noDocuments": "Không có tài liệu nào"
   },
+  "participants": {
+    "approved": "Đã duyệt",
+    "completed": "Đã hoàn thành",
+    "registeredOn": "Đăng ký vào",
+    "unknownUser": "Người dùng không xác định",
+    "noParticipantsRegistered": "Chưa có cá nhân nào đăng ký hackathon này.",
+    "noRegistrationsFound": "Không tìm thấy đăng ký {status}.",
+    "failedToLoadParticipants": "Không thể tải thông tin người tham gia. Vui lòng thử lại sau."
+  },
   "enrollment": {
     "overviewTitle": "Tổng quan đăng ký",
     "myTeams": "Đội của tôi",
@@ -288,7 +297,12 @@
       "approved": "Đã duyệt",
       "rejected": "Đã từ chối",
       "completed": "Hoàn thành"
-    }
+    },
+    "registeredTeams": "Các đội đã đăng ký",
+    "noTeamsRegistered": "Chưa có đội nào đăng ký hackathon này.",
+    "members": "thành viên",
+    "teamLeader": "Đội trưởng",
+    "failedToLoadTeams": "Không thể tải thông tin đội. Vui lòng thử lại sau."
   },
   "mentorship": {
     "mentorshipOverview": "Tổng quan về hướng dẫn",
