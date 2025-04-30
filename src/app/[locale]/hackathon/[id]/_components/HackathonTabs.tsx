@@ -1,4 +1,3 @@
-// src/app/[locale]/hackathon/[id]/_components/HackathonTabs.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -68,11 +67,11 @@ export default function HackathonTabs({
       </div>
 
       {/* Table of Contents - only visible on larger screens */}
-      <div className="hidden lg:block">
-        <div className="sticky top-24">
+      <aside className="hidden lg:block">
+        <div className="sticky top-24 overflow-auto max-h-[calc(100vh-6rem)]">
           <PostToc />
         </div>
-      </div>
+      </aside>
     </div>
   );
 
@@ -118,7 +117,7 @@ export default function HackathonTabs({
         </div>
 
         {/* Tab Content */}
-        <div className="mt-4 p-3 sm:p-4 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm transition-colors duration-300 overflow-hidden">
+        <div className="mt-4 p-3 sm:p-4 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm transition-colors duration-300 overflow-visible">
           {activeTab === "participant" ? (
             <div>
               {/* Participant Subtabs */}
