@@ -1,3 +1,4 @@
+// src/app/[locale]/hackathon/[id]/_components/IndividualParticipantsTab.tsx
 "use client";
 
 import { useState, useEffect } from "react";
