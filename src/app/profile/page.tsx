@@ -12,6 +12,7 @@ import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { Camera } from "lucide-react";
 import React from "react";
+import ChangePasswordTab from "@/app/[locale]/profile/_components/ChangePasswordTab";
 
 export default function ProfilePage() {
   const { user, checkUser } = useAuth();
@@ -139,6 +140,7 @@ export default function ProfilePage() {
           <TabsTrigger value="information">Information</TabsTrigger>
           <TabsTrigger value="hackathon">Hackathon Participated</TabsTrigger>
           <TabsTrigger value="award">Award</TabsTrigger>
+          <TabsTrigger value="password">Change Password</TabsTrigger>
         </TabsList>
 
         <TabsContent value="information">
@@ -151,6 +153,10 @@ export default function ProfilePage() {
 
         <TabsContent value="award">
           <AwardTab user={user} />
+        </TabsContent>
+
+        <TabsContent value="password">
+          <ChangePasswordTab />
         </TabsContent>
       </Tabs>
     </div>
