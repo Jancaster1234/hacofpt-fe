@@ -11,7 +11,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export function TeamParticipantsTab({ hackathonId }: { hackathonId: string }) {
   const t = useTranslations("teams");
-  const toast = useToast();
+  const { error: showError } = useToast(); // Destructure the error function
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,12 +33,9 @@ export function TeamParticipantsTab({ hackathonId }: { hackathonId: string }) {
       } catch (err) {
         console.error("Error fetching teams:", err);
         if (!isCancelled) {
-          setError(t("failedToLoadTeams"));
-          toast({
-            title: t("error"),
-            description: t("failedToLoadTeams"),
-            variant: "destructive",
-          });
+          const errorMessage = t("failedToLoadTeams");
+          setError(errorMessage);
+          showError(errorMessage); // Use the destructured error function
         }
       } finally {
         if (!isCancelled) {
@@ -52,7 +49,7 @@ export function TeamParticipantsTab({ hackathonId }: { hackathonId: string }) {
     return () => {
       isCancelled = true;
     };
-  }, [hackathonId, t, toast]);
+  }, [hackathonId, t, showError]); // Add showError to dependencies
 
   if (isLoading) {
     return (

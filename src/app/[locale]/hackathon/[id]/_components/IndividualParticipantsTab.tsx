@@ -3,13 +3,13 @@
 
 import { useState, useEffect } from "react";
 import { individualRegistrationRequestService } from "@/services/individualRegistrationRequest.service";
-import { userService } from "@/services/user.service"; // Import the user service
+import { userService } from "@/services/user.service";
 import { IndividualRegistrationRequest } from "@/types/entities/individualRegistrationRequest";
-import { User } from "@/types/entities/user"; // Import User type
+import { User } from "@/types/entities/user";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import Image from "next/image"; // Import Image for avatar
+import Image from "next/image";
 
 // Define a type that extends IndividualRegistrationRequest with user details
 interface EnhancedRegistration extends IndividualRegistrationRequest {
@@ -22,7 +22,7 @@ export function IndividualParticipantsTab({
   hackathonId: string;
 }) {
   const t = useTranslations("participants");
-  const { toast } = useToast();
+  const { error: showError } = useToast(); // Correctly destructure the error function
 
   const [approvedRegistrations, setApprovedRegistrations] = useState<
     EnhancedRegistration[]
@@ -100,12 +100,9 @@ export function IndividualParticipantsTab({
       } catch (err) {
         console.error("Error fetching individual registrations:", err);
         if (!isCancelled) {
-          setError(t("failedToLoadParticipants"));
-          toast({
-            title: t("error"),
-            description: t("failedToLoadParticipants"),
-            variant: "destructive",
-          });
+          const errorMessage = t("failedToLoadParticipants");
+          setError(errorMessage);
+          showError(errorMessage); // Use the destructured error function
         }
       } finally {
         if (!isCancelled) {
@@ -119,7 +116,7 @@ export function IndividualParticipantsTab({
     return () => {
       isCancelled = true;
     };
-  }, [hackathonId, t, toast]);
+  }, [hackathonId, t, showError]); // Add showError to dependencies
 
   if (isLoading) {
     return (
