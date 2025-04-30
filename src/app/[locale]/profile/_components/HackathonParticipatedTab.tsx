@@ -1,4 +1,4 @@
-// src/app/[locale]/profile/_components/HackathonParticipatedTab.tsx
+// src/app/profile/_components/HackathonParticipatedTab.tsx
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { User } from "@/types/entities/user";
@@ -167,7 +167,10 @@ export default function HackathonParticipatedTab({ user }: { user: User }) {
                     <td className="py-4 px-4">
                       {placement !== "-" && (
                         <Badge className={cn("capitalize", getPlacementBadge(placement))}>
-                          {placement}
+                          {placement === 1 ? "1st Place 🏆" :
+                            placement === 2 ? "2nd Place 🥈" :
+                              placement === 3 ? "3rd Place 🥉" :
+                                `${placement}th Place`}
                         </Badge>
                       )}
                     </td>
