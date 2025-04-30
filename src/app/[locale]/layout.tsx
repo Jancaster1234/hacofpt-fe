@@ -12,6 +12,8 @@ import { useEffect } from "react";
 import { ToastProvider } from "@/components/ui/toast-provider";
 import { Providers } from "./providers";
 import { TestToastProvider } from "@/components/ui/test-toast-provider";
+import { WebSocketProvider } from "@/contexts/WebSocketContext";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
@@ -49,14 +51,16 @@ export default function RootLayout({
       <body
         className={`pt-[142px] bg-[#FCFCFC] dark:bg-black ${inter.className}`}
       >
-        <Providers locale={locale}>
-          <Header />
-          {children}
-          <Footer />
-          <ToastProvider />
-          {/* <TestToastProvider /> */}
-          <ScrollToTop />
-        </Providers>
+        <WebSocketProvider>
+          <Providers locale={locale}>
+            <Header />
+            {children}
+            <Footer />
+            <ToastProvider />
+            {/* <TestToastProvider /> */}
+            <ScrollToTop />
+          </Providers>
+        </WebSocketProvider>
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-// src/app/[locale]/chat/_components/ChatDetails.tsx
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
@@ -32,6 +32,7 @@ const ChatDetails: React.FC<ChatDetailsProps> = ({ chatId, chats, onSendMessage,
     const [users, setUsers] = useState<User[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const emojiPickerRef = useRef<HTMLDivElement>(null);
+    const [activeReactionBar, setActiveReactionBar] = useState<string | null>(null);
 
     // Fetch users list
     useEffect(() => {
@@ -230,84 +231,128 @@ const ChatDetails: React.FC<ChatDetailsProps> = ({ chatId, chats, onSendMessage,
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {chat.messages.map((message) => {
                     const isCurrentUser = message?.createdByUserName && user?.username && message.createdByUserName === user.username;
+                    // Tooltip for full date/time
+                    const fullDate = formatTime(message.createdAt);
                     return (
-                        <div
-                            key={message.id}
-                            className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
-                        >
-                            <div className={`max-w-[70%] group relative ${isCurrentUser
-                                ? 'bg-blue-500 text-white rounded-2xl rounded-br-none'
-                                : 'bg-gray-200 text-gray-800 rounded-2xl rounded-bl-none'
-                                } p-3 shadow`}
-                            >
+                        <div key={message.id} className={`flex w-full ${isCurrentUser ? 'justify-end' : 'justify-start'} items-end`}>
+                            {/* Avatar for others */}
+                            {!isCurrentUser && (
+                                <img
+                                    src={getOtherUserAvatar()}
+                                    alt="avatar"
+                                    className="w-8 h-8 rounded-full mr-2 self-end"
+                                />
+                            )}
+                            <div className={`flex flex-col max-w-[70%] ${isCurrentUser ? 'items-end ml-auto' : 'items-start mr-auto'} relative group`}>
+                                {/* Name for others */}
                                 {!isCurrentUser && (
-                                    <p className="text-xs text-gray-600 font-semibold mb-1">
-                                        {getUserFullName(message.createdByUserName)}
-                                    </p>
+                                    <span className="text-xs text-gray-500 font-medium mb-1 ml-1">{getUserFullName(message.createdByUserName)}</span>
                                 )}
+                                <div className="flex items-center w-full">
+                                    {/* Nếu là mình, bubble trước, rồi icon */}
+                                    {isCurrentUser && (
+                                        <button
+                                            type="button"
+                                            className="mr-2 text-lg text-gray-400 hover:text-gray-500 focus:outline-none"
+                                            onClick={() => setActiveReactionBar(activeReactionBar === message.id ? null : message.id)}
+                                            tabIndex={-1}
+                                        >
+                                            <FaSmile />
+                                        </button>
+                                    )}
+                                    <div
+                                        className={`px-4 py-2 ${isCurrentUser
+                                            ? 'bg-[#1877f2] text-white rounded-2xl rounded-br-md'
+                                            : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
+                                            } shadow-sm break-words relative`}
+                                    >
 
-                                {/* Message content */}
-                                {message.fileUrls?.length > 0 ? (
-                                    message.fileUrls.map((fileUrl, index) => (
-                                        <div key={index} className="mt-2">
-                                            {fileUrl.match(/\.(jpeg|jpg|gif|png)$/) ? (
-                                                <img src={fileUrl} alt="Attachment" className="rounded-lg max-w-xs" />
-                                            ) : (
-                                                <a
-                                                    href={fileUrl}
-                                                    download
-                                                    className={`${isCurrentUser ? 'text-white' : 'text-blue-600'} underline flex items-center gap-2`}
-                                                >
-                                                    {getFileIcon(fileUrl)}
-                                                    {getFileName(fileUrl)}
-                                                </a>
-                                            )}
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p>{decodeURIComponent(message.content || '')}</p>
-                                )}
-
-                                {/* Timestamp */}
-                                <p className="text-xs text-right mt-1 opacity-70">
-                                    {formatTime(message.createdAt)}
-                                </p>
-
-                                {/* Reactions */}
-                                {message.reactions?.length > 0 && (
-                                    <div className={`flex items-center mt-1 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                                        <div className="bg-white rounded-full px-2 py-1 shadow-sm flex items-center space-x-1">
-                                            {message.reactions.map((reaction, i) => (
-                                                <span key={i} className="text-sm">
-                                                    {getReactionEmoji(reaction.reactionType)}
-                                                </span>
-                                            ))}
-                                            <span className="text-xs text-gray-500">{message.reactions.length}</span>
-                                        </div>
+                                        {/* Nội dung tin nhắn */}
+                                        {message.fileUrls?.length > 0 ? (
+                                            <div className="space-y-2">
+                                                {message.fileUrls.map((fileUrl, index) => {
+                                                    const isImage = /\.(jpg|jpeg|png|gif)$/i.test(fileUrl);
+                                                    return isImage ? (
+                                                        <img
+                                                            key={index}
+                                                            src={fileUrl}
+                                                            alt="attachment"
+                                                            className="rounded-md max-w-[120px] max-h-[120px] object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div key={index} className="flex items-center space-x-2 p-2 bg-gray-200 rounded-lg">
+                                                            <div className="text-gray-600">
+                                                                {getFileIcon(fileUrl)}
+                                                            </div>
+                                                            <a
+                                                                href={fileUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-sm text-blue-600 hover:underline truncate max-w-[200px]"
+                                                                download
+                                                            >
+                                                                {getFileName(fileUrl)}
+                                                            </a>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <span className="text-sm whitespace-pre-wrap break-words">{decodeURIComponent(message.content)}</span>
+                                        )}
                                     </div>
-                                )}
-
-                                {/* Reaction buttons - show on hover */}
-                                <div className={`absolute ${isCurrentUser ? 'right-0' : 'left-0'} -bottom-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none`}>
-                                    <div className="bg-white rounded-full shadow-lg p-1 flex items-center space-x-1">
-                                        {[
-                                            { type: 'LIKE', emoji: '👍' },
-                                            { type: 'LOVE', emoji: '❤️' },
-                                            { type: 'HAHA', emoji: '😂' },
-                                            { type: 'WOW', emoji: '😮' },
-                                            { type: 'SAD', emoji: '😢' },
-                                            { type: 'ANGRY', emoji: '😠' }
-                                        ].map((reaction, i) => (
-                                            <button
-                                                key={i}
-                                                onClick={() => handleReaction(message.id, reaction.type)}
-                                                className="text-sm hover:scale-110 transition-transform p-1 pointer-events-auto"
+                                    {/* Nếu là người khác, icon trước, rồi bubble */}
+                                    {!isCurrentUser && (
+                                        <button
+                                            type="button"
+                                            className="ml-2 text-lg text-gray-400 hover:text-gray-500 focus:outline-none"
+                                            onClick={() => setActiveReactionBar(activeReactionBar === message.id ? null : message.id)}
+                                            tabIndex={-1}
+                                        >
+                                            <FaSmile />
+                                        </button>
+                                    )}
+                                </div>
+                                {/* Emoji reactions */}
+                                {message.reactions && message.reactions.length > 0 && (
+                                    <div className="flex space-x-1 mt-1">
+                                        {message.reactions.map((reaction, index) => (
+                                            <span
+                                                key={index}
+                                                className="bg-white rounded-full px-2 py-1 text-xs shadow-sm border"
                                             >
-                                                {reaction.emoji}
-                                            </button>
+                                                {getReactionEmoji(reaction.reactionType)}
+                                            </span>
                                         ))}
                                     </div>
-                                </div>
+                                )}
+                                {/* Reaction bar: only show if activeReactionBar === message.id */}
+                                {activeReactionBar === message.id && (
+                                    <div className={`absolute ${isCurrentUser ? 'right-0' : 'left-0'} -bottom-7 z-40`}>
+                                        <div className="bg-white rounded-full shadow-lg p-1 flex items-center space-x-1 pointer-events-auto">
+                                            {[
+                                                { type: 'LIKE', emoji: '👍' },
+                                                { type: 'LOVE', emoji: '❤️' },
+                                                { type: 'HAHA', emoji: '😂' },
+                                                { type: 'WOW', emoji: '😮' },
+                                                { type: 'SAD', emoji: '😢' },
+                                                { type: 'ANGRY', emoji: '😠' }
+                                            ].map((reaction, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => { handleReaction(message.id, reaction.type); setActiveReactionBar(null); }}
+                                                    className="text-sm hover:scale-110 transition-transform p-1 pointer-events-auto"
+                                                >
+                                                    {reaction.emoji}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {/* Tooltip for full date/time */}
+                                <span className="msg-tooltip invisible absolute -bottom-7 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50 pointer-events-none">
+                                    {fullDate}
+                                </span>
                             </div>
                         </div>
                     );
