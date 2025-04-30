@@ -62,7 +62,7 @@
     "searchHackathons": "Tìm kiếm hackathon",
     "sortBy": "Sắp xếp theo",
     "sortBySuggestion": "Đề xuất",
-    "sortByLatest": "Mới nhất",
+    "sortByLatest": "Mới nhất (Ngày tổ chức)",
     "noHackathonsFound": "Không tìm thấy hackathon nào. Hãy thử điều chỉnh bộ lọc.",
     "failedToLoad": "Không thể tải hackathon. Vui lòng thử lại sau.",
     "errorFetchingHackathons": "Lỗi khi tải hackathon. Vui lòng thử lại.",
@@ -130,7 +130,7 @@
     "hackathonEndDate": "Ngày kết thúc",
     "enrollmentStartDate": "Bắt đầu đăng ký",
     "enrollmentEndDate": "Kết thúc đăng ký",
-    "sortByOldest": "Cũ nhất"
+    "sortByOldest": "Cũ nhất (Ngày tổ chức)"
   },
   "pagination": {
     "previousPage": "Trang trước",
