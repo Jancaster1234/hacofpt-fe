@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/app/[locale]/(auth)/signin/SigninForm.tsx
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // src/app/[locale]/(auth)/signin/SigninForm.tsx
 "use client";

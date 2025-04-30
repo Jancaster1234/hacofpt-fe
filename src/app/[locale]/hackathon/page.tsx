@@ -1,3 +1,4 @@
+// src/app/[locale]/hackathon/page.tsx
 "use client";
 import { useState, useMemo, useEffect, useRef } from "react";
 import HackathonList from "./_components/HackathonList";
