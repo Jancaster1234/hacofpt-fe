@@ -11,7 +11,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export function TeamParticipantsTab({ hackathonId }: { hackathonId: string }) {
   const t = useTranslations("teams");
-  const { toast } = useToast();
+  const toast = useToast();
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);

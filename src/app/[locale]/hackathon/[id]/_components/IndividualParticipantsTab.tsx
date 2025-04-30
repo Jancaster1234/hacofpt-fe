@@ -3,10 +3,18 @@
 
 import { useState, useEffect } from "react";
 import { individualRegistrationRequestService } from "@/services/individualRegistrationRequest.service";
+import { userService } from "@/services/user.service"; // Import the user service
 import { IndividualRegistrationRequest } from "@/types/entities/individualRegistrationRequest";
+import { User } from "@/types/entities/user"; // Import User type
 import { useTranslations } from "@/hooks/useTranslations";
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import Image from "next/image"; // Import Image for avatar
+
+// Define a type that extends IndividualRegistrationRequest with user details
+interface EnhancedRegistration extends IndividualRegistrationRequest {
+  userDetails?: User;
+}
 
 export function IndividualParticipantsTab({
   hackathonId,
@@ -17,16 +25,44 @@ export function IndividualParticipantsTab({
   const { toast } = useToast();
 
   const [approvedRegistrations, setApprovedRegistrations] = useState<
-    IndividualRegistrationRequest[]
+    EnhancedRegistration[]
   >([]);
   const [completedRegistrations, setCompletedRegistrations] = useState<
-    IndividualRegistrationRequest[]
+    EnhancedRegistration[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeStatus, setActiveStatus] = useState<"APPROVED" | "COMPLETED">(
     "APPROVED"
   );
+
+  // Function to fetch user details for a registration
+  const fetchUserDetails = async (
+    registration: IndividualRegistrationRequest
+  ): Promise<EnhancedRegistration> => {
+    if (!registration.createdByUserName) {
+      return registration;
+    }
+
+    try {
+      const userResponse = await userService.getUserByUsername(
+        registration.createdByUserName
+      );
+      if (userResponse && userResponse.data) {
+        return {
+          ...registration,
+          userDetails: userResponse.data,
+        };
+      }
+    } catch (err) {
+      console.error(
+        `Failed to fetch user details for ${registration.createdByUserName}:`,
+        err
+      );
+    }
+
+    return registration;
+  };
 
   useEffect(() => {
     let isCancelled = false;
@@ -46,9 +82,20 @@ export function IndividualParticipantsTab({
           ),
         ]);
 
+        if (isCancelled) return;
+
+        // Fetch user details for all registrations
+        const approvedWithUsers = await Promise.all(
+          (approvedRes.data || []).map(fetchUserDetails)
+        );
+
+        const completedWithUsers = await Promise.all(
+          (completedRes.data || []).map(fetchUserDetails)
+        );
+
         if (!isCancelled) {
-          setApprovedRegistrations(approvedRes.data || []);
-          setCompletedRegistrations(completedRes.data || []);
+          setApprovedRegistrations(approvedWithUsers);
+          setCompletedRegistrations(completedWithUsers);
         }
       } catch (err) {
         console.error("Error fetching individual registrations:", err);
@@ -139,11 +186,13 @@ export function IndividualParticipantsTab({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {currentRegistrations.map((registration) => {
-              // If we have proper user data structure, use it
               const userName =
                 registration.createdByUserName || t("unknownUser");
+              const userDetails = registration.userDetails;
+              const email = userDetails?.email || "";
+              const avatarUrl = userDetails?.avatarUrl;
               const formattedDate = new Date(
-                registration.createdAt
+                registration.createdAt || ""
               ).toLocaleDateString();
 
               return (
@@ -153,20 +202,37 @@ export function IndividualParticipantsTab({
                            bg-white dark:bg-gray-800 flex items-center gap-3 
                            hover:shadow-md transition-all duration-300"
                 >
-                  <div
-                    className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 
+                  {avatarUrl ? (
+                    <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden relative">
+                      <Image
+                        src={avatarUrl}
+                        alt={userName}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 
                                 flex items-center justify-center flex-shrink-0
                                 transition-colors duration-300"
-                  >
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {userName.charAt(0)}
-                    </span>
-                  </div>
+                    >
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                        {userName.charAt(0)}
+                      </span>
+                    </div>
+                  )}
 
                   <div className="min-w-0">
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                    <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
                       {userName}
                     </div>
+
+                    {email && (
+                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+                        {email}
+                      </div>
+                    )}
 
                     <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                       {t("registeredOn")} {formattedDate}
