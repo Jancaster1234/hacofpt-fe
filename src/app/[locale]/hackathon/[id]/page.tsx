@@ -138,7 +138,7 @@ export default function HackathonDetail() {
       <HackathonOverview
         id={id}
         title={hackathon.title}
-        subtitle={hackathon.subtitle}
+        subtitle={hackathon.subTitle}
         startDate={hackathon.startDate}
         endDate={hackathon.endDate}
         enrollStartDate={hackathon.enrollStartDate}

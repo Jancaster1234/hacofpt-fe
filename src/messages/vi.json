@@ -123,7 +123,13 @@
     "updateErrorTitle": "Lỗi cập nhật",
     "refreshingEnrollmentData": "Đang làm mới dữ liệu đăng ký...",
     "enrollmentDataRefreshed": "Dữ liệu đăng ký đã được làm mới thành công",
-    "enrollmentDataRefreshError": "Không thể làm mới dữ liệu đăng ký"
+    "enrollmentDataRefreshError": "Không thể làm mới dữ liệu đăng ký",
+    "enrollmentNotStarted": "Thời hạn đăng ký chưa bắt đầu.",
+    "enrollmentClosed": "Thời hạn đăng ký đã kết thúc.",
+    "hackathonStartDate": "Ngày bắt đầu",
+    "hackathonEndDate": "Ngày kết thúc",
+    "enrollmentStartDate": "Bắt đầu đăng ký",
+    "enrollmentEndDate": "Kết thúc đăng ký"
   },
   "pagination": {
     "previousPage": "Trang trước",
