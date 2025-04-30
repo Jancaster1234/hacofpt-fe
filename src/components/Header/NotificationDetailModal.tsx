@@ -70,7 +70,7 @@ export default function NotificationDetailModal({
                                                     notification.sender.avatarUrl ||
                                                     "https://randomuser.me/api/portraits/men/99.jpg"
                                                 }
-                                                alt={notification.sender.name}
+                                                alt={`${notification.sender.name}'s avatar`}
                                                 width={48}
                                                 height={48}
                                                 className="rounded-full object-cover ring-2 ring-white"
