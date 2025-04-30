@@ -30,22 +30,45 @@ type HackathonOverviewProps = {
   id: string;
   title: string;
   subtitle: string;
-  date: string;
+  startDate: string;
+  endDate: string;
+  enrollStartDate: string;
+  enrollEndDate: string;
   enrollmentCount: number;
   minimumTeamMembers: number;
   maximumTeamMembers: number;
-  endDate: string;
+};
+
+// Helper function to format date strings
+const formatDate = (dateString: string): string => {
+  if (!dateString) return "";
+
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    }).format(date);
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return dateString;
+  }
 };
 
 export default function HackathonOverview({
   id,
   title,
   subtitle,
-  date,
+  startDate,
+  endDate,
+  enrollStartDate,
+  enrollEndDate,
   enrollmentCount,
   minimumTeamMembers,
   maximumTeamMembers,
-  endDate,
 }: HackathonOverviewProps) {
   const { user } = useAuthStore(); // Get current user
   const { user: authUser } = useAuth(); // Get user with roles from new auth hook
@@ -59,7 +82,11 @@ export default function HackathonOverview({
       userRole.role.name === "TEAM_MEMBER" ||
       userRole.role.name === "TEAM_LEADER"
   );
+
   const [isHackathonEnded, setIsHackathonEnded] = useState(false);
+  const [enrollmentStatus, setEnrollmentStatus] = useState<
+    "notStarted" | "open" | "closed"
+  >("open");
 
   useEffect(() => {
     // Check if current date is after end date
@@ -68,7 +95,20 @@ export default function HackathonOverview({
       const hackathonEndDate = new Date(endDate);
       setIsHackathonEnded(currentDate > hackathonEndDate);
     }
-  }, [endDate]);
+
+    // Check enrollment status based on dates
+    const now = new Date();
+    const enrollStart = new Date(enrollStartDate);
+    const enrollEnd = new Date(enrollEndDate);
+
+    if (now < enrollStart) {
+      setEnrollmentStatus("notStarted");
+    } else if (now > enrollEnd) {
+      setEnrollmentStatus("closed");
+    } else {
+      setEnrollmentStatus("open");
+    }
+  }, [endDate, enrollStartDate, enrollEndDate]);
 
   const handleGoToFeedback = () => {
     router.push(`/hackathon/${id}/feedback`);
@@ -289,18 +329,28 @@ export default function HackathonOverview({
     }
   };
 
+  // Generate enrollment status message
+  const getEnrollmentStatusMessage = () => {
+    switch (enrollmentStatus) {
+      case "notStarted":
+        return t("enrollmentNotStarted");
+      case "closed":
+        return t("enrollmentClosed");
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       <div className="p-4 sm:p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow transition-colors duration-300">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
           {title}
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm sm:text-base">
-          📅 {date}
-        </p>
-        <p className="mt-4 text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+        <p className="mt-2 text-gray-700 dark:text-gray-300 text-sm sm:text-base">
           {subtitle}
         </p>
+
         <div className="mt-6 flex flex-wrap gap-3 sm:gap-4">
           {isLoading ? (
             <button
@@ -311,13 +361,31 @@ export default function HackathonOverview({
               {t("loading")}
             </button>
           ) : isTeamMember ? (
-            <button
-              className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 sm:px-6 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500"
-              onClick={() => setIsModalOpen(true)}
-              aria-label={getButtonTitle()}
-            >
-              {getButtonTitle()}
-            </button>
+            <>
+              <button
+                className={`${
+                  enrollmentStatus === "open"
+                    ? "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                    : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                } text-white font-bold py-2 px-4 sm:px-6 rounded-full transition-all duration-300 transform ${
+                  enrollmentStatus === "open"
+                    ? "hover:scale-105 active:scale-95"
+                    : ""
+                } focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500`}
+                onClick={() =>
+                  enrollmentStatus === "open" && setIsModalOpen(true)
+                }
+                disabled={enrollmentStatus !== "open"}
+                aria-label={getButtonTitle()}
+              >
+                {getButtonTitle()}
+              </button>
+              {enrollmentStatus !== "open" && (
+                <p className="text-sm text-amber-500 dark:text-amber-400 font-medium">
+                  {getEnrollmentStatusMessage()}
+                </p>
+              )}
+            </>
           ) : (
             <div>
               <button
@@ -369,6 +437,22 @@ export default function HackathonOverview({
             </>
           )}
         </div>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-600 dark:text-gray-400 text-sm">
+          <p>
+            📅 {t("hackathonStartDate")}: {formatDate(startDate)}
+          </p>
+          <p>
+            📅 {t("hackathonEndDate")}: {formatDate(endDate)}
+          </p>
+          <p>
+            🔓 {t("enrollmentStartDate")}: {formatDate(enrollStartDate)}
+          </p>
+          <p>
+            🔒 {t("enrollmentEndDate")}: {formatDate(enrollEndDate)}
+          </p>
+        </div>
+
         <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm">
           {enrollmentCount === 1
             ? t("onePersonRegistered")

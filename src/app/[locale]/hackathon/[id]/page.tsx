@@ -136,14 +136,16 @@ export default function HackathonDetail() {
         altText={hackathon.title}
       />
       <HackathonOverview
+        id={id}
         title={hackathon.title}
         subtitle={hackathon.subtitle}
-        date={hackathon.enrollStartDate}
+        startDate={hackathon.startDate}
+        endDate={hackathon.endDate}
+        enrollStartDate={hackathon.enrollStartDate}
+        enrollEndDate={hackathon.enrollEndDate}
         enrollmentCount={enrollmentCount}
-        id={id}
         minimumTeamMembers={hackathon.minimumTeamMembers}
         maximumTeamMembers={hackathon.maximumTeamMembers}
-        endDate={hackathon.endDate}
       />
       <HackathonTabs
         content={{
