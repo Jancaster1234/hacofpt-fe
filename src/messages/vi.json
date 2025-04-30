@@ -129,7 +129,8 @@
     "hackathonStartDate": "Ngày bắt đầu",
     "hackathonEndDate": "Ngày kết thúc",
     "enrollmentStartDate": "Bắt đầu đăng ký",
-    "enrollmentEndDate": "Kết thúc đăng ký"
+    "enrollmentEndDate": "Kết thúc đăng ký",
+    "sortByOldest": "Cũ nhất"
   },
   "pagination": {
     "previousPage": "Trang trước",

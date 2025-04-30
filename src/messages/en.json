@@ -129,7 +129,8 @@
     "hackathonStartDate": "Start Date",
     "hackathonEndDate": "End Date",
     "enrollmentStartDate": "Enrollment Opens",
-    "enrollmentEndDate": "Enrollment Closes"
+    "enrollmentEndDate": "Enrollment Closes",
+    "sortByOldest": "Oldest"
   },
   "pagination": {
     "previousPage": "Previous page",
