@@ -1,7 +1,6 @@
-// src/app/[locale]/hackathon/[id]/_components/TeamParticipantsTab.tsx
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { teamService } from "@/services/team.service";
 import { Team } from "@/types/entities/team";
 import Image from "next/image";
@@ -11,46 +10,48 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export function TeamParticipantsTab({ hackathonId }: { hackathonId: string }) {
   const t = useTranslations("teams");
-  const toast = useToast();
+  const { toast } = useToast();
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Use a ref to prevent toast in useEffect causing re-renders
-  const isMounted = useRef(true);
-
   useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+    let isCancelled = false;
 
-  useEffect(() => {
     const fetchTeams = async () => {
       try {
         setIsLoading(true);
+        setError(null);
+
         const response = await teamService.getTeamsByHackathonId(hackathonId);
 
-        if (isMounted.current) {
-          setTeams(response.data);
-          // Don't display toast for initial data fetching
+        if (!isCancelled) {
+          setTeams(response.data || []);
         }
       } catch (err) {
         console.error("Error fetching teams:", err);
-        if (isMounted.current) {
+        if (!isCancelled) {
           setError(t("failedToLoadTeams"));
-          // Don't display toast for initial data fetching
+          toast({
+            title: t("error"),
+            description: t("failedToLoadTeams"),
+            variant: "destructive",
+          });
         }
       } finally {
-        if (isMounted.current) {
+        if (!isCancelled) {
           setIsLoading(false);
         }
       }
     };
 
     fetchTeams();
-  }, [hackathonId, t]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [hackathonId, t, toast]);
 
   if (isLoading) {
     return (
@@ -113,11 +114,11 @@ export function TeamParticipantsTab({ hackathonId }: { hackathonId: string }) {
                     key={member.id}
                     className="flex items-center gap-3 transition-colors duration-300"
                   >
-                    {member.user.avatarUrl ? (
+                    {member.user && member.user.avatarUrl ? (
                       <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                         <Image
                           src={member.user.avatarUrl}
-                          alt={`${member.user.firstName} ${member.user.lastName}`}
+                          alt={`${member.user.firstName || ""} ${member.user.lastName || ""}`}
                           width={32}
                           height={32}
                           className="object-cover"
@@ -126,25 +127,35 @@ export function TeamParticipantsTab({ hackathonId }: { hackathonId: string }) {
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 transition-colors duration-300">
                         <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                          {member.user.firstName.charAt(0)}
-                          {member.user.lastName.charAt(0)}
+                          {member.user && member.user.firstName
+                            ? member.user.firstName.charAt(0)
+                            : ""}
+                          {member.user && member.user.lastName
+                            ? member.user.lastName.charAt(0)
+                            : ""}
                         </span>
                       </div>
                     )}
                     <div className="min-w-0">
                       <div className="font-medium text-gray-900 dark:text-gray-100 flex flex-wrap items-center gap-1">
                         <span className="truncate">
-                          {member.user.firstName} {member.user.lastName}
+                          {member.user
+                            ? `${member.user.firstName || ""} ${member.user.lastName || ""}`
+                            : t("unknownUser")}
                         </span>
-                        {team.teamLeader.id === member.user.id && (
-                          <span className="ml-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-0.5 rounded whitespace-nowrap">
-                            {t("teamLeader")}
-                          </span>
-                        )}
+                        {team.teamLeader &&
+                          member.user &&
+                          team.teamLeader.id === member.user.id && (
+                            <span className="ml-1 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-0.5 rounded whitespace-nowrap">
+                              {t("teamLeader")}
+                            </span>
+                          )}
                       </div>
-                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
-                        {member.user.email} • @{member.user.username}
-                      </div>
+                      {member.user && (
+                        <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+                          {member.user.email} • @{member.user.username}
+                        </div>
+                      )}
                     </div>
                   </li>
                 ))}

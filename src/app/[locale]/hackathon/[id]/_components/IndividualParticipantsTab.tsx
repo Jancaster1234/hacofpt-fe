@@ -1,10 +1,8 @@
-// src/app/[locale]/hackathon/[id]/_components/IndividualParticipantsTab.tsx
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { individualRegistrationRequestService } from "@/services/individualRegistrationRequest.service";
 import { IndividualRegistrationRequest } from "@/types/entities/individualRegistrationRequest";
-import Image from "next/image";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -15,7 +13,7 @@ export function IndividualParticipantsTab({
   hackathonId: string;
 }) {
   const t = useTranslations("participants");
-  const toast = useToast();
+  const { toast } = useToast();
 
   const [approvedRegistrations, setApprovedRegistrations] = useState<
     IndividualRegistrationRequest[]
@@ -29,19 +27,13 @@ export function IndividualParticipantsTab({
     "APPROVED"
   );
 
-  // Use a ref to prevent toast in useEffect causing re-renders
-  const isMounted = useRef(true);
-
   useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+    let isCancelled = false;
 
-  useEffect(() => {
     const fetchIndividualRegistrations = async () => {
       try {
         setIsLoading(true);
+        setError(null);
 
         // Fetch both APPROVED and COMPLETED registrations in parallel
         const [approvedRes, completedRes] = await Promise.all([
@@ -53,26 +45,33 @@ export function IndividualParticipantsTab({
           ),
         ]);
 
-        if (isMounted.current) {
-          setApprovedRegistrations(approvedRes.data);
-          setCompletedRegistrations(completedRes.data);
-          // Don't display toast for initial data fetching
+        if (!isCancelled) {
+          setApprovedRegistrations(approvedRes.data || []);
+          setCompletedRegistrations(completedRes.data || []);
         }
       } catch (err) {
         console.error("Error fetching individual registrations:", err);
-        if (isMounted.current) {
+        if (!isCancelled) {
           setError(t("failedToLoadParticipants"));
-          // Don't display toast for initial data fetching
+          toast({
+            title: t("error"),
+            description: t("failedToLoadParticipants"),
+            variant: "destructive",
+          });
         }
       } finally {
-        if (isMounted.current) {
+        if (!isCancelled) {
           setIsLoading(false);
         }
       }
     };
 
     fetchIndividualRegistrations();
-  }, [hackathonId, t]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [hackathonId, t, toast]);
 
   if (isLoading) {
     return (
