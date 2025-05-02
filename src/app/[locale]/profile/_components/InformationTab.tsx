@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/app/profile/_components/InformationTab.tsx
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,14 +14,17 @@ interface InformationTabProps {
   onUpdateUser: (updatedUser: Partial<User>) => Promise<void>;
 }
 
-export default function InformationTab({ user, onUpdateUser }: InformationTabProps) {
+export default function InformationTab({
+  user,
+  onUpdateUser,
+}: InformationTabProps) {
   const [editing, setEditing] = useState(false);
   const [tempUser, setTempUser] = useState<Partial<User>>({
     firstName: user.firstName,
     lastName: user.lastName,
     bio: user.bio,
     phone: user.phone,
-    skills: user.skills
+    skills: user.skills,
   });
   const [newSkill, setNewSkill] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -42,14 +45,15 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
         lastName: tempUser.lastName,
         bio: tempUser.bio,
         phone: tempUser.phone,
-        skills: tempUser.skills
+        skills: tempUser.skills,
       };
 
       await onUpdateUser(updateData);
       setEditing(false);
       toast.success("Profile updated successfully");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to update profile";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update profile";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -62,7 +66,7 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
       lastName: user.lastName,
       bio: user.bio,
       phone: user.phone,
-      skills: user.skills
+      skills: user.skills,
     });
     setEditing(false);
     setNewSkill("");
@@ -76,14 +80,14 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
     if (newSkill.trim() && !tempUser.skills?.includes(newSkill.trim())) {
       setTempUser({
         ...tempUser,
-        skills: [...(tempUser.skills || []), newSkill.trim()]
+        skills: [...(tempUser.skills || []), newSkill.trim()],
       });
       setNewSkill("");
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleAddSkill();
     }
@@ -92,7 +96,7 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
   const handleRemoveSkill = (skillToRemove: string) => {
     setTempUser({
       ...tempUser,
-      skills: tempUser.skills?.filter(skill => skill !== skillToRemove) || []
+      skills: tempUser.skills?.filter((skill) => skill !== skillToRemove) || [],
     });
   };
 
@@ -105,18 +109,18 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
       }
 
       setIsLoading(true);
-      const response = await fetch('/api/user/add-email', {
-        method: 'POST',
+      const response = await fetch("/api/user/add-email", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-        body: JSON.stringify({ email: newEmail })
+        body: JSON.stringify({ email: newEmail }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Failed to add email');
+        throw new Error(errorData.error?.message || "Failed to add email");
       }
 
       setPendingEmail(newEmail);
@@ -125,7 +129,8 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
       setNewEmail("");
       toast.success("Email added successfully. Please verify your email.");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to add email";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to add email";
       setEmailError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -142,21 +147,21 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
       }
 
       setIsVerifyingLoading(true);
-      const response = await fetch('/api/user/verify-email', {
-        method: 'POST',
+      const response = await fetch("/api/user/verify-email", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({
           email: pendingEmail,
-          otp: otp
-        })
+          otp: otp,
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Failed to verify email');
+        throw new Error(errorData.error?.message || "Failed to verify email");
       }
 
       toast.success("Email verified successfully");
@@ -165,7 +170,8 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
       await onUpdateUser({ email: pendingEmail });
       setPendingEmail("");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to verify email";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to verify email";
       setVerificationError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -173,19 +179,16 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
     }
   };
 
-  const fields: (keyof User)[] = [
-    "firstName",
-    "lastName",
-    "bio",
-    "phone",
-  ];
+  const fields: (keyof User)[] = ["firstName", "lastName", "bio", "phone"];
 
   return (
     <div className="mt-6">
       <Card className="border-2">
         <CardContent className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">Profile Information</h2>
+            <h2 className="text-xl font-semibold text-gray-800">
+              Profile Information
+            </h2>
             {!editing && (
               <Button
                 size="sm"
@@ -209,7 +212,9 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
                   {editing ? (
                     <Input
                       value={tempUser.firstName || ""}
-                      onChange={(e) => handleChange("firstName", e.target.value)}
+                      onChange={(e) =>
+                        handleChange("firstName", e.target.value)
+                      }
                       className="w-full"
                     />
                   ) : (
@@ -252,11 +257,7 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
                       className="w-full"
                     />
                   ) : (
-                    <Input
-                      value={user.bio || ""}
-                      className="w-full"
-                      disabled
-                    />
+                    <Input value={user.bio || ""} className="w-full" disabled />
                   )}
                 </div>
                 <div className="space-y-2">
@@ -334,12 +335,17 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
                   ) : isVerifying ? (
                     <div className="space-y-2">
                       <p className="text-sm text-gray-600">
-                        Please enter the verification code sent to {pendingEmail}
+                        Please enter the verification code sent to{" "}
+                        {pendingEmail}
                       </p>
                       <div className="flex gap-2">
                         <Input
                           value={otp}
-                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          onChange={(e) =>
+                            setOtp(
+                              e.target.value.replace(/\D/g, "").slice(0, 6)
+                            )
+                          }
                           placeholder="Enter 6-digit code"
                           className="flex-1"
                           maxLength={6}
@@ -361,7 +367,9 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
                         </Button>
                       </div>
                       {verificationError && (
-                        <p className="text-sm text-red-500">{verificationError}</p>
+                        <p className="text-sm text-red-500">
+                          {verificationError}
+                        </p>
                       )}
                       <Button
                         variant="secondary"
@@ -386,16 +394,19 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
                         disabled
                         placeholder="No email address added"
                       />
-                      {!user.email && !isAddingEmail && !isVerifying && !editing && (
-                        <Button
-                          size="sm"
-                          onClick={() => setIsAddingEmail(true)}
-                          className="flex items-center gap-2 bg-sky-500 hover:bg-sky-600 text-white whitespace-nowrap"
-                        >
-                          <Pencil size={16} />
-                          Add Email
-                        </Button>
-                      )}
+                      {!user.email &&
+                        !isAddingEmail &&
+                        !isVerifying &&
+                        !editing && (
+                          <Button
+                            size="sm"
+                            onClick={() => setIsAddingEmail(true)}
+                            className="flex items-center gap-2 bg-sky-500 hover:bg-sky-600 text-white whitespace-nowrap"
+                          >
+                            <Pencil size={16} />
+                            Add Email
+                          </Button>
+                        )}
                     </div>
                   )}
                 </div>
@@ -446,15 +457,14 @@ export default function InformationTab({ user, onUpdateUser }: InformationTabPro
                     <div className="flex flex-wrap gap-2 min-h-[40px]">
                       {user.skills && user.skills.length > 0 ? (
                         user.skills.map((skill) => (
-                          <Badge
-                            key={skill}
-                            className="bg-sky-50 text-sky-700"
-                          >
+                          <Badge key={skill} className="bg-sky-50 text-sky-700">
                             {skill}
                           </Badge>
                         ))
                       ) : (
-                        <p className="text-gray-500 italic">No skills added yet.</p>
+                        <p className="text-gray-500 italic">
+                          No skills added yet.
+                        </p>
                       )}
                     </div>
                   )}

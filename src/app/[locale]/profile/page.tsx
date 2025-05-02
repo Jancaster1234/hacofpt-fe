@@ -2,42 +2,42 @@
 "use client";
 
 import Image from "next/image";
-import InformationTab from "@/app/profile/_components/InformationTab";
+import InformationTab from "./_components/InformationTab";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import HackathonParticipatedTab from "@/app/[locale]/profile/_components/HackathonParticipatedTab";
-import AwardTab from "@/app/[locale]/profile/_components/AwardTab";
+import HackathonParticipatedTab from "./_components/HackathonParticipatedTab";
+import AwardTab from "./_components/AwardTab";
 import { useAuth } from "@/hooks/useAuth_v0";
 import { User } from "@/types/entities/user";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { Camera } from "lucide-react";
 import React from "react";
-import ChangePasswordTab from "@/app/[locale]/profile/_components/ChangePasswordTab";
+import ChangePasswordTab from "./_components/ChangePasswordTab";
 
 export default function ProfilePage() {
   const { user, checkUser } = useAuth();
-  const setAuth = useAuthStore(state => state.setAuth);
+  const setAuth = useAuthStore((state) => state.setAuth);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleUpdateUser = async (updatedUser: Partial<User>) => {
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        throw new Error('No authentication token found');
+        throw new Error("No authentication token found");
       }
 
-      const response = await fetch('/api/auth/my-info', {
-        method: 'PUT',
+      const response = await fetch("/api/auth/my-info", {
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedUser),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to update user');
+        throw new Error(error.message || "Failed to update user");
       }
 
       const updatedUserData = await response.json();
@@ -48,7 +48,7 @@ export default function ProfilePage() {
       // Refresh user data from server
       await checkUser();
     } catch (error) {
-      console.error('Failed to update user:', error);
+      console.error("Failed to update user:", error);
       throw error;
     }
   };
@@ -67,13 +67,13 @@ export default function ProfilePage() {
 
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        throw new Error('No authentication token found');
+        throw new Error("No authentication token found");
       }
 
       const response = await fetch("/api/auth/upload-avatar", {
         method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
@@ -107,7 +107,10 @@ export default function ProfilePage() {
       <div className="flex gap-8 items-center mb-8">
         <div className="relative group">
           <Image
-            src={user?.avatarUrl || "https://randomuser.me/api/portraits/men/99.jpg"}
+            src={
+              user?.avatarUrl ||
+              "https://randomuser.me/api/portraits/men/99.jpg"
+            }
             alt="Profile Picture"
             width={150}
             height={150}
