@@ -22,6 +22,8 @@ WORKDIR /app
 
 # Set to production environment
 ENV NODE_ENV production
+# Disable Next.js telemetry
+ENV NEXT_TELEMETRY_DISABLED 1
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
