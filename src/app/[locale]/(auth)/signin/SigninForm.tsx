@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth_v0";
 import SocialLoginButtons from "./SocialLoginButtons";
+import { useToast } from "@/hooks/use-toast";
 
 const SigninForm = () => {
   const [username, setUsername] = useState("");
@@ -18,6 +19,7 @@ const SigninForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
+  const toast = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,10 +28,11 @@ const SigninForm = () => {
     try {
       setIsLoading(true);
       await login(username, password);
-      router.push("/"); // Redirect to dashboard after successful login
+      // router.push("/"); // Redirect to dashboard after successful login
     } catch (err: any) {
-      setError("Invalid username or password");
-      toast.error("Invalid username or password");
+      console.error("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹Login error:", err);
+      setError(err.message || "Login failed. Please try again.");
+      toast.error(err.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -41,8 +44,8 @@ const SigninForm = () => {
       setGoogleError(null);
 
       const authUrl = `https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?redirect_uri=${encodeURIComponent(
-        process.env.NEXT_PUBLIC_REDIRECT_URI || ''
-      )}&response_type=code&client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}&scope=openid%20email%20profile&service=lso&o2v=1&ddm=1&flowName=GeneralOAuthFlow`;
+        process.env.NEXT_PUBLIC_REDIRECT_URI || ""
+      )}&response_type=code&client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}&scope=openid%20email%20profile&service=lso&o2v=1&ddm=1&flowName=GeneralOAuthFlow`;
       window.location.href = authUrl;
     } catch (error) {
       console.error("Google sign in error:", error);
@@ -61,7 +64,6 @@ const SigninForm = () => {
       <p className="mb-11 text-center text-base font-medium text-body-color">
         Login to your account for a faster checkout.
       </p>
-
 
       {/* Login Form */}
       <form onSubmit={handleLogin}>
@@ -106,11 +108,7 @@ const SigninForm = () => {
               className="flex cursor-pointer select-none items-center text-sm font-medium text-body-color"
             >
               <div className="relative">
-                <input
-                  type="checkbox"
-                  id="checkboxLabel"
-                  className="sr-only"
-                />
+                <input type="checkbox" id="checkboxLabel" className="sr-only" />
                 <div className="box mr-4 flex h-5 w-5 items-center justify-center rounded border border-body-color border-opacity-20 dark:border-white dark:border-opacity-10">
                   <span className="opacity-0">
                     <svg
@@ -205,13 +203,19 @@ const SigninForm = () => {
       </div>
 
       {error && (
-        <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <div
+          className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
           <span className="block sm:inline">{error}</span>
         </div>
       )}
 
       {googleError && (
-        <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <div
+          className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
           <span className="block sm:inline">{googleError}</span>
         </div>
       )}
