@@ -1,6 +1,4 @@
 // src/app/[locale]/(auth)/signin/SigninForm.tsx
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// src/app/[locale]/(auth)/signin/SigninForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -28,9 +26,8 @@ const SigninForm = () => {
     try {
       setIsLoading(true);
       await login(username, password);
-      // router.push("/"); // Redirect to dashboard after successful login
+      router.push("/");
     } catch (err: any) {
-      console.error("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹Login error:", err);
       setError(err.message || "Login failed. Please try again.");
       toast.error(err.message || "Login failed. Please try again.");
     } finally {
