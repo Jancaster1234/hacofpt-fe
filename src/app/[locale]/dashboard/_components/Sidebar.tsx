@@ -58,26 +58,26 @@ export function Sidebar() {
       icon: User,
       label: t("individualRegistrations"),
     },
-    {
-      href: "/dashboard/analytics",
-      icon: BarChart2,
-      label: t("analytics"),
-    },
-    {
-      href: "/dashboard/billing",
-      icon: CreditCard,
-      label: t("billing"),
-    },
-    {
-      href: "/dashboard/calendar",
-      icon: Calendar,
-      label: t("calendar"),
-    },
-    {
-      href: "/dashboard/settings",
-      icon: Settings,
-      label: t("settings"),
-    },
+    // {
+    //   href: "/dashboard/analytics",
+    //   icon: BarChart2,
+    //   label: t("analytics"),
+    // },
+    // {
+    //   href: "/dashboard/billing",
+    //   icon: CreditCard,
+    //   label: t("billing"),
+    // },
+    // {
+    //   href: "/dashboard/calendar",
+    //   icon: Calendar,
+    //   label: t("calendar"),
+    // },
+    // {
+    //   href: "/dashboard/settings",
+    //   icon: Settings,
+    //   label: t("settings"),
+    // },
   ];
 
   // Mobile sidebar toggle button
