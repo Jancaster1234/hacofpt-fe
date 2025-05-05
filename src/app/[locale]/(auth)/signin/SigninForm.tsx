@@ -1,3 +1,4 @@
+// src/app/[locale]/(auth)/signin/SigninForm.tsx
 "use client";
 
 import { useState } from "react";

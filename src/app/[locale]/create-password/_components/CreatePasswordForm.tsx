@@ -1,3 +1,4 @@
+// src/app/[locale]/create-password/_components/CreatePasswordForm.tsx
 'use client';
 
 import { useState } from 'react';

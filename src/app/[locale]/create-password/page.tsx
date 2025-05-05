@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// src/app/[locale]/create-password/page.tsx
 'use client';
 
 import CreatePasswordForm from './_components/CreatePasswordForm';
