@@ -962,7 +962,9 @@
       "title": "Discussion thread",
       "newDiscussion": "Start a new discussion",
       "loadingDiscussions": "Loading discussions...",
-      "noDiscussions": "No discussions available in this thread yet. Be the first to post!"
+      "noDiscussions": "No discussions available in this thread yet. Be the first to post!",
+      "loadingThread": "Loading thread information...",
+      "threadLocked": "This thread is locked and no longer accepts new replies."
     },
     "categoryForm": {
       "editCategory": "Edit category",
@@ -1038,6 +1040,9 @@
       "at": "at"
     },
     "forum": "Forum",
+    "category": "Category",
+    "threadNotFound": "Thread not found",
+    "failedToLoadThread": "Failed to load thread. Please try again.",
     "categoryNotFound": "Category not found",
     "failedToLoadCategory": "Failed to load category. Please try again.",
     "returnToForum": "Return to forum",

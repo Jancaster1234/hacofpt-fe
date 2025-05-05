@@ -962,7 +962,9 @@
       "title": "Chủ đề thảo luận",
       "newDiscussion": "Bắt đầu một cuộc thảo luận mới",
       "loadingDiscussions": "Đang tải các cuộc thảo luận...",
-      "noDiscussions": "Chưa có thảo luận nào trong chủ đề này. Hãy là người đầu tiên đăng bài!"
+      "noDiscussions": "Chưa có thảo luận nào trong chủ đề này. Hãy là người đầu tiên đăng bài!",
+      "loadingThread": "Đang tải thông tin chủ đề...",
+      "threadLocked": "Chủ đề này đã bị khóa và không còn chấp nhận phản hồi mới."
     },
     "categoryForm": {
       "editCategory": "Chỉnh sửa danh mục",
@@ -1036,6 +1038,9 @@
       "at": "lúc"
     },
     "forum": "Diễn đàn",
+    "category": "Danh mục",
+    "threadNotFound": "Không tìm thấy chủ đề",
+    "failedToLoadThread": "Không thể tải chủ đề. Vui lòng thử lại.",
     "categoryNotFound": "Không tìm thấy danh mục",
     "failedToLoadCategory": "Không thể tải danh mục. Vui lòng thử lại.",
     "returnToForum": "Quay lại diễn đàn",
