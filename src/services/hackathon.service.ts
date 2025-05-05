@@ -1,6 +1,7 @@
 // src/services/hackathon.service.ts
 import { apiService } from "@/services/apiService_v0";
 import { Hackathon } from "@/types/entities/hackathon";
+import { handleApiError } from "@/utils/errorHandler";
 
 class HackathonService {
   async getAllHackathons(): Promise<{ data: Hackathon[]; message?: string }> {
@@ -15,21 +16,14 @@ class HackathonService {
 
       return {
         data: response.data,
-        message: response.message,
+        message: response.message || "Hackathons retrieved successfully",
       };
     } catch (error: any) {
-      console.error(
-        "[Hackathon Service] Error getting all hackathons:",
-        error.message
+      return handleApiError<Hackathon[]>(
+        error,
+        [],
+        "[Hackathon Service] Error getting all hackathons:"
       );
-      // If the error is due to component unmount, don't rethrow
-      if (
-        error.name === "AbortError" &&
-        error.message?.includes("component unmounted")
-      ) {
-        return { data: [] as Hackathon[], message: "Request aborted" };
-      }
-      throw error;
     }
   }
 

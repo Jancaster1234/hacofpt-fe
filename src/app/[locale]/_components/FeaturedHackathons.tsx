@@ -1,51 +1,51 @@
 // src/app/[locale]/_components/FeaturedHackathons.tsx
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Link from "next/link";
+import Image from "next/image";
+import { hackathonService } from "@/services/hackathon.service";
+import { Hackathon } from "@/types/entities/hackathon";
+import { useTranslations } from "@/hooks/useTranslations";
+import HackathonCard from "@/components/HackathonCard";
 
-const hackathons = [
-  {
-    title: "HACKCOVY - Online Hackathon",
-    startDate: "24/04/2024",
-    endDate: "26/04/2024",
-    description:
-      "HACKCOVY is an online hackathon designed to foster innovation.",
-    image: "/images/featuredHackathons/hackathon1.png",
-  },
-  {
-    title: "Hackathon 2024",
-    startDate: "25/04/2024",
-    endDate: "27/04/2024",
-    description:
-      "Join the most exciting hackathon of the year with top mentors!",
-    image: "/images/featuredHackathons/hackathon2.png",
-  },
-  {
-    title: "Future Innovators Hack",
-    startDate: "30/04/2024",
-    endDate: "02/05/2024",
-    description:
-      "Innovate and solve real-world problems with creative solutions.",
-    image: "/images/featuredHackathons/hackathon3.png",
-  },
-  {
-    title: "Future Innovators Hack",
-    startDate: "30/04/2024",
-    endDate: "02/05/2024",
-    description:
-      "Innovate and solve real-world problems with creative solutions.",
-    image: "/images/featuredHackathons/hackathon4.png",
-  },
-];
-
-const FeaturedHackathons = () => {
+const RecentHackathons = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("hackathonCard");
+
+  useEffect(() => {
+    const fetchHackathons = async () => {
+      try {
+        setLoading(true);
+        const { data } = await hackathonService.getAllHackathons();
+
+        // Sort hackathons by startDate (newest first) and take the first 6
+        const sortedHackathons = data
+          .sort(
+            (a, b) =>
+              new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+          )
+          .slice(0, 6);
+
+        setHackathons(sortedHackathons);
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to fetch hackathons:", err);
+        setError("Failed to load hackathons");
+        setLoading(false);
+      }
+    };
+
+    fetchHackathons();
+  }, []);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const scrollAmount = 300;
+      const scrollAmount = 320; // Adjusted to match card width
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -62,13 +62,72 @@ const FeaturedHackathons = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-3xl font-bold text-gray-900 relative">
+              Recent Hackathons
+              <span className="block w-12 h-1 bg-blue-500 mt-2"></span>
+            </h2>
+          </div>
+          <div className="mt-8 flex justify-center">
+            <div className="animate-pulse flex space-x-6">
+              {[...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="min-w-[320px] bg-gray-200 rounded-lg h-64"
+                ></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-3xl font-bold text-gray-900 relative">
+              Recent Hackathons
+              <span className="block w-12 h-1 bg-blue-500 mt-2"></span>
+            </h2>
+          </div>
+          <div className="mt-8 text-center text-red-500">{error}</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (hackathons.length === 0) {
+    return (
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-3xl font-bold text-gray-900 relative">
+              Recent Hackathons
+              <span className="block w-12 h-1 bg-blue-500 mt-2"></span>
+            </h2>
+          </div>
+          <div className="mt-8 text-center text-gray-500">
+            No hackathons available at the moment.
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-16">
       <div className="max-w-6xl mx-auto px-6">
         {/* Header with "View All" Link */}
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-gray-900 relative">
-            Featured Hackathons
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 relative">
+            Recent Hackathons
             <span className="block w-12 h-1 bg-blue-500 mt-2"></span>
           </h2>
           <Link
@@ -84,9 +143,10 @@ const FeaturedHackathons = () => {
           {/* Scroll Left Button */}
           <button
             onClick={() => scroll("left")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-3 rounded-full z-10 hidden md:flex hover:bg-gray-200 transition"
+            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-700 shadow-md p-3 rounded-full z-10 hidden md:flex hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+            aria-label="Scroll left"
           >
-            <FaChevronLeft className="text-gray-700" />
+            <FaChevronLeft className="text-gray-700 dark:text-gray-200" />
           </button>
 
           {/* Scrollable Card Container */}
@@ -94,27 +154,12 @@ const FeaturedHackathons = () => {
             ref={scrollRef}
             className="flex gap-6 overflow-x-auto scroll-smooth no-scrollbar pb-4"
           >
-            {hackathons.map((hack, index) => (
+            {hackathons.map((hackathon, index) => (
               <div
-                key={index}
-                className="min-w-[280px] md:min-w-[320px] bg-white shadow-lg rounded-lg overflow-hidden"
+                key={hackathon.id}
+                className="min-w-[280px] md:min-w-[320px] flex-shrink-0"
               >
-                <img
-                  src={hack.image}
-                  alt={hack.title}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-lg font-bold text-gray-900">
-                    {hack.title}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    From: {hack.startDate} &nbsp;&nbsp; To: {hack.endDate}
-                  </p>
-                  <p className="text-gray-600 text-sm mt-2 line-clamp-2">
-                    {hack.description}
-                  </p>
-                </div>
+                <HackathonCard hackathon={hackathon} />
               </div>
             ))}
           </div>
@@ -122,9 +167,10 @@ const FeaturedHackathons = () => {
           {/* Scroll Right Button */}
           <button
             onClick={() => scroll("right")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-3 rounded-full z-10 hidden md:flex hover:bg-gray-200 transition"
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-700 shadow-md p-3 rounded-full z-10 hidden md:flex hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+            aria-label="Scroll right"
           >
-            <FaChevronRight className="text-gray-700" />
+            <FaChevronRight className="text-gray-700 dark:text-gray-200" />
           </button>
         </div>
 
@@ -134,7 +180,9 @@ const FeaturedHackathons = () => {
             <span
               key={index}
               className={`h-2 w-2 mx-1 rounded-full transition ${
-                index === currentIndex ? "bg-blue-500 w-3" : "bg-gray-300"
+                index === currentIndex
+                  ? "bg-blue-500 w-3"
+                  : "bg-gray-300 dark:bg-gray-600"
               }`}
             ></span>
           ))}
@@ -144,4 +192,4 @@ const FeaturedHackathons = () => {
   );
 };
 
-export default FeaturedHackathons;
+export default RecentHackathons;
