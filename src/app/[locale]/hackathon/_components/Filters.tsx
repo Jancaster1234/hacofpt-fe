@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useTranslations } from "@/hooks/useTranslations";
 
-// Define the enum values from API with their display names
+// Define the category mappings from API enum values to display names
 const categoryMappings = {
   CODING: "Coding Hackathons",
   EXTERNAL: "External Hackathons",
@@ -13,10 +13,8 @@ const categoryMappings = {
   OTHERS: "Others",
 };
 
-// Define the filter options using the API enum values
-const categoryOptions = Object.keys(categoryMappings) as Array<
-  keyof typeof categoryMappings
->;
+// Keep the original display names for UI rendering
+const categoryOptions = Object.values(categoryMappings);
 
 const organizationOptions = [
   "FPTU",
@@ -31,7 +29,7 @@ const enrollmentStatusOptions = ["upcoming", "open", "closed"];
 type FiltersProps = {
   selectedFilters: {
     enrollmentStatus: string[];
-    categories: string[]; // These will now be the enum values like "CODING" instead of "Coding Hackathons"
+    categories: string[];
     organizations: string[];
   };
   onFilterChange: (filters: {
@@ -41,6 +39,21 @@ type FiltersProps = {
   }) => void;
 };
 
+// Helper function to convert display name to enum value
+const getEnumValueFromDisplayName = (displayName: string): string => {
+  const entry = Object.entries(categoryMappings).find(
+    ([_, value]) => value === displayName
+  );
+  return entry ? entry[0] : displayName;
+};
+
+// Helper function to convert enum value to display name
+const getDisplayNameFromEnumValue = (enumValue: string): string => {
+  return (
+    categoryMappings[enumValue as keyof typeof categoryMappings] || enumValue
+  );
+};
+
 export default function Filters({
   selectedFilters,
   onFilterChange,
@@ -48,21 +61,42 @@ export default function Filters({
   const t = useTranslations("hackathon");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
+  // Get display names for selected categories for UI rendering
+  const getSelectedDisplayNames = (): string[] => {
+    return selectedFilters.categories.map((category) =>
+      getDisplayNameFromEnumValue(category)
+    );
+  };
+
   const toggleSelection = (
     value: string,
     state: string[],
     key: "categories" | "organizations" | "enrollmentStatus"
   ) => {
-    const newState = state.includes(value)
-      ? state.filter((item) => item !== value)
-      : [...state, value];
+    // Special handling for categories to convert between display names and enum values
+    if (key === "categories") {
+      const enumValue = getEnumValueFromDisplayName(value);
+      const newState = state.includes(enumValue)
+        ? state.filter((item) => item !== enumValue)
+        : [...state, enumValue];
 
-    onFilterChange({ ...selectedFilters, [key]: newState });
+      onFilterChange({ ...selectedFilters, [key]: newState });
+    } else {
+      // For other filters, keep the original behavior
+      const newState = state.includes(value)
+        ? state.filter((item) => item !== value)
+        : [...state, value];
+
+      onFilterChange({ ...selectedFilters, [key]: newState });
+    }
   };
 
   const toggleMobileFilters = () => {
     setIsMobileFiltersOpen(!isMobileFiltersOpen);
   };
+
+  // Get selected display names for UI rendering
+  const selectedDisplayNames = getSelectedDisplayNames();
 
   return (
     <>
@@ -108,15 +142,15 @@ export default function Filters({
             {t("categories")}
           </h4>
           <div className="space-y-2">
-            {categoryOptions.map((category) => (
-              <div key={category} className="flex items-center">
+            {categoryOptions.map((displayName) => (
+              <div key={displayName} className="flex items-center">
                 <input
                   type="checkbox"
-                  id={`category-${category}`}
-                  checked={selectedFilters.categories.includes(category)}
+                  id={`category-${displayName}`}
+                  checked={selectedDisplayNames.includes(displayName)}
                   onChange={() =>
                     toggleSelection(
-                      category,
+                      displayName,
                       selectedFilters.categories,
                       "categories"
                     )
@@ -124,12 +158,10 @@ export default function Filters({
                   className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-400"
                 />
                 <label
-                  htmlFor={`category-${category}`}
+                  htmlFor={`category-${displayName}`}
                   className="ml-2 text-sm text-gray-700 dark:text-gray-300"
                 >
-                  {t(
-                    `category${categoryMappings[category].replace(/\s+/g, "")}`
-                  )}
+                  {t(`category${displayName.replace(/\s+/g, "")}`)}
                 </label>
               </div>
             ))}

@@ -11,6 +11,15 @@ import { hackathonService } from "@/services/hackathon.service";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useToast } from "@/hooks/use-toast";
 
+// Define the category mappings (same as in Filters.tsx)
+const categoryMappings = {
+  CODING: "Coding Hackathons",
+  EXTERNAL: "External Hackathons",
+  INTERNAL: "Internal Hackathons",
+  DESIGN: "Design Hackathons",
+  OTHERS: "Others",
+};
+
 async function getHackathons(): Promise<{
   data: Hackathon[];
   message?: string;
@@ -101,12 +110,15 @@ export default function HackathonPage() {
                 status.toLowerCase()
             )
           : true;
+
+      // Updated category filtering to handle enum values
       const matchesCategory =
         filters.categories.length > 0
-          ? filters.categories.some((category) =>
-              hackathon.category.includes(category)
+          ? filters.categories.some(
+              (categoryEnum) => hackathon.category === categoryEnum
             )
           : true;
+
       const matchesOrganization =
         filters.organizations.length > 0
           ? filters.organizations.some((org) =>
