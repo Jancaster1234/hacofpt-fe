@@ -33,6 +33,7 @@ const ChatDetails: React.FC<ChatDetailsProps> = ({ chatId, chats, onSendMessage,
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const emojiPickerRef = useRef<HTMLDivElement>(null);
     const [activeReactionBar, setActiveReactionBar] = useState<string | null>(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null); // State để quản lý ảnh được chọn
 
     // Fetch users list
     useEffect(() => {
@@ -277,7 +278,8 @@ const ChatDetails: React.FC<ChatDetailsProps> = ({ chatId, chats, onSendMessage,
                                                             key={index}
                                                             src={fileUrl}
                                                             alt="attachment"
-                                                            className="rounded-md max-w-[120px] max-h-[120px] object-cover"
+                                                            className="rounded-md max-w-[120px] max-h-[120px] object-cover cursor-pointer"
+                                                            onClick={() => setSelectedImage(fileUrl)} // Mở modal khi click
                                                         />
                                                     ) : (
                                                         <div key={index} className="flex items-center space-x-2 p-2 bg-gray-200 rounded-lg">
@@ -359,6 +361,20 @@ const ChatDetails: React.FC<ChatDetailsProps> = ({ chatId, chats, onSendMessage,
                 })}
                 <div ref={messagesEndRef} />
             </div>
+
+            {/* Modal hiển thị ảnh chi tiết */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                    onClick={() => setSelectedImage(null)} // Đóng modal khi click ra ngoài
+                >
+                    <img
+                        src={selectedImage}
+                        alt="Selected"
+                        className="max-w-full max-h-full rounded-lg"
+                    />
+                </div>
+            )}
 
             {/* Message input */}
             <div className="p-4 border-t">

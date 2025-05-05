@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth_v0';
 import { ChatListItem } from '@/types/chat';
+import ImageModal from '../_components/ImageModal'; // Đường dẫn tùy thuộc vào cấu trúc thư mục của bạn
 
 interface ChatListProps {
     chats: ChatListItem[];
@@ -12,6 +13,15 @@ interface ChatListProps {
 const ChatList: React.FC<ChatListProps> = ({ chats, onChatSelect, onCreateNewChat }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const { user } = useAuth();
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+    const handleImageClick = (imageUrl: string) => {
+        setSelectedImage(imageUrl);
+    };
+
+    const closeModal = () => {
+        setSelectedImage(null);
+    };
 
     const formatMessageTime = (dateString?: string) => {
         if (!dateString) return '';
@@ -118,6 +128,8 @@ const ChatList: React.FC<ChatListProps> = ({ chats, onChatSelect, onCreateNewCha
                                 src={getOtherUserAvatar(chat)}
                                 alt={chat.name}
                                 className="w-10 h-10 rounded-full object-cover"
+                                onClick={() => handleImageClick(getOtherUserAvatar(chat))}
+                                style={{ cursor: 'pointer' }}
                             />
                             <div className="ml-3 flex-1 min-w-0">
                                 <div className="flex justify-between items-center">
@@ -136,6 +148,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats, onChatSelect, onCreateNewCha
                     </div>
                 ))}
             </div>
+            {selectedImage && <ImageModal imageUrl={selectedImage} onClose={closeModal} />}
         </div>
     );
 };
