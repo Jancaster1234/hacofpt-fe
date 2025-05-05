@@ -4,14 +4,19 @@
 import { useState } from "react";
 import { useTranslations } from "@/hooks/useTranslations";
 
-// Define the filter options
-const categoryOptions = [
-  "Coding Hackathons",
-  "External Hackathons",
-  "Internal Hackathons",
-  "Design Hackathons",
-  "Others",
-];
+// Define the enum values from API with their display names
+const categoryMappings = {
+  CODING: "Coding Hackathons",
+  EXTERNAL: "External Hackathons",
+  INTERNAL: "Internal Hackathons",
+  DESIGN: "Design Hackathons",
+  OTHERS: "Others",
+};
+
+// Define the filter options using the API enum values
+const categoryOptions = Object.keys(categoryMappings) as Array<
+  keyof typeof categoryMappings
+>;
 
 const organizationOptions = [
   "FPTU",
@@ -26,7 +31,7 @@ const enrollmentStatusOptions = ["upcoming", "open", "closed"];
 type FiltersProps = {
   selectedFilters: {
     enrollmentStatus: string[];
-    categories: string[];
+    categories: string[]; // These will now be the enum values like "CODING" instead of "Coding Hackathons"
     organizations: string[];
   };
   onFilterChange: (filters: {
@@ -122,7 +127,9 @@ export default function Filters({
                   htmlFor={`category-${category}`}
                   className="ml-2 text-sm text-gray-700 dark:text-gray-300"
                 >
-                  {t(`category${category.replace(/\s+/g, "")}`)}
+                  {t(
+                    `category${categoryMappings[category].replace(/\s+/g, "")}`
+                  )}
                 </label>
               </div>
             ))}
@@ -132,7 +139,7 @@ export default function Filters({
         {/* Enrollment Status Filter */}
         <div className="mb-6">
           <h4 className="font-medium mb-3 text-gray-800 dark:text-gray-200">
-            {t("status")}
+            {t("enrollmentStatus")}
           </h4>
           <div className="space-y-2">
             {enrollmentStatusOptions.map((status) => (
