@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Link from "next/link";
-//TODO: {lv1} maybe change react-icons/fa to another approach, to minimize bundle size
+
 const hackathons = [
   {
     title: "HACKCOVY - Online Hackathon",
