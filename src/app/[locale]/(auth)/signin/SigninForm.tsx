@@ -1,4 +1,3 @@
-// src/app/[locale]/(auth)/signin/SigninForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -12,6 +11,10 @@ const SigninForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{
+    username?: string;
+    password?: string;
+  }>({});
   const { login } = useAuth(); // Use the latest authentication hook
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -19,9 +22,29 @@ const SigninForm = () => {
   const [googleError, setGoogleError] = useState<string | null>(null);
   const toast = useToast();
 
+  const validateForm = () => {
+    const errors: { username?: string; password?: string } = {};
+
+    if (!username.trim()) {
+      errors.username = "Username cannot be blank";
+    }
+
+    if (!password.trim()) {
+      errors.password = "Password cannot be blank";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setValidationErrors({});
+
+    if (!validateForm()) {
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -77,8 +100,17 @@ const SigninForm = () => {
             placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full rounded-md border border-transparent py-3 px-6 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp"
+            className={`w-full rounded-md border ${
+              validationErrors.username
+                ? "border-red-500"
+                : "border-transparent"
+            } py-3 px-6 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp`}
           />
+          {validationErrors.username && (
+            <p className="mt-2 text-sm text-red-600">
+              {validationErrors.username}
+            </p>
+          )}
         </div>
 
         <div className="mb-8">
@@ -94,8 +126,17 @@ const SigninForm = () => {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-transparent py-3 px-6 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp"
+            className={`w-full rounded-md border ${
+              validationErrors.password
+                ? "border-red-500"
+                : "border-transparent"
+            } py-3 px-6 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp`}
           />
+          {validationErrors.password && (
+            <p className="mt-2 text-sm text-red-600">
+              {validationErrors.password}
+            </p>
+          )}
         </div>
 
         <div className="mb-8 flex flex-col justify-between sm:flex-row sm:items-center">
