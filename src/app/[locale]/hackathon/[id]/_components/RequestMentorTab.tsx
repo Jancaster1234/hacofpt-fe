@@ -9,9 +9,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 type RequestMentorTabProps = {
   mentors: User[];
   loading: boolean;
-  onRequestMentorship: (
-    mentorId: string
-  ) => Promise<{ success: boolean; message?: string }>;
+  onRequestMentorship: (mentorId: string) => Promise<void>;
 };
 
 export default function RequestMentorTab({
@@ -28,14 +26,11 @@ export default function RequestMentorTab({
   const handleRequestMentorship = async (mentorId: string) => {
     try {
       setRequestingMentorId(mentorId);
-      const { success, message } = await onRequestMentorship(mentorId);
-
-      if (success) {
-        toast.success(t("requestSuccess"));
-      } else {
-        toast.error(message || t("requestError"));
-      }
+      await onRequestMentorship(mentorId);
+      // Note: We don't need to show a toast here since the parent component (MentorshipModal)
+      // is already handling toast notifications for success/errors
     } catch (error) {
+      console.error("Error requesting mentorship:", error);
       toast.error(t("requestError"));
     } finally {
       setRequestingMentorId(null);
