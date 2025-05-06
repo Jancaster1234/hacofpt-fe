@@ -102,6 +102,19 @@ export default function MentorshipModal({
       setLoading(true);
       toast.info(t("creatingRequest"));
 
+      // First check if there's already an active request for this team in this hackathon
+      const activeRequest = mentorshipRequests.find(
+        (request) =>
+          request.teamId === teamId &&
+          request.hackathonId === hackathonId &&
+          ["PENDING", "APPROVED", "COMPLETED"].includes(request.status || "")
+      );
+
+      if (activeRequest) {
+        toast.error(t("alreadyHasActiveRequest"));
+        return;
+      }
+
       const response = await mentorshipRequestService.createMentorshipRequest({
         hackathonId,
         mentorId,
@@ -292,6 +305,9 @@ export default function MentorshipModal({
                 <RequestMentorTab
                   mentors={mentors}
                   loading={loading}
+                  mentorshipRequests={mentorshipRequests}
+                  teamId={teamId}
+                  hackathonId={hackathonId}
                   onRequestMentorship={handleCreateMentorshipRequest}
                 />
               </Tab.Panel>

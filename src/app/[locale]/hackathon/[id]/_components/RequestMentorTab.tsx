@@ -1,20 +1,29 @@
 // src/app/[locale]/hackathon/[id]/_components/RequestMentorTab.tsx
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { User } from "@/types/entities/user";
 import { useTranslations } from "@/hooks/useTranslations";
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { mentorTeamService } from "@/services/mentorTeam.service";
+import { MentorTeam } from "@/types/entities/mentorTeam";
+import { MentorshipRequest } from "@/types/entities/mentorshipRequest";
 
 type RequestMentorTabProps = {
   mentors: User[];
   loading: boolean;
+  mentorshipRequests: MentorshipRequest[];
+  teamId: string;
+  hackathonId: string;
   onRequestMentorship: (mentorId: string) => Promise<void>;
 };
 
 export default function RequestMentorTab({
   mentors,
   loading,
+  mentorshipRequests,
+  teamId,
+  hackathonId,
   onRequestMentorship,
 }: RequestMentorTabProps) {
   const t = useTranslations("requestMentor");
@@ -22,13 +31,56 @@ export default function RequestMentorTab({
   const [requestingMentorId, setRequestingMentorId] = useState<string | null>(
     null
   );
+  const [mentorTeamsMap, setMentorTeamsMap] = useState<
+    Record<string, MentorTeam[]>
+  >({});
+  const [loadingMentorTeams, setLoadingMentorTeams] = useState<
+    Record<string, boolean>
+  >({});
+
+  // Check if the team already has an active mentorship request
+  const hasActiveRequest = mentorshipRequests.some(
+    (request) =>
+      request.teamId === teamId &&
+      request.hackathonId === hackathonId &&
+      ["PENDING", "APPROVED", "COMPLETED"].includes(request.status || "")
+  );
+
+  // Move the fetch function outside useEffect and memoize it with useCallback
+  const fetchMentorTeams = useCallback(async (mentor: User) => {
+    setLoadingMentorTeams((prev) => ({ ...prev, [mentor.id]: true }));
+    try {
+      const response = await mentorTeamService.getMentorTeamsByMentorId(
+        mentor.id
+      );
+      if (response.data) {
+        setMentorTeamsMap((prev) => ({
+          ...prev,
+          [mentor.id]: response.data,
+        }));
+      }
+    } catch (error) {
+      console.error(`Failed to fetch mentor teams for ${mentor.id}:`, error);
+      // Handle error without using toast in the callback to avoid dependency issues
+      // We'll show the error in the component UI instead
+    } finally {
+      setLoadingMentorTeams((prev) => ({ ...prev, [mentor.id]: false }));
+    }
+  }, []);
+
+  // Fetch mentor teams count for each mentor
+  useEffect(() => {
+    if (!mentors.length) return;
+
+    mentors.forEach((mentor) => {
+      fetchMentorTeams(mentor);
+    });
+  }, [mentors, fetchMentorTeams]); // Remove toast from dependency array
 
   const handleRequestMentorship = async (mentorId: string) => {
     try {
       setRequestingMentorId(mentorId);
       await onRequestMentorship(mentorId);
-      // Note: We don't need to show a toast here since the parent component (MentorshipModal)
-      // is already handling toast notifications for success/errors
     } catch (error) {
       console.error("Error requesting mentorship:", error);
       toast.error(t("requestError"));
@@ -37,8 +89,25 @@ export default function RequestMentorTab({
     }
   };
 
+  // Check if this mentor already has a request from this team
+  const hasPendingRequestWithMentor = (mentorId: string) => {
+    return mentorshipRequests.some(
+      (request) =>
+        request.mentorId === mentorId &&
+        request.teamId === teamId &&
+        request.hackathonId === hackathonId &&
+        ["PENDING", "APPROVED", "COMPLETED"].includes(request.status || "")
+    );
+  };
+
   return (
     <div className="transition-colors duration-300">
+      {hasActiveRequest && (
+        <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-md text-yellow-800 dark:text-yellow-200">
+          <p>{t("existingMentorshipRequestWarning")}</p>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center items-center py-8">
           <LoadingSpinner
@@ -50,15 +119,20 @@ export default function RequestMentorTab({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {mentors.map((mentor) => {
-            const currentTeamCount = mentor.mentorTeams?.length || 0;
-            const maxTeamLimit = mentor.mentorTeamLimits?.length || 5;
+            const mentorTeams = mentorTeamsMap[mentor.id] || [];
+            const currentTeamCount = mentorTeams.length;
+            const maxTeamLimit = 5;
             const full = currentTeamCount >= maxTeamLimit;
+            const isLoading = loadingMentorTeams[mentor.id];
+            const hasExistingRequest = hasPendingRequestWithMentor(mentor.id);
 
             return (
               <div
                 key={mentor.id}
                 className={`border rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-all duration-300 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 ${
-                  full ? "opacity-60" : ""
+                  full || hasActiveRequest || hasExistingRequest
+                    ? "opacity-60"
+                    : ""
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -129,29 +203,51 @@ export default function RequestMentorTab({
                     )}
                   </div>
                   <div className="text-sm">
-                    <span
-                      className={
-                        full
-                          ? "text-red-500 dark:text-red-400"
-                          : "text-green-600 dark:text-green-400"
-                      }
-                    >
-                      {currentTeamCount}/{maxTeamLimit}
-                    </span>{" "}
+                    {isLoading ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <span
+                        className={
+                          full
+                            ? "text-red-500 dark:text-red-400"
+                            : "text-green-600 dark:text-green-400"
+                        }
+                      >
+                        {currentTeamCount}/{maxTeamLimit}
+                      </span>
+                    )}{" "}
                     {t("teams")}
                   </div>
                 </div>
 
+                {hasExistingRequest && (
+                  <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+                    {t("alreadyRequestedMentor")}
+                  </div>
+                )}
+
                 <button
-                  disabled={full || requestingMentorId === mentor.id}
-                  onClick={() => !full && handleRequestMentorship(mentor.id)}
+                  disabled={
+                    full ||
+                    hasActiveRequest ||
+                    hasExistingRequest ||
+                    requestingMentorId === mentor.id ||
+                    isLoading
+                  }
+                  onClick={() => handleRequestMentorship(mentor.id)}
                   className={`mt-3 w-full py-2 rounded text-sm font-medium transition-colors duration-200 ${
-                    full
+                    full || hasActiveRequest || hasExistingRequest
                       ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                       : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                   aria-label={
-                    full ? t("mentorAtCapacity") : t("requestMentorship")
+                    full
+                      ? t("mentorAtCapacity")
+                      : hasActiveRequest
+                        ? t("teamHasActiveMentorship")
+                        : hasExistingRequest
+                          ? t("alreadyRequestedMentor")
+                          : t("requestMentorship")
                   }
                 >
                   {requestingMentorId === mentor.id ? (
@@ -160,6 +256,10 @@ export default function RequestMentorTab({
                     </div>
                   ) : full ? (
                     t("mentorAtCapacity")
+                  ) : hasActiveRequest ? (
+                    t("teamHasActiveMentorship")
+                  ) : hasExistingRequest ? (
+                    t("alreadyRequestedThisMentor")
                   ) : (
                     t("requestMentorship")
                   )}

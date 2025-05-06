@@ -411,7 +411,13 @@
     "teams": "nhóm",
     "mentorAtCapacity": "Cố vấn đã đủ nhóm",
     "requestMentorship": "Yêu cầu cố vấn",
-    "noMentorsAvailable": "Hiện không có cố vấn nào"
+    "noMentorsAvailable": "Hiện không có cố vấn nào",
+    "existingMentorshipRequestWarning": "Nhóm của bạn đã có một yêu cầu cố vấn đang hoạt động.",
+    "alreadyRequestedMentor": "Bạn đã gửi yêu cầu tới cố vấn này.",
+    "alreadyRequestedThisMentor": "Đã gửi yêu cầu",
+    "teamHasActiveMentorship": "Nhóm của bạn đã có một yêu cầu cố vấn đang hoạt động.",
+    "mentorTeamsLoadError": "Không thể tải dữ liệu nhóm của cố vấn.",
+    "alreadyHasActiveRequest": "Nhóm của bạn đã có một yêu cầu cố vấn đang hoạt động."
   },
   "hackathonBoard": {
     "tabs": {

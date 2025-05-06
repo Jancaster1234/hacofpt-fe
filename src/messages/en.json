@@ -402,7 +402,13 @@
     "teams": "teams",
     "mentorAtCapacity": "Mentor at capacity",
     "requestMentorship": "Request mentorship",
-    "noMentorsAvailable": "No mentors available at the moment"
+    "noMentorsAvailable": "No mentors available at the moment",
+    "existingMentorshipRequestWarning": "Your team already has an active mentorship request.",
+    "alreadyRequestedMentor": "You’ve already requested this mentor.",
+    "alreadyRequestedThisMentor": "Already requested",
+    "teamHasActiveMentorship": "Your team already has an active mentorship.",
+    "mentorTeamsLoadError": "Failed to load mentor's team data.",
+    "alreadyHasActiveRequest": "Your team already has an active mentorship request."
   },
   "hackathonBoard": {
     "tabs": {
