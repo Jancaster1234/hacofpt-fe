@@ -18,7 +18,7 @@ type SessionRequestsTabProps = {
       status?: "PENDING" | "DELETED";
       mentorTeamId?: string;
     }
-  ) => Promise<{ success: boolean; message?: string }>;
+  ) => Promise<void>;
 };
 
 export default function SessionRequestsTab({
@@ -43,7 +43,7 @@ export default function SessionRequestsTab({
     if (confirm(t("confirmCancel"))) {
       setLoadingSessionId(session.id);
       try {
-        const { success, message } = await onUpdateRequest(session.id, {
+        await onUpdateRequest(session.id, {
           mentorTeamId: session.mentorTeamId,
           startTime: session.startTime,
           endTime: session.endTime,
@@ -52,11 +52,9 @@ export default function SessionRequestsTab({
           status: "DELETED",
         });
 
-        if (success) {
-          toast.success(t("cancelSuccess"));
-        } else {
-          toast.error(message || t("cancelError"));
-        }
+        // The parent component will handle success toasts via onDataUpdate
+        // We can add a local toast for user feedback immediately after the operation
+        //toast.success(t("cancelSuccess"));
       } catch (error) {
         toast.error(t("cancelError"));
       } finally {
@@ -74,18 +72,15 @@ export default function SessionRequestsTab({
     if (editingSession) {
       setLoadingSessionId(editingSession.id);
       try {
-        const { success, message } = await onUpdateRequest(editingSession.id, {
+        await onUpdateRequest(editingSession.id, {
           ...data,
           mentorTeamId: editingSession.mentorTeamId,
           status: editingSession.status,
         });
 
-        if (success) {
-          toast.success(t("updateSuccess"));
-          setEditingSession(null);
-        } else {
-          toast.error(message || t("updateError"));
-        }
+        // The parent component will handle success toasts via onDataUpdate
+        //toast.success(t("updateSuccess"));
+        setEditingSession(null);
       } catch (error) {
         toast.error(t("updateError"));
       } finally {
