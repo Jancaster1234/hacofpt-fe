@@ -7,7 +7,10 @@ class TeamService {
   async getTeamById(teamId: string): Promise<{ data: Team; message?: string }> {
     try {
       const response = await apiService.auth.get<Team>(
-        `/hackathon-service/api/v1/teams/${teamId}`
+        `/hackathon-service/api/v1/teams/${teamId}`,
+        undefined,
+        30000,
+        false
       );
 
       if (!response || !response.data) {
