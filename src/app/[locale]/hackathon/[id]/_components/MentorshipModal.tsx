@@ -80,7 +80,8 @@ export default function MentorshipModal({
         .catch((error) => {
           if (!isMounted) return;
           console.error("Failed to fetch mentors:", error);
-          toast.error(t("mentorLoadError"));
+          const errorMessage = error.message || t("mentorLoadError");
+          toast.error(errorMessage);
         })
         .finally(() => {
           if (isMounted) {
@@ -116,7 +117,8 @@ export default function MentorshipModal({
       }
     } catch (error) {
       console.error("Failed to create mentorship request:", error);
-      toast.error(t("requestCreationError"));
+      const errorMessage = error.message || t("requestCreationError");
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -139,7 +141,8 @@ export default function MentorshipModal({
       }
     } catch (error) {
       console.error("Failed to delete mentorship request:", error);
-      toast.error(t("requestDeletionError"));
+      const errorMessage = error.message || t("requestDeletionError");
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -171,7 +174,8 @@ export default function MentorshipModal({
       }
     } catch (error) {
       console.error("Failed to create session request:", error);
-      toast.error(t("sessionRequestCreationError"));
+      const errorMessage = error.message || t("sessionRequestCreationError");
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -207,7 +211,8 @@ export default function MentorshipModal({
       }
     } catch (error) {
       console.error("Failed to update session request:", error);
-      toast.error(t("sessionRequestUpdateError"));
+      const errorMessage = error.message || t("sessionRequestUpdateError");
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
