@@ -17,7 +17,7 @@ type MentorTeamsTabProps = {
     endTime: string;
     location: string;
     description: string;
-  }) => Promise<{ data?: any; message?: string; success?: boolean }>;
+  }) => Promise<void>;
 };
 
 export default function MentorTeamsTab({
@@ -44,19 +44,14 @@ export default function MentorTeamsTab({
   }) => {
     setIsSubmitting(true);
     try {
-      const response = await onCreateSessionRequest({
+      await onCreateSessionRequest({
         ...data,
         mentorTeamId: selectedTeamId,
       });
-
-      if (response.success) {
-        toast.success(t("sessionRequestSuccess"));
-        setShowForm(false);
-      } else {
-        toast.error(response.message || t("sessionRequestError"));
-      }
+      // If execution reaches here, it means the parent component didn't throw an error
+      setShowForm(false);
     } catch (error) {
-      toast.error(t("sessionRequestError"));
+      // Error handling is done in the parent component
       console.error("Error submitting session request:", error);
     } finally {
       setIsSubmitting(false);

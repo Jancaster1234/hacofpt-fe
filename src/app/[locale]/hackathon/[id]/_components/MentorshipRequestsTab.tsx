@@ -8,9 +8,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 type MentorshipRequestsTabProps = {
   mentorshipRequests: MentorshipRequest[];
-  onDeleteRequest: (
-    requestId: string
-  ) => Promise<{ success: boolean; message?: string }>;
+  onDeleteRequest: (requestId: string) => Promise<void>;
 };
 
 export default function MentorshipRequestsTab({
@@ -24,15 +22,11 @@ export default function MentorshipRequestsTab({
   const handleDeleteRequest = async (requestId: string) => {
     try {
       setLoadingRequestId(requestId);
-      const { success, message } = await onDeleteRequest(requestId);
-
-      if (success) {
-        toast.success(t("cancelRequestSuccess"));
-      } else {
-        toast.error(message || t("cancelRequestError"));
-      }
+      await onDeleteRequest(requestId);
+      // If we get here, the operation succeeded as errors would be caught and handled in the parent
     } catch (error) {
-      toast.error(t("cancelRequestError"));
+      // Error handling is done in the parent component
+      console.error("Error in handleDeleteRequest:", error);
     } finally {
       setLoadingRequestId(null);
     }
