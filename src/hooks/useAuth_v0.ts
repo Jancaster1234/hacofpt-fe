@@ -82,10 +82,10 @@ export function useAuth() {
     }
   };
 
-  const checkUser = async () => {
+  const checkUser = async (skipIfNoToken = true) => {
     const accessToken = localStorage.getItem("accessToken");
 
-    if (!accessToken) {
+    if (!accessToken && skipIfNoToken) {
       console.warn("❌ No accessToken, skipping checkUser");
       setAuth({ user: null, loading: false });
       return { success: false, message: "No access token found" };
@@ -99,12 +99,6 @@ export function useAuth() {
       console.log("🔹 Fetched user:", userData);
       console.log("🔹 API message:", apiMessage);
 
-      if (!userData || Object.keys(userData).length === 0) {
-        console.warn("❌ Empty user data received, but not clearing token");
-        setAuth({ user: null, loading: false });
-        return { success: false, message: "Invalid user data" };
-      }
-
       setAuth({ user: userData, loading: false });
 
       // Only set message if there's something noteworthy
@@ -116,21 +110,25 @@ export function useAuth() {
     } catch (error: any) {
       console.error("❌ Failed to fetch user:", error);
 
-      // Only remove token if this is definitely an authentication error
+      // Only remove accessToken for authentication errors (401 Unauthorized, 403 Forbidden)
+      // Don't remove for network errors or other temporary issues
       if (
-        error.message.includes("401") ||
-        error.message.includes("Unauthorized")
+        error.status === 401 ||
+        error.status === 403 ||
+        error.message?.includes("unauthorized") ||
+        error.message?.includes("forbidden") ||
+        error.message?.includes("invalid token")
       ) {
-        console.log("❌ Authentication error, removing token");
+        console.warn("🔹 Authentication error detected, removing token");
         localStorage.removeItem("accessToken");
       } else {
-        console.log("❌ Non-authentication error, preserving token");
+        console.warn("🔹 Non-authentication error, preserving token for retry");
       }
 
       setAuth({ user: null, loading: false });
 
       // Only set error message on actual errors, not on session expiration
-      if (!error.message.includes("component unmounted")) {
+      if (!error.message?.includes("component unmounted")) {
         setMessage(
           error.message || "Failed to retrieve user information",
           "error"

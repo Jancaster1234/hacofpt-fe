@@ -5,6 +5,11 @@
       "english": "English",
       "vietnamese": "Vietnamese"
     },
+    "unauthorized": {
+      "title": "Unauthorized Access",
+      "message": "You don't have permission to view this page. Please contact an administrator if you believe this is an error.",
+      "backToHome": "Back to Home"
+    },
     "loading": "Loading...",
     "notAvailable": "N/A",
     "close": "Close",
