@@ -336,10 +336,10 @@
     "requestMentorTip": "Request a mentor from the \"Request a Mentor\" tab",
     "sessionRequestSuccess": "Session request created successfully",
     "sessionRequestError": "Failed to create session request",
-    "statusApproved": "Approved",
-    "statusRejected": "Rejected",
-    "statusPending": "Pending",
-    "statusUnknown": "Unknown"
+    "statusApproved": "APPROVED",
+    "statusRejected": "REJECTED",
+    "statusPending": "PENDING",
+    "statusUnknown": "UNKNOWN"
   },
   "sessionForm": {
     "description": "Description",
