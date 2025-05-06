@@ -27,7 +27,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (!user?.id) return;
 
-    const socket = new SockJS(`${process.env.COMMUNICATION_SERVICE_URL}/ws`);
+    const socket = new SockJS(
+      `${process.env.NEXT_PUBLIC_COMMUNICATION_SERVICE_URL}/ws`
+    );
     const stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
