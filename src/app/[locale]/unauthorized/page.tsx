@@ -1,4 +1,4 @@
-// src/app/[locale]/(protected)/unauthorized/page.tsx
+// src/app/[locale]/unauthorized/page.tsx
 "use client";
 
 import { useTranslations } from "@/hooks/useTranslations";
