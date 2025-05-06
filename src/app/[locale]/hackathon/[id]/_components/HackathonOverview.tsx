@@ -266,7 +266,7 @@ export default function HackathonOverview({
     try {
       setIsUpdating(true);
       // This is a user-initiated action, so we keep the toast
-      toast.info(t("updatingData"));
+      //toast.info(t("updatingData"));
 
       // Fetch updated mentor data
       const mentorTeamsPromises = teams.map((team) =>
@@ -316,8 +316,8 @@ export default function HackathonOverview({
       // Keep success toast for user-initiated action
       const successMessage =
         mentorTeamsResults[0]?.message || t("dataUpdateSuccess");
-      toast.success(successMessage);
-      showSuccess(t("dataUpdatedTitle"), successMessage);
+      //toast.success(successMessage);
+      //showSuccess(t("dataUpdatedTitle"), successMessage);
     } catch (error: any) {
       console.error("Failed to update mentorship data:", error);
       const errorMessage = error?.message || t("dataUpdateError");

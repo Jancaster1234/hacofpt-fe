@@ -71,7 +71,7 @@ export default function MentorshipModal({
             setMentors(mentorUsers);
             // Only show toast if there was an actual success message
             if (response.message) {
-              toast.success(response.message);
+              //toast.success(response.message);
             }
           } else if (response.message) {
             toast.error(response.message);
