@@ -31,7 +31,23 @@ export default function MentorTeamsTab({
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Maximum number of pending requests allowed per mentor team
+  const MAX_PENDING_REQUESTS = 3;
+
   const handleRequestSession = (teamId: string) => {
+    // Check if the team already has the maximum number of pending requests
+    const pendingRequests = mentorshipSessionRequests.filter(
+      (session) =>
+        session.mentorTeam?.id === teamId && session.status === "PENDING"
+    );
+
+    if (pendingRequests.length >= MAX_PENDING_REQUESTS) {
+      toast.error(
+        t("maxPendingRequestsReached", { count: MAX_PENDING_REQUESTS })
+      );
+      return;
+    }
+
     setSelectedTeamId(teamId);
     setShowForm(true);
   };
@@ -65,22 +81,47 @@ export default function MentorTeamsTab({
     );
   };
 
+  // Check if a team has reached the maximum number of pending requests
+  const hasReachedMaxPendingRequests = (mentorTeamId: string) => {
+    const pendingRequests = mentorshipSessionRequests.filter(
+      (session) =>
+        session.mentorTeam?.id === mentorTeamId && session.status === "PENDING"
+    );
+    return pendingRequests.length >= MAX_PENDING_REQUESTS;
+  };
+
+  // Get pending request count for a mentor team
+  const getPendingRequestCount = (mentorTeamId: string) => {
+    return mentorshipSessionRequests.filter(
+      (session) =>
+        session.mentorTeam?.id === mentorTeamId && session.status === "PENDING"
+    ).length;
+  };
+
   // Map status to translation key and style
   const getStatusConfig = (status: string) => {
     const statusMap: Record<string, { class: string; key: string }> = {
-      approved: {
+      APPROVED: {
         class:
           "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200",
         key: "statusApproved",
       },
-      rejected: {
+      REJECTED: {
         class: "bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200",
         key: "statusRejected",
       },
-      pending: {
+      PENDING: {
         class:
           "bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200",
         key: "statusPending",
+      },
+      DELETED: {
+        class: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200",
+        key: "statusDeleted",
+      },
+      COMPLETED: {
+        class: "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200",
+        key: "statusCompleted",
       },
     };
 
@@ -113,6 +154,8 @@ export default function MentorTeamsTab({
             const teamSessionRequests = getSessionRequestsForMentorTeam(
               mentorTeam.id
             );
+            const pendingCount = getPendingRequestCount(mentorTeam.id);
+            const maxReached = hasReachedMaxPendingRequests(mentorTeam.id);
 
             return (
               <li
@@ -140,6 +183,17 @@ export default function MentorTeamsTab({
                     </p>
                   </div>
                 </div>
+
+                {pendingCount > 0 && (
+                  <div className="mt-2 mb-3">
+                    <span className="text-sm text-yellow-600 dark:text-yellow-400">
+                      {t("pendingRequestsCount", {
+                        count: pendingCount,
+                        max: MAX_PENDING_REQUESTS,
+                      })}
+                    </span>
+                  </div>
+                )}
 
                 <div className="mt-4">
                   <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">
@@ -185,10 +239,22 @@ export default function MentorTeamsTab({
 
                 <div className="mt-4 flex justify-end">
                   <button
-                    className="text-sm px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    className={`text-sm px-3 py-1.5 rounded transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
+                      maxReached
+                        ? "bg-gray-300 text-gray-600 dark:bg-gray-600 dark:text-gray-400 cursor-not-allowed"
+                        : "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 focus:ring-blue-500"
+                    }`}
                     onClick={() => handleRequestSession(mentorTeam.id)}
+                    disabled={maxReached}
+                    title={
+                      maxReached
+                        ? t("maxPendingRequestsTooltip", {
+                            max: MAX_PENDING_REQUESTS,
+                          })
+                        : ""
+                    }
                   >
-                    {t("requestSession")}
+                    {maxReached ? t("maxRequestsReached") : t("requestSession")}
                   </button>
                 </div>
               </li>

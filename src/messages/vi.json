@@ -348,7 +348,13 @@
     "statusApproved": "Đã duyệt",
     "statusRejected": "Từ chối",
     "statusPending": "Đang chờ",
-    "statusUnknown": "Không xác định"
+    "statusDeleted": "Đã xóa",
+    "statusCompleted": "Hoàn thành",
+    "statusUnknown": "Không xác định",
+    "maxPendingRequestsReached": "Bạn đã đạt đến giới hạn tối đa {count} yêu cầu đang chờ cho mentor này",
+    "pendingRequestsCount": "{count} trong số {max} yêu cầu đang chờ",
+    "maxPendingRequestsTooltip": "Tối đa {max} yêu cầu đang chờ được phép cho mỗi mentor",
+    "maxRequestsReached": "Đã đạt giới hạn yêu cầu"
   },
   "sessionForm": {
     "description": "Mô tả",

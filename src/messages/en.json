@@ -339,7 +339,13 @@
     "statusApproved": "APPROVED",
     "statusRejected": "REJECTED",
     "statusPending": "PENDING",
-    "statusUnknown": "UNKNOWN"
+    "statusDeleted": "DELETED",
+    "statusCompleted": "COMPLETED",
+    "statusUnknown": "UNKNOWN",
+    "maxPendingRequestsReached": "You have reached the maximum of {count} pending requests for this mentor",
+    "pendingRequestsCount": "{count} of {max} pending requests",
+    "maxPendingRequestsTooltip": "Maximum of {max} pending requests allowed per mentor",
+    "maxRequestsReached": "Max requests reached"
   },
   "sessionForm": {
     "description": "Description",

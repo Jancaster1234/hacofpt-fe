@@ -206,11 +206,11 @@ export default function SessionRequestsTab({
                     </button>
                   </>
                 )}
-                {session.status === "APPROVED" && (
+                {/* {session.status === "APPROVED" && (
                   <button className="text-sm px-3 py-1 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded transition-colors duration-200">
                     {t("joinSession")}
                   </button>
-                )}
+                )} */}
               </div>
             </li>
           ))}
