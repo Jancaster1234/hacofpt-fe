@@ -97,7 +97,7 @@ export default function TeamsTab({ teams, onDataUpdate }: TeamsTabProps) {
                   </div>
 
                   <div className="flex items-center w-full sm:w-auto justify-between sm:justify-end">
-                    <button
+                    {/* <button
                       onClick={(e) => {
                         e.stopPropagation();
                         if (hackathonId) {
@@ -111,7 +111,7 @@ export default function TeamsTab({ teams, onDataUpdate }: TeamsTabProps) {
                       aria-label={t("goToBoard")}
                     >
                       {t("goToBoard")}
-                    </button>
+                    </button> */}
                     <ChevronRight
                       className={`h-5 w-5 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${
                         isExpanded ? "rotate-90" : ""

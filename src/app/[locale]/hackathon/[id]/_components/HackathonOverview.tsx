@@ -329,8 +329,13 @@ export default function HackathonOverview({
     }
   };
 
-  // Generate enrollment status message
+  // Generate enrollment status message - only show if user doesn't have a team
   const getEnrollmentStatusMessage = () => {
+    // If user already has a team, don't show enrollment status message
+    if (teams.length > 0) {
+      return null;
+    }
+
     switch (enrollmentStatus) {
       case "notStarted":
         return t("enrollmentNotStarted");
@@ -339,6 +344,38 @@ export default function HackathonOverview({
       default:
         return null;
     }
+  };
+
+  // Check if enrollment button should be disabled - not disabled if user already has a team
+  const isEnrollButtonDisabled = () => {
+    // If user already has a team, allow them to view their enrollment regardless of enrollment status
+    if (
+      teams.length > 0 ||
+      teamRequests.length > 0 ||
+      individualRegistrations.length > 0
+    ) {
+      return false;
+    }
+
+    // For users without any enrollment, disable based on enrollment status
+    return enrollmentStatus !== "open";
+  };
+
+  // Get enrollment button style - blue for active, gray for disabled
+  const getEnrollButtonStyle = () => {
+    // If user already has a team or enrollment, always show active button
+    if (
+      teams.length > 0 ||
+      teamRequests.length > 0 ||
+      individualRegistrations.length > 0
+    ) {
+      return "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 hover:scale-105 active:scale-95";
+    }
+
+    // For users without any enrollment, style based on enrollment status
+    return enrollmentStatus === "open"
+      ? "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 hover:scale-105 active:scale-95"
+      : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed";
   };
 
   return (
@@ -363,24 +400,14 @@ export default function HackathonOverview({
           ) : isTeamMember ? (
             <div className="flex items-center gap-3 sm:gap-4">
               <button
-                className={`${
-                  enrollmentStatus === "open"
-                    ? "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-                    : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                } text-white font-bold py-2 px-4 sm:px-6 rounded-full transition-all duration-300 transform ${
-                  enrollmentStatus === "open"
-                    ? "hover:scale-105 active:scale-95"
-                    : ""
-                } focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500`}
-                onClick={() =>
-                  enrollmentStatus === "open" && setIsModalOpen(true)
-                }
-                disabled={enrollmentStatus !== "open"}
+                className={`${getEnrollButtonStyle()} text-white font-bold py-2 px-4 sm:px-6 rounded-full transition-all duration-300 transform focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500`}
+                onClick={() => setIsModalOpen(true)}
+                disabled={isEnrollButtonDisabled()}
                 aria-label={getButtonTitle()}
               >
                 {getButtonTitle()}
               </button>
-              {enrollmentStatus !== "open" && (
+              {getEnrollmentStatusMessage() && (
                 <p className="text-sm text-amber-500 dark:text-amber-400 font-medium self-center">
                   {getEnrollmentStatusMessage()}
                 </p>
