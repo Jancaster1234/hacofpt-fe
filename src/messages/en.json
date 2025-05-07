@@ -523,6 +523,9 @@
     "basedOnEvaluations": "Based on evaluations from"
   },
   "kanban": {
+    "accessDenied": "Access Denied",
+    "noAccessToBoard": "You don't have permission to access this board. Please contact the board owner for access.",
+    "checkingAccess": "Checking access...",
     "newList": "New list",
     "addNewList": "Add new list",
     "editBoard": "Edit board",

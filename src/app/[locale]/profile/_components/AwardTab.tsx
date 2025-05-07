@@ -1,10 +1,15 @@
 // src/app/[locale]/profile/_components/AwardTab.tsx
+import { useEffect, useState } from "react";
 import { User } from "@/types/entities/user";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { hackathonService } from "@/services/hackathon.service";
+import { teamService } from "@/services/team.service";
+import { hackathonResultService } from "@/services/hackathonResult.service";
 
 const MedalIcon = ({ placement }: { placement: number }) => {
-  const color = placement === 1 ? "#FFD700" : placement === 2 ? "#C0C0C0" : "#CD7F32";
+  const color =
+    placement === 1 ? "#FFD700" : placement === 2 ? "#C0C0C0" : "#CD7F32";
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -13,7 +18,10 @@ const MedalIcon = ({ placement }: { placement: number }) => {
       className="w-12 h-12"
     >
       <path d="M12 1v4.286a7 7 0 1 1-7 7h4.286a2.714 2.714 0 1 0 2.714-2.714V1Z" />
-      <path fillOpacity={0.5} d="M12 1v4.286a7 7 0 1 0 7 7h-4.286a2.714 2.714 0 1 1-2.714-2.714V1Z" />
+      <path
+        fillOpacity={0.5}
+        d="M12 1v4.286a7 7 0 1 0 7 7h-4.286a2.714 2.714 0 1 1-2.714-2.714V1Z"
+      />
     </svg>
   );
 };
@@ -22,27 +30,102 @@ interface AwardTabProps {
   user: User;
 }
 
-const AwardTab: React.FC<AwardTabProps> = ({ user }) => {
-  const placementCounts: { [placement: number]: number } = {};
-  const hackathonAwards: Array<{
-    hackathonTitle: string;
-    placement: number;
-    role: string;
-  }> = [];
+interface Award {
+  hackathonTitle: string;
+  placement: number;
+}
 
-  (user.userHackathons || []).forEach((userHackathon) => {
-    if (userHackathon.role === "PARTICIPANT" && userHackathon.hackathon) {
-      const result = userHackathon.hackathon.hackathonResults?.[0];
-      if (result?.placement) {
-        placementCounts[result.placement] = (placementCounts[result.placement] || 0) + 1;
-        hackathonAwards.push({
-          hackathonTitle: userHackathon.hackathon.title || 'Untitled Hackathon',
-          placement: result.placement,
-          role: userHackathon.role
-        });
+const AwardTab: React.FC<AwardTabProps> = ({ user }) => {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [placementCounts, setPlacementCounts] = useState<{
+    [placement: number]: number;
+  }>({});
+  const [hackathonAwards, setHackathonAwards] = useState<Award[]>([]);
+
+  useEffect(() => {
+    const fetchAwards = async () => {
+      try {
+        setIsLoading(true);
+
+        // Step 1: Get all hackathons
+        const { data: hackathons } = await hackathonService.getAllHackathons();
+
+        if (!hackathons.length) {
+          setIsLoading(false);
+          return;
+        }
+
+        const userAwards: Award[] = [];
+        const counts: { [placement: number]: number } = {};
+
+        // Step 2: For each hackathon, check if user was part of a team
+        for (const hackathon of hackathons) {
+          if (!hackathon.id || !user.id) continue;
+
+          // Get teams where user is a member for this hackathon
+          const { data: teams } = await teamService.getTeamsByUserAndHackathon(
+            user.id,
+            hackathon.id
+          );
+
+          if (!teams.length) continue;
+
+          // Step 3: For each team, get hackathon results
+          const { data: hackathonResults } =
+            await hackathonResultService.getHackathonResultsByHackathonId(
+              hackathon.id
+            );
+
+          // Find the team's placement in the results
+          for (const team of teams) {
+            if (!team.id) continue;
+
+            const teamResult = hackathonResults.find(
+              (result) => result.teamId === team.id
+            );
+
+            if (teamResult?.placement) {
+              // Add to placement counts
+              counts[teamResult.placement] =
+                (counts[teamResult.placement] || 0) + 1;
+
+              // Add to awards list
+              userAwards.push({
+                hackathonTitle: hackathon.title || "Untitled Hackathon",
+                placement: teamResult.placement,
+              });
+            }
+          }
+        }
+
+        setPlacementCounts(counts);
+        setHackathonAwards(userAwards);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching awards data:", error);
+        setIsLoading(false);
       }
+    };
+
+    if (user?.id) {
+      fetchAwards();
+    } else {
+      setIsLoading(false);
     }
-  });
+  }, [user]);
+
+  if (isLoading) {
+    return (
+      <Card className="mt-6">
+        <CardContent className="p-6 text-center">
+          <div className="flex flex-col items-center justify-center py-10">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p className="mt-4 text-gray-500">Loading awards...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (hackathonAwards.length === 0) {
     return (
@@ -95,7 +178,8 @@ const AwardTab: React.FC<AwardTabProps> = ({ user }) => {
                   {placementCounts[placement] || 0}
                 </span>
                 <span className="text-sm text-gray-500">
-                  {placement === 1 ? "1st" : placement === 2 ? "2nd" : "3rd"} Place
+                  {placement === 1 ? "1st" : placement === 2 ? "2nd" : "3rd"}{" "}
+                  Place
                 </span>
               </div>
             ))}
@@ -114,18 +198,29 @@ const AwardTab: React.FC<AwardTabProps> = ({ user }) => {
                 className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-100"
               >
                 <div>
-                  <h4 className="font-medium text-gray-900">{award.hackathonTitle}</h4>
+                  <h4 className="font-medium text-gray-900">
+                    {award.hackathonTitle}
+                  </h4>
                   <span className="text-sm text-gray-500">{award.role}</span>
                 </div>
-                <Badge className={`font-medium ${award.placement === 1 ? "bg-yellow-100 text-yellow-800 border-2 border-yellow-400" :
-                  award.placement === 2 ? "bg-gray-100 text-gray-800 border-2 border-gray-400" :
-                    award.placement === 3 ? "bg-orange-100 text-orange-800 border-2 border-orange-400" :
-                      "bg-blue-100 text-blue-800"
-                  }`}>
-                  {award.placement === 1 ? "1st Place 🏆" :
-                    award.placement === 2 ? "2nd Place 🥈" :
-                      award.placement === 3 ? "3rd Place 🥉" :
-                        `${award.placement}th Place`}
+                <Badge
+                  className={`font-medium ${
+                    award.placement === 1
+                      ? "bg-yellow-100 text-yellow-800 border-2 border-yellow-400"
+                      : award.placement === 2
+                        ? "bg-gray-100 text-gray-800 border-2 border-gray-400"
+                        : award.placement === 3
+                          ? "bg-orange-100 text-orange-800 border-2 border-orange-400"
+                          : "bg-blue-100 text-blue-800"
+                  }`}
+                >
+                  {award.placement === 1
+                    ? "1st Place 🏆"
+                    : award.placement === 2
+                      ? "2nd Place 🥈"
+                      : award.placement === 3
+                        ? "3rd Place 🥉"
+                        : `${award.placement}th Place`}
                 </Badge>
               </div>
             ))}

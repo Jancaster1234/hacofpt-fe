@@ -532,6 +532,9 @@
     "basedOnEvaluations": "Dựa trên đánh giá từ"
   },
   "kanban": {
+    "accessDenied": "Từ chối truy cập",
+    "noAccessToBoard": "Bạn không có quyền truy cập bảng này. Vui lòng liên hệ với chủ sở hữu bảng để được cấp quyền.",
+    "checkingAccess": "Đang kiểm tra quyền truy cập...",
     "newList": "Danh sách mới",
     "addNewList": "Thêm danh sách mới",
     "editBoard": "Chỉnh sửa bảng",
