@@ -187,7 +187,7 @@ export default function CreateThreadModal({
             </button>
             <button
               type="submit"
-              className="px-3 sm:px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all duration-300 flex items-center justify-center min-w-[100px]"
+              className="px-3 sm:px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-all duration-300 flex items-center justify-center min-w-[100px]"
               disabled={isSubmitting}
               aria-label={isSubmitting ? t("creating") : t("createThread")}
             >

@@ -41,7 +41,7 @@ export function ForumCategoryDetail({ category }: { category: ForumCategory }) {
         </div>
         <button
           onClick={handleNewThreadClick}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 transition-all duration-200 text-sm sm:text-base"
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-all duration-200 text-sm sm:text-base"
         >
           {t("newThread")}
         </button>

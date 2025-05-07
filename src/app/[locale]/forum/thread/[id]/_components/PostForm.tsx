@@ -146,8 +146,8 @@ export default function PostForm({
         )}
         <button
           type="submit"
-          className="px-3 py-2 sm:px-4 sm:py-2 text-white bg-indigo-600 dark:bg-indigo-700 
-                   rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 
+          className="px-3 py-2 sm:px-4 sm:py-2 text-white bg-blue-500 dark:bg-blue-600 
+                   rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 
                    transition-colors duration-300 flex items-center justify-center
                    min-w-[80px] text-sm sm:text-base"
           disabled={submitting}
