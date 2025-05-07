@@ -66,7 +66,7 @@ export const ForumCategoryForm = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-all">
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 transition-all">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 w-full max-w-md shadow-xl transition-colors duration-300 animate-fadeIn">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white transition-colors">
           {isEditing
