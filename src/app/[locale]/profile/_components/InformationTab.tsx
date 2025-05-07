@@ -181,6 +181,14 @@ export default function InformationTab({
 
   const fields: (keyof User)[] = ["firstName", "lastName", "bio", "phone"];
 
+  // Add this helper function to get the user's primary role
+  const getPrimaryRole = (user: User): string => {
+    if (!user.userRoles || user.userRoles.length === 0) {
+      return "No Role";
+    }
+    return user.userRoles[0].role.name;
+  };
+
   return (
     <div className="mt-6">
       <Card className="border-2">
@@ -278,6 +286,17 @@ export default function InformationTab({
                     />
                   )}
                 </div>
+              </div>
+
+              <div className="col-span-2 space-y-2 mt-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Role
+                </label>
+                <Input
+                  value={getPrimaryRole(user)}
+                  className="w-full"
+                  disabled
+                />
               </div>
             </div>
 
