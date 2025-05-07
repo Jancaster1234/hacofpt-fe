@@ -73,7 +73,7 @@ export const ForumCategoryItem = ({
           <div className="flex space-x-2 mt-3 sm:mt-0 sm:ml-4">
             <button
               onClick={() => onEdit(category)}
-              className="px-2 sm:px-3 py-1 text-xs sm:text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 border border-indigo-300 dark:border-indigo-700 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors duration-200"
+              className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded transition-colors duration-200"
               aria-label={t("editCategory")}
             >
               {t("edit")}
@@ -81,7 +81,7 @@ export const ForumCategoryItem = ({
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="px-2 sm:px-3 py-1 text-xs sm:text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-700 rounded hover:bg-red-50 dark:hover:bg-red-900 disabled:opacity-50 transition-colors duration-200"
+              className="px-2 sm:px-3 py-1 text-xs sm:text-sm  text-white bg-red-500 hover:bg-red-600 dark:bg-red-600 border  border-red-300 dark:border-red-700 rounded dark:hover:bg-red-700 disabled:opacity-50 transition-colors duration-200"
               aria-label={t("deleteCategory")}
             >
               {isDeleting ? t("deleting") : t("delete")}

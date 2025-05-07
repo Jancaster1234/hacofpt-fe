@@ -146,8 +146,8 @@ export const ForumCategoryForm = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded 
-                        hover:bg-indigo-700 dark:hover:bg-indigo-600 
+              className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded 
+                        hover:bg-blue-600 dark:hover:bg-blue-700 
                         disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
               aria-label={
                 isSubmitting
