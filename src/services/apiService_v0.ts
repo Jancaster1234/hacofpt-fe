@@ -12,6 +12,12 @@ export interface ApiResponse<T> {
 }
 
 /**
+ * Global flag to track active refresh process
+ * This helps prevent showing multiple login prompts
+ */
+let isHandlingAuthError = false;
+
+/**
  * Generic function to handle API requests.
  */
 async function request<T>(
@@ -49,7 +55,7 @@ async function request<T>(
 
   // If this is a critical auth request, don't abort previous ones of the same type
   const isCriticalAuthRequest =
-    endpoint.includes("/users/my-info") && method === "GET";
+    endpoint.includes("/users/my-info") || endpoint.includes("/auth/refresh");
 
   if (abortPrevious && !isCriticalAuthRequest && controllers.has(requestKey)) {
     controllers.get(requestKey)?.abort();
@@ -91,29 +97,57 @@ async function request<T>(
       status: response.status,
     });
 
-    if (useAuthHeader && response.status === 401 && retry) {
-      await new Promise((res) => setTimeout(res, 500));
+    // Handle 401 Unauthorized (token expired) - only retry once
+    if (
+      useAuthHeader &&
+      response.status === 401 &&
+      retry &&
+      !isHandlingAuthError
+    ) {
+      isHandlingAuthError = true; // Prevent multiple parallel refresh attempts
+
       console.warn(
         `[API] Token expired on ${method} ${endpoint}. Attempting refresh...`
       );
 
-      const newToken = await tokenService_v0.refreshToken();
+      // Small delay to avoid race conditions
+      await new Promise((res) => setTimeout(res, 500));
 
-      if (newToken) {
-        console.log(`[API] Retrying ${method} ${endpoint} with new token`);
-        return request<T>(
-          method,
-          endpoint,
-          payload,
-          customHeaders,
-          true,
-          timeoutMs,
-          false,
-          abortPrevious
-        );
-      } else {
-        console.warn("[API] Token refresh failed. User must log in again.");
-        throw new Error("Unauthorized - Token refresh failed.");
+      try {
+        const newToken = await tokenService_v0.refreshToken();
+
+        if (newToken) {
+          console.log(`[API] Retrying ${method} ${endpoint} with new token`);
+          isHandlingAuthError = false;
+
+          // Try the request again with the new token
+          return request<T>(
+            method,
+            endpoint,
+            payload,
+            customHeaders,
+            true,
+            timeoutMs,
+            false, // Don't retry again if it fails
+            abortPrevious
+          );
+        } else {
+          console.warn("[API] Token refresh failed. User must log in again.");
+
+          // Trigger app-wide auth error handling here
+          // For example, redirect to login, show a modal, etc.
+
+          // Reset flag after a short delay to allow future refresh attempts
+          setTimeout(() => {
+            isHandlingAuthError = false;
+          }, 1000);
+
+          throw new Error("Unauthorized - Token refresh failed.");
+        }
+      } catch (refreshError) {
+        console.error("[API] Error during token refresh:", refreshError);
+        isHandlingAuthError = false;
+        throw new Error("Authentication error - Please log in again.");
       }
     }
 
@@ -174,7 +208,7 @@ async function request<T>(
         return {
           data: {} as T,
           message: "Request aborted: component unmounted",
-        }; // Include message
+        };
       }
     } else {
       console.error(`[API] ${method} ${endpoint} - Error: ${error.message}`);
