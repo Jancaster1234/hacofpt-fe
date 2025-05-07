@@ -163,7 +163,7 @@ async function request<T>(
       const text = await response.text();
       data = {
         status: response.status,
-        data: text.substring(0, 1000), // Limit text length
+        data: text,
         message: response.statusText || `Status: ${response.status}`,
       };
     }
