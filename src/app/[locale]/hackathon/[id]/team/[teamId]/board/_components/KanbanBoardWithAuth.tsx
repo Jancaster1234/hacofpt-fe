@@ -41,7 +41,7 @@ export default function KanbanBoardWithAuth({
 
         // Check if current user is in the non-deleted board users list
         const userHasAccess = boardUsers.some(
-          (boardUser) => boardUser.userId === user.id && !boardUser.isDeleted
+          (boardUser) => boardUser.user?.id === user.id && !boardUser.isDeleted
         );
 
         setHasAccess(userHasAccess);

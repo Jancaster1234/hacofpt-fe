@@ -1,9 +1,8 @@
-// src/app/[locale]/hackathon/[id]/team/[teamId]/board/page.tsx
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import KanbanBoard from "./_components/KanbanBoard";
+import KanbanBoardWithAuth from "./_components/KanbanBoardWithAuth";
 import Calendar from "@/components/calendar/Calendar";
 import SubmissionAndResultTab from "./_components/SubmissionAndResultTab";
 import { Round } from "@/types/entities/round";
@@ -152,7 +151,7 @@ export default function HackathonBoardPage() {
         )}
 
         {!loading && activeTab === t("tabs.taskBoard") && (
-          <KanbanBoard
+          <KanbanBoardWithAuth
             board={boards.length > 0 ? boards[0] : null}
             team={team}
             isLoading={boardLoading}
