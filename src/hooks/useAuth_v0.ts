@@ -20,21 +20,21 @@ export function useAuth() {
     try {
       const { data: response, message: apiMessage } =
         await authService_v0.login(username, password);
-      console.log("🔹 Login response:", response);
-      console.log("🔹 API message:", apiMessage);
+      // console.log("🔹 Login response:", response);
+      // console.log("🔹 API message:", apiMessage);
 
       if (!response.token) {
-        console.error("❌ No accessToken received from login response");
+        // console.error("❌ No accessToken received from login response");
         throw new Error("No accessToken received");
       }
 
-      console.log("🔹 Storing accessToken in localStorage:", response.token);
+      // console.log("🔹 Storing accessToken in localStorage:", response.token);
       localStorage.setItem("accessToken", response.token);
 
       const { data: userData, message: userMessage } =
         await authService_v0.getUser();
-      console.log("🔹 User data after login:", userData);
-      console.log("🔹 User API message:", userMessage);
+      // console.log("🔹 User data after login:", userData);
+      // console.log("🔹 User API message:", userMessage);
 
       // Store user data and display success message
       setAuth({ user: userData });
@@ -65,7 +65,7 @@ export function useAuth() {
       if (accessToken) {
         const { message: apiMessage } =
           await authService_v0.logout(accessToken);
-        console.log("🔹 Logout message:", apiMessage);
+        // console.log("🔹 Logout message:", apiMessage);
         setMessage(apiMessage || "Successfully logged out", "success");
         return { success: true, message: apiMessage };
       }
@@ -93,11 +93,11 @@ export function useAuth() {
 
     setAuth({ loading: true });
     try {
-      console.log("🔹 Fetching user with accessToken:", accessToken);
+      // console.log("🔹 Fetching user with accessToken:", accessToken);
       const { data: userData, message: apiMessage } =
         await authService_v0.getUser();
-      console.log("🔹 Fetched user:", userData);
-      console.log("🔹 API message:", apiMessage);
+      // console.log("🔹 Fetched user:", userData);
+      // console.log("🔹 API message:", apiMessage);
 
       // Most important fix: Check if userData is empty object or actually has properties
       if (userData && Object.keys(userData).length > 0) {
