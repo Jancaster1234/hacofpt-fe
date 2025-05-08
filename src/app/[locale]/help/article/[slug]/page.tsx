@@ -1,3 +1,4 @@
+// src/app/[locale]/help/article/[slug]/page.tsx
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
