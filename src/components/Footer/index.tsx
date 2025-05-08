@@ -163,7 +163,7 @@ const Footer = () => {
                 <ul>
                   <li>
                     <Link
-                      href="/"
+                      href="/term-of-service"
                       className="mb-4 inline-block text-base text-body-color duration-300 hover:text-[#4A6CF7] dark:text-body-color-dark dark:hover:text-[#4A6CF7]"
                     >
                       TOS
@@ -171,7 +171,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <Link
-                      href="/"
+                      href="/privacy-policy"
                       className="mb-4 inline-block text-base text-body-color duration-300 hover:text-[#4A6CF7] dark:text-body-color-dark dark:hover:text-[#4A6CF7]"
                     >
                       Privacy Policy
@@ -197,7 +197,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <Link
-                      href="/"
+                      href="/term-of-use"
                       className="mb-4 inline-block text-base text-body-color duration-300 hover:text-[#4A6CF7] dark:text-body-color-dark dark:hover:text-[#4A6CF7]"
                     >
                       Terms of Use
