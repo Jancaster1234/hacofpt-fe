@@ -12,24 +12,43 @@ const Footer = () => {
             <div className="w-full px-4 md:w-1/2 lg:w-4/12 xl:w-5/12">
               <div className="mb-12 max-w-[360px] lg:mb-16">
                 <Link href="/" className="mb-8 inline-block">
-                  <Image
-                    src="/images/logo/logo-2.svg"
-                    alt="logo"
-                    className="w-full dark:hidden"
-                    width={140}
-                    height={30}
-                  />
-                  <Image
-                    src="/images/logo/logo.svg"
-                    alt="logo"
-                    className="hidden w-full dark:block"
-                    width={140}
-                    height={30}
-                  />
+                  <div className="flex items-center gap-1 py-2 px-1 sm:px-4">
+                    <Image
+                      src="/images/logo/logoe.svg"
+                      alt="logo"
+                      width={60}
+                      height={60}
+                      className="dark:hidden"
+                    />
+                    <Image
+                      src="/images/logo/logoe.svg"
+                      alt="logo dark"
+                      width={60}
+                      height={60}
+                      className="hidden dark:block"
+                    />
+                    <Image
+                      src="/images/logo/logo-name.svg"
+                      alt="logo"
+                      width={90}
+                      height={90}
+                      className="dark:hidden"
+                    />
+                    <Image
+                      src="/images/logo/logo-name.svg"
+                      alt="logo dark"
+                      width={90}
+                      height={90}
+                      className="hidden dark:block"
+                    />
+                  </div>
                 </Link>
                 <p className="mb-9 text-base leading-relaxed text-body-color dark:text-body-color-dark">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Integer lobortis.
+                  {/* Using the marquee text from header as a slogan */}
+                  <span className="italic text-transparent bg-gradient-to-b from-[#33FFCC] to-[#0033CC] dark:from-[#5FFFDD] dark:to-[#3355FF] bg-clip-text">
+                    Platform for organizing and managing Hackathon competitions
+                    for FPT University students.
+                  </span>
                 </p>
                 <div className="flex items-center">
                   <a
@@ -118,18 +137,10 @@ const Footer = () => {
                 <ul>
                   <li>
                     <Link
-                      href="/blog"
+                      href="/help"
                       className="mb-4 inline-block text-base text-body-color duration-300 hover:text-[#4A6CF7] dark:text-body-color-dark dark:hover:text-[#4A6CF7]"
                     >
-                      Blog
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/"
-                      className="mb-4 inline-block text-base text-body-color duration-300 hover:text-[#4A6CF7] dark:text-body-color-dark dark:hover:text-[#4A6CF7]"
-                    >
-                      Pricing
+                      Help
                     </Link>
                   </li>
                   <li>
@@ -164,14 +175,6 @@ const Footer = () => {
                       className="mb-4 inline-block text-base text-body-color duration-300 hover:text-[#4A6CF7] dark:text-body-color-dark dark:hover:text-[#4A6CF7]"
                     >
                       Privacy Policy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/"
-                      className="mb-4 inline-block text-base text-body-color duration-300 hover:text-[#4A6CF7] dark:text-body-color-dark dark:hover:text-[#4A6CF7]"
-                    >
-                      Refund Policy
                     </Link>
                   </li>
                 </ul>
@@ -216,24 +219,7 @@ const Footer = () => {
           <div className="h-px w-full bg-gradient-to-r from-transparent via-[#D2D8E183] to-transparent dark:via-[#959CB183]"></div>
           <div className="py-8">
             <p className="text-center text-base text-body-color dark:text-white">
-              Template by{" "}
-              <a
-                href="http://uideck.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#4A6CF7]"
-              >
-                UIdeck
-              </a>{" "}
-              and{" "}
-              <a
-                href="https://nextjstemplates.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#4A6CF7]"
-              >
-                Next.js Templates
-              </a>
+              &copy; {new Date().getFullYear()} hacof. All rights reserved.
             </p>
           </div>
         </div>
