@@ -38,7 +38,10 @@ const Header = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", handleStickyNavbar);
-  });
+    return () => {
+      window.removeEventListener("scroll", handleStickyNavbar);
+    };
+  }, []);
 
   // submenu handler
   const [openIndex, setOpenIndex] = useState(-1);
@@ -57,28 +60,35 @@ const Header = () => {
       <header
         className={`header left-0 top-0 z-40 flex w-full flex-col items-center transition-all duration-300 ${
           sticky
-            ? "dark:bg-gray-dark dark:shadow-sticky-dark fixed z-40 bg-white !bg-opacity-80 shadow-sticky"
+            ? "dark:bg-gray-dark dark:shadow-sticky-dark fixed z-40 bg-white !bg-opacity-80 shadow-sticky backdrop-blur-sm"
             : "fixed bg-transparent"
         }`}
       >
         {/* Tier 1 - Logo and Auth buttons */}
         <div className="container px-4 mx-auto">
-          <div className="relative -mx-4 flex flex-wrap sm:flex-nowrap items-center justify-between">
+          <div className="relative flex items-center justify-between py-2">
             {/* Logo */}
-            <div className="w-auto max-w-full xl:mr-8">
+            <div className="w-auto max-w-full">
               <Link
                 href="/"
-                className={`header-logo block w-full ${
+                className={`header-logo block ${
                   sticky ? "py-0 lg:py-0" : "py-0"
                 } `}
               >
-                <div className="flex items-center gap-1 py-2 px-2 sm:px-4">
+                <div className="flex items-center gap-1 py-2 px-1 sm:px-4">
                   <Image
                     src="/images/logo/logoe.svg"
                     alt="logo"
-                    width={80}
-                    height={80}
-                    className=" dark:hidden"
+                    width={60}
+                    height={60}
+                    className="dark:hidden"
+                  />
+                  <Image
+                    src="/images/logo/logoe.svg"
+                    alt="logo dark"
+                    width={60}
+                    height={60}
+                    className="hidden dark:block"
                   />
                   <Image
                     src="/images/logo/logo-name.svg"
@@ -87,19 +97,26 @@ const Header = () => {
                     height={90}
                     className="dark:hidden"
                   />
+                  <Image
+                    src="/images/logo/logo-name.svg"
+                    alt="logo dark"
+                    width={90}
+                    height={90}
+                    className="hidden dark:block"
+                  />
                 </div>
               </Link>
             </div>
 
             {/* Marquee Text (Responsive - hidden on mobile) */}
-            <div className="hidden md:block relative overflow-hidden flex-1">
+            <div className="hidden md:block relative overflow-hidden flex-1 px-4">
               <p className="overflow-hidden italic text-transparent bg-gradient-to-b from-[#33FFCC] to-[#0033CC] dark:from-[#5FFFDD] dark:to-[#3355FF] bg-clip-text animate-marquee whitespace-nowrap">
                 {t("marqueeText")}
               </p>
             </div>
 
             {/* Auth Buttons or Authenticated Menu */}
-            <div className="flex items-center justify-end px-2 sm:px-4 xl:ml-8">
+            <div className="flex items-center justify-end gap-2 sm:gap-4">
               {loading ? (
                 <LoadingSpinner size="sm" className="mr-2" />
               ) : user ? (
@@ -115,14 +132,14 @@ const Header = () => {
         {/* Tier 2 - Navigation menu */}
         <div className="container mx-auto flex justify-center items-center border-t border-body-color/10 dark:border-body-color/20">
           <div className="relative flex items-center justify-between w-full">
-            <div className="flex items-center justify-between px-4 w-full">
+            <div className="flex items-center justify-center w-full">
               <div className="w-full">
                 {/* Mobile menu button */}
                 <button
                   onClick={navbarToggleHandler}
                   id="navbarToggler"
                   aria-label={t("mobileMenuAriaLabel")}
-                  className="absolute right-4 top-1/2 block translate-y-[-50%] rounded-lg px-3 py-[6px] ring-[#4A6CF7] focus:ring-2 lg:hidden"
+                  className="absolute right-4 top-1/2 block -translate-y-1/2 rounded-lg px-3 py-[6px] ring-primary focus:ring-2 lg:hidden"
                 >
                   <span
                     className={`relative my-1.5 block h-0.5 w-[30px] bg-black transition-all duration-300 dark:bg-white ${
@@ -150,16 +167,16 @@ const Header = () => {
                       : "invisible top-[120%] opacity-0"
                   }`}
                 >
-                  <ul className="block lg:flex items-center justify-center">
+                  <ul className="block lg:flex lg:flex-wrap items-center justify-center">
                     {menuData.map((menuItem, index) => (
                       <li key={index} className="group relative">
                         {menuItem.path ? (
                           <Link
                             href={menuItem.path}
-                            className={`flex py-2 px-4 md:px-6 lg:px-8 xl:px-12 text-base lg:mr-0 lg:inline-flex lg:py-3 transition-colors duration-200 ${
+                            className={`flex py-2 text-base text-center lg:text-left lg:mr-0 lg:inline-flex lg:py-3 transition-colors duration-200 px-4 sm:px-6 md:px-6 lg:px-6 xl:px-8 ${
                               usePathName === menuItem.path
-                                ? "text-[#4A6CF7] dark:text-white"
-                                : "text-dark hover:text-[#4A6CF7] dark:text-white/70 dark:hover:text-white"
+                                ? "text-primary dark:text-white font-medium"
+                                : "text-dark hover:text-primary dark:text-white/70 dark:hover:text-white"
                             }`}
                           >
                             {t(`menu.${menuItem.title.toLowerCase()}`)}
@@ -168,7 +185,7 @@ const Header = () => {
                           <>
                             <p
                               onClick={() => handleSubmenu(index)}
-                              className="flex cursor-pointer items-center justify-between py-2 text-base text-dark group-hover:text-[#4A6CF7] dark:text-white/70 dark:group-hover:text-white lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 transition-colors duration-200"
+                              className="flex cursor-pointer items-center justify-between py-2 text-base text-dark group-hover:text-primary dark:text-white/70 dark:group-hover:text-white lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 transition-colors duration-200"
                             >
                               {t(`menu.${menuItem.title.toLowerCase()}`)}
                               <span className="pl-3">
@@ -191,7 +208,7 @@ const Header = () => {
                                 <Link
                                   href={submenuItem.path}
                                   key={index}
-                                  className="block rounded py-2.5 text-sm text-dark hover:text-[#4A6CF7] dark:text-white/70 dark:hover:text-white lg:px-3 transition-colors duration-200"
+                                  className="block rounded py-2.5 text-sm text-dark hover:text-primary dark:text-white/70 dark:hover:text-white lg:px-3 transition-colors duration-200"
                                 >
                                   {t(
                                     `submenu.${submenuItem.title.toLowerCase()}`
