@@ -122,7 +122,7 @@ export default function CreateThreadModal({
               htmlFor="thread-title"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300"
             >
-              {t("threadTitle")}
+              {t("threadTitle")} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"

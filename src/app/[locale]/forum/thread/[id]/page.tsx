@@ -209,7 +209,8 @@ export default function ThreadPage() {
         {user && !thread.isLocked && (
           <div className="bg-white dark:bg-gray-800 p-4 md:p-6 shadow-md rounded-lg mb-6 md:mb-8 transition-colors">
             <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-4 transition-colors">
-              {t("threadPage.newDiscussion")}
+              {t("threadPage.newDiscussion")}{" "}
+              <span className="text-red-500">*</span>
             </h2>
             <PostForm forumThreadId={threadId} onPostSaved={handlePostSaved} />
           </div>
