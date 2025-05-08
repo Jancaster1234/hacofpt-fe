@@ -7,6 +7,13 @@ import { blogPostService } from "@/services/blogPost.service";
 import { BlogPost } from "@/types/entities/blogPost";
 import { useAuth } from "@/hooks/useAuth_v0";
 import Link from "next/link";
+import Image from "next/image";
+import TiptapRenderer from "@/components/TiptapRenderer/ClientRenderer";
+import PostHeader from "@/components/shared/PostHeader";
+import PostToc from "@/components/shared/PostToc";
+import PostContent from "@/components/shared/PostContent";
+import PostSharing from "@/components/shared/PostSharing";
+import PostReadingProgress from "@/components/shared/PostReadingProgress";
 
 export default function BlogPostPage() {
   const { user } = useAuth();
@@ -16,6 +23,7 @@ export default function BlogPostPage() {
   const [blogPost, setBlogPost] = useState<BlogPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [readingTime, setReadingTime] = useState(0);
 
   useEffect(() => {
     const fetchBlogPost = async () => {
@@ -24,11 +32,15 @@ export default function BlogPostPage() {
       setIsLoading(true);
       try {
         const response = await blogPostService.getBlogPostBySlug(slug);
-
+        console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹", response.data);
         if (response.data && response.data.id) {
           setBlogPost(response.data);
+
+          // Calculate reading time
+          const wpm = 150;
+          setReadingTime(Math.ceil((response.data.wordCount || 500) / wpm));
         } else {
-          //setError("Blog post not found");
+          setError("Blog post not found");
         }
       } catch (err) {
         setError("Failed to load the article");
@@ -52,13 +64,13 @@ export default function BlogPostPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors">
+      <div className="max-w-7xl mx-auto px-4">
         {/* Navigation back to help center */}
         <div className="mb-6">
           <Link
             href="/help"
-            className="text-blue-500 hover:text-blue-700 flex items-center"
+            className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -80,69 +92,109 @@ export default function BlogPostPage() {
 
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
-            <p className="text-gray-500">Loading article...</p>
+            <p className="text-gray-500 dark:text-gray-400 transition-colors">
+              Loading article...
+            </p>
           </div>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-md p-6 text-center">
-            <h2 className="text-xl font-semibold text-red-800 mb-2">Error</h2>
-            <p className="text-red-600">{error}</p>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-6 text-center transition-colors">
+            <h2 className="text-xl font-semibold text-red-800 dark:text-red-400 mb-2 transition-colors">
+              Error
+            </h2>
+            <p className="text-red-600 dark:text-red-300 transition-colors">
+              {error}
+            </p>
             <p className="mt-4">
               <Link
                 href="/help"
-                className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 transition"
               >
                 Return to Help Center
               </Link>
             </p>
           </div>
         ) : blogPost ? (
-          <article className="bg-white shadow-md rounded-lg overflow-hidden">
-            {/* Banner image */}
-            {blogPost.bannerImageUrl && (
-              <div className="w-full h-64 overflow-hidden">
-                <img
-                  src={blogPost.bannerImageUrl}
-                  alt={blogPost.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "/placeholder-image.jpg";
-                  }}
-                />
-              </div>
-            )}
+          <article className="flex flex-col items-center w-full dark:text-gray-100 transition-colors">
+            <PostReadingProgress />
 
-            {/* Article content */}
-            <div className="p-6 md:p-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                {blogPost.title}
-              </h1>
+            <PostHeader
+              title={blogPost.title}
+              author={blogPost.createdByUserName || "Unknown Author"}
+              createdAt={blogPost.publishedAt || blogPost.createdAt || ""}
+              readingTime={readingTime}
+              cover={blogPost.bannerImageUrl}
+            />
 
-              <div className="flex items-center text-sm text-gray-500 mb-6">
-                {blogPost.publishedAt && (
-                  <span className="mr-4">
-                    Published: {formatDate(blogPost.publishedAt)}
-                  </span>
-                )}
-                {blogPost.createdByUserName && (
-                  <span>Author: {blogPost.createdByUserName}</span>
-                )}
+            <div
+              className="grid grid-cols-1 w-full px-2 sm:px-0 
+             md:grid-cols-[1fr_minmax(650px,_1fr)_1fr] 
+             lg:grid-cols-[minmax(auto,256px)_minmax(720px,1fr)_minmax(auto,256px)] 
+             gap-4 md:gap-6 lg:gap-8"
+            >
+              {/* Left sidebar with sharing links */}
+              <div className="hidden md:block relative">
+                <div className="sticky top-24">
+                  <PostSharing />
+                </div>
               </div>
 
-              {/* Render the content - consider using a markdown renderer if content is markdown */}
-              <div className="prose max-w-none text-gray-700">
-                {/* If you're using markdown, you might want to use a markdown parser here */}
-                <div dangerouslySetInnerHTML={{ __html: blogPost.content }} />
+              {/* Main content area */}
+              <div>
+                <PostContent>
+                  <div className="dark:prose-invert prose-img:rounded prose-headings:scroll-mt-28">
+                    {blogPost.content.includes("<") ? (
+                      // If content has HTML tags, render safely
+                      <TiptapRenderer>{blogPost.content}</TiptapRenderer>
+                    ) : (
+                      // Fallback for plain text content
+                      <div className="prose max-w-none dark:prose-invert">
+                        {blogPost.content.split("\n").map((paragraph, i) => (
+                          <p key={i}>{paragraph}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </PostContent>
               </div>
+
+              {/* Right sidebar with table of contents */}
+              <div className="hidden md:block relative">
+                <div className="sticky top-24">
+                  <PostToc />
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile sharing section shown only on small screens */}
+            <div className="block md:hidden w-full mt-8">
+              <PostSharing />
+            </div>
+
+            {/* Footer image */}
+            <div className="mt-8 md:mt-10">
+              <Image
+                src="/doraemon.png"
+                width={250}
+                height={250}
+                sizes="(max-width: 640px) 200px, (max-width: 768px) 225px, 250px"
+                alt=""
+                className="mx-auto transition-opacity hover:opacity-90"
+                onError={(e) => {
+                  // Fallback if image doesn't exist
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
             </div>
           </article>
         ) : (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-6 text-center">
-            <p className="text-yellow-700">No article found with this slug.</p>
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-6 text-center transition-colors">
+            <p className="text-yellow-700 dark:text-yellow-400 transition-colors">
+              No article found with this slug.
+            </p>
             <p className="mt-4">
               <Link
                 href="/help"
-                className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 transition"
               >
                 Browse All Articles
               </Link>
