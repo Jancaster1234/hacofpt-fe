@@ -3,7 +3,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { blogPostService } from "@/services/blogPost.service";
+import { userService } from "@/services/user.service";
 import { BlogPost } from "@/types/entities/blogPost";
+import { User } from "@/types/entities/user";
 import { useAuth } from "@/hooks/useAuth_v0";
 import Link from "next/link";
 import PostHeader from "@/components/shared/PostHeader";
@@ -21,6 +23,7 @@ export default function BlogPostPage() {
   const slug = params.slug as string;
 
   const [blogPost, setBlogPost] = useState<BlogPost | null>(null);
+  const [authorData, setAuthorData] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,6 +46,11 @@ export default function BlogPostPage() {
 
         if (response.data && response.data.id) {
           setBlogPost(response.data);
+
+          // If we have an author username, fetch their data
+          if (response.data.createdByUserName) {
+            fetchAuthorData(response.data.createdByUserName);
+          }
         } else {
           //setError("Blog post not found");
         }
@@ -56,6 +64,20 @@ export default function BlogPostPage() {
 
     fetchBlogPost();
   }, [slug]);
+
+  // Function to fetch author data including avatar
+  const fetchAuthorData = async (username: string) => {
+    try {
+      const response = await userService.getUserByUsername(username);
+      if (response.data) {
+        setAuthorData(response.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch author data:", err);
+      // Not setting an error state here as we don't want to block the whole page
+      // if just the author avatar fetch fails
+    }
+  };
 
   // Helper function to format date
   const formatDate = (dateString?: string) => {
@@ -141,9 +163,12 @@ export default function BlogPostPage() {
             <PostHeader
               title={blogPost.title}
               author={blogPost.createdByUserName || "Unknown Author"}
-              createdAt={blogPost.publishedAt || blogPost.createdAt || ""}
+              createdAt={formatDate(
+                blogPost.publishedAt || blogPost.createdAt || ""
+              )}
               readingTime={readingTime}
               cover={blogPost.bannerImageUrl}
+              avatarUrl={authorData?.avatarUrl} // Pass the avatarUrl from the author data
             />
 
             <div
