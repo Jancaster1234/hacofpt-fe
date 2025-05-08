@@ -1,3 +1,4 @@
+// src/app/[locale]/term-of-service/page.tsx
 "use client";
 
 import React from "react";

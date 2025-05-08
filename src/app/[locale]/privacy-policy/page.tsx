@@ -1,3 +1,4 @@
+// src/app/[locale]/privacy-policy/page.tsx
 "use client";
 
 import React from "react";

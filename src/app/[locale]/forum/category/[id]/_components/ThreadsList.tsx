@@ -197,7 +197,7 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden transition-colors duration-300">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-visible transition-colors duration-300">
       <div className="divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
         {threads.map((thread) => {
           const threadUser = thread.createdByUserName
@@ -215,6 +215,7 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
               className={`p-4 sm:p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150 ${
                 thread.isPinned ? "bg-amber-50 dark:bg-amber-900/20" : ""
               }`}
+              style={{ position: "relative", overflow: "visible" }}
             >
               <div className="flex flex-col sm:flex-row sm:justify-between">
                 <div className="flex-grow mb-4 sm:mb-0">
@@ -291,7 +292,10 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2 justify-end">
+                <div
+                  className="flex items-center space-x-2 justify-end"
+                  style={{ zIndex: 10 }}
+                >
                   {(isOwner || isAdmin) && (
                     <ThreadActions
                       thread={thread}
