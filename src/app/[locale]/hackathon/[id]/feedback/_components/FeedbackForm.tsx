@@ -176,15 +176,12 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
 
       // Update submission status
       setHasSubmitted(true);
+      setSubmitting(false);
 
-      // Redirect after short delay
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1500);
+      // Router push to dashboard removed
     } catch (error: any) {
       console.error("Error submitting feedback:", error);
       toast.error(error.message || t("failedToSubmitFeedback"));
-    } finally {
       setSubmitting(false);
     }
   };
