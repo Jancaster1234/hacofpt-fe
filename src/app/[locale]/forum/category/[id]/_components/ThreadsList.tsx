@@ -1,4 +1,3 @@
-// src/app/[locale]/forum/category/[id]/_components/ThreadsList.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -167,7 +166,7 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
 
   if (threads.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden transition-colors duration-300 mb-24">
         <div className="p-8 sm:p-12 text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-300 mb-4 transition-colors duration-300">
             <svg
@@ -196,10 +195,20 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
     );
   }
 
+  // Sort threads - pinned threads at the top, then by creation date (newest first)
+  const sortedThreads = [...threads].sort((a, b) => {
+    // First sort by pinned status
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+
+    // Then sort by creation date (newest first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-visible transition-colors duration-300">
       <div className="divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
-        {threads.map((thread) => {
+        {sortedThreads.map((thread) => {
           const threadUser = thread.createdByUserName
             ? threadUsers.get(thread.createdByUserName)
             : undefined;
@@ -213,7 +222,9 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
             <div
               key={thread.id}
               className={`p-4 sm:p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150 ${
-                thread.isPinned ? "bg-amber-50 dark:bg-amber-900/20" : ""
+                thread.isPinned
+                  ? "bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 dark:border-amber-600"
+                  : ""
               }`}
               style={{ position: "relative", overflow: "visible" }}
             >
@@ -227,11 +238,39 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
                       <div className="flex flex-wrap space-x-2 mt-2 sm:mt-0 sm:ml-3">
                         {thread.isPinned && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-800/60 text-amber-800 dark:text-amber-200 transition-colors duration-300">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-3 w-3 mr-1"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                              />
+                            </svg>
                             {t("pinned")}
                           </span>
                         )}
                         {thread.isLocked && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-800/60 text-red-800 dark:text-red-200 transition-colors duration-300">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-3 w-3 mr-1"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                              />
+                            </svg>
                             {t("locked")}
                           </span>
                         )}
@@ -335,6 +374,8 @@ export function ThreadsList({ categoryId }: { categoryId: string }) {
           );
         })}
       </div>
+      {/* Adding 100px space at the bottom */}
+      <div className="h-20"></div>
     </div>
   );
 }
